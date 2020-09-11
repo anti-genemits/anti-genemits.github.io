@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2020-09-11T02:31:38.295Z</updated>
+  <updated>2020-09-11T05:42:14.074Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,30 +17,26 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://example.com/2020/09/11/hello-world/"/>
-    <id>http://example.com/2020/09/11/hello-world/</id>
+    <title>This Is A New Beginning</title>
+    <link href="http://example.com/2020/09/11/new-begin/"/>
+    <id>http://example.com/2020/09/11/new-begin/</id>
     <published>2020-09-11T00:25:14.013Z</published>
-    <updated>2020-09-11T02:31:38.295Z</updated>
+    <updated>2020-09-11T05:42:14.074Z</updated>
     
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    <content type="html"><![CDATA[<h1 id="This-Is-A-New-Beginning"><a href="#This-Is-A-New-Beginning" class="headerlink" title="This Is A New Beginning"></a>This Is A New Beginning</h1><h2 id="一、开场白"><a href="#一、开场白" class="headerlink" title="一、开场白"></a>一、开场白</h2><p>​        花了一个上午搭建而起的博客，gitpage+hexo 两个软件合成在一起，进行自己的学习的记录，记录python人工智能和CTF方向的学习知识，每天记录一点点，每天多学一点点，同时将自己的知识分享给大家，可以让大家一起少走一些弯路，如果有错的，不同的想法，请大家在评论区给出。后面将开通账号的注册功能，搭建一个论坛的系统。 <strong>for study</strong></p><h1 id="二、分享"><a href="#二、分享" class="headerlink" title="二、分享"></a>二、分享</h1><p><a href="https://www.yuque.com/crawler-splj2/ggs6sg">CTF-WEB</a></p><p><a href="https://www.yuque.com/crawler-splj2/ggs6sg">BUUCTF</a></p><p><a href="https://www.yuque.com/crawler-splj2/rgxure">MISC</a></p>]]></content>
     
     
       
       
-    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for</summary>
+    <summary type="html">&lt;h1 id=&quot;This-Is-A-New-Beginning&quot;&gt;&lt;a href=&quot;#This-Is-A-New-Beginning&quot; class=&quot;headerlink&quot; title=&quot;This Is A New Beginning&quot;&gt;&lt;/a&gt;This Is A New Beg</summary>
       
     
     
     
-    <category term="CTF" scheme="http://example.com/categories/CTF/"/>
-    
-    <category term="python" scheme="http://example.com/categories/CTF/python/"/>
+    <category term="随笔" scheme="http://example.com/categories/%E9%9A%8F%E7%AC%94/"/>
     
     
-    <category term="CTF" scheme="http://example.com/tags/CTF/"/>
-    
-    <category term="python" scheme="http://example.com/tags/python/"/>
+    <category term="随笔" scheme="http://example.com/tags/%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
