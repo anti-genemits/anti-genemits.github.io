@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2020-09-11T05:42:14.074Z</updated>
+  <updated>2020-09-11T05:41:15.318Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title></title>
+    <link href="http://example.com/2020/09/11/This%20Is%20A%20New%20Beginning/"/>
+    <id>http://example.com/2020/09/11/This%20Is%20A%20New%20Beginning/</id>
+    <published>2020-09-11T05:40:52.666Z</published>
+    <updated>2020-09-11T05:41:15.318Z</updated>
+    
+    <content type="html"><![CDATA[<p>-–</p><p>title: This Is A New Beginning</p><p>tags: 随笔</p><p>-–</p><h1 id="This-Is-A-New-Beginning"><a href="#This-Is-A-New-Beginning" class="headerlink" title="This Is A New Beginning"></a>This Is A New Beginning</h1><h2 id="一、开场白"><a href="#一、开场白" class="headerlink" title="一、开场白"></a>一、开场白</h2><p>​        花了一个上午搭建而起的博客，gitpage+hexo 两个软件合成在一起，进行自己的学习的记录，记录python人工智能和CTF方向的学习知识，每天记录一点点，每天多学一点点，同时将自己的知识分享给大家，可以让大家一起少走一些弯路，如果有错的，不同的想法，请大家在评论区给出。后面将开通账号的注册功能，搭建一个论坛的系统。 <strong>for study</strong></p><h1 id="二、分享"><a href="#二、分享" class="headerlink" title="二、分享"></a>二、分享</h1><p><a href="https://www.yuque.com/crawler-splj2/ggs6sg">CTF-WEB</a></p><p><a href="https://www.yuque.com/crawler-splj2/ggs6sg">BUUCTF</a></p><p><a href="https://www.yuque.com/crawler-splj2/rgxure">MISC</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;-–&lt;/p&gt;
+&lt;p&gt;title: This Is A New Beginning&lt;/p&gt;
+&lt;p&gt;tags: 随笔&lt;/p&gt;
+&lt;p&gt;-–&lt;/p&gt;
+&lt;h1 id=&quot;This-Is-A-New-Beginning&quot;&gt;&lt;a href=&quot;#This-Is-A-New-Beginning</summary>
+      
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>This Is A New Beginning</title>
