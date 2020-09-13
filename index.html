@@ -109,6 +109,69 @@
     
     
     <article
+  id="post-CVE-2012-1823"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/13/CVE-2012-1823/"
+    >CVE-2012-1823</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/13/CVE-2012-1823/" class="article-date">
+  <time datetime="2020-09-13T03:15:07.000Z" itemprop="datePublished">2020-09-13</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/CTF/">CTF</a> / <a class="article-category-link" href="/categories/CTF/CVE/">CVE</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="lt-转载-gt-PHP-CGI远程代码执行漏洞"><a href="#lt-转载-gt-PHP-CGI远程代码执行漏洞" class="headerlink" title="&lt;转载&gt;PHP-CGI远程代码执行漏洞"></a>&lt;转载&gt;PHP-CGI远程代码执行漏洞</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>影响的:php &lt; 5.3.12 or php &lt; 5.4.2</p>
+<p>转载链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1637483210158521104&amp;wfr=spider&amp;for=pc1">https://baijiahao.baidu.com/s?id=1637483210158521104&amp;wfr=spider&amp;for=pc1</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/fastcgi-and-php-fpm.html">Fastcgi协议分析 &amp;&amp; PHP-FPM未授权访问漏洞 &amp;&amp; Exp编写</a></li>
+</ul>
+<h2 id="漏洞解读"><a href="#漏洞解读" class="headerlink" title="漏洞解读"></a>漏洞解读</h2><h3 id="CGi-协议"><a href="#CGi-协议" class="headerlink" title="CGi 协议"></a>CGi 协议</h3><p>CGI是一种网页表单和程序之间通信的一种协议，和HTTP协议一样，用于进行数据交换。可以用任何语言来写一个CGI脚本，这些语言只要能接受输入输出信息，读取环境变量。</p>
+<p>php-cgi也是一个sapi。在远古的时候，web应用的运行方式很简单，web容器接收到http数据包后，拿到用户请求的文件（cgi脚本），并fork出一个子进程（解释器）去执行这个文件，然后拿到执行结果，直接返回给用户，同时这个解释器子进程也就结束了。基于bash、perl等语言的web应用多半都是以这种方式来执行，这种执行方式一般就被称为cgi</p> 
+      <a class="article-more-link" href="/2020/09/13/CVE-2012-1823/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CVE/" rel="tag">CVE</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-new-begin"
   class="article article-type-post"
   itemscope
@@ -188,7 +251,7 @@
   <time datetime="2020-09-13T02:22:57.000Z" itemprop="datePublished">2020-09-13</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/CTF/">CTF</a>
+    <a class="article-category-link" href="/categories/CTF/">CTF</a> / <a class="article-category-link" href="/categories/CTF/BUU/">BUU</a>
   </div>
    
     </div>
@@ -211,7 +274,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BUU/" rel="tag">BUU</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
 
     </footer>
   </div>

@@ -59,9 +59,119 @@
 <h3 id="1-临时表再次使用时必须要有一个别名"><a href="#1-临时表再次使用时必须要有一个别名" class="headerlink" title="1.临时表再次使用时必须要有一个别名"></a>1.临时表再次使用时必须要有一个别名</h3><h3 id="2-记得带括号"><a href="#2-记得带括号" class="headerlink" title="2.记得带括号"></a>2.记得带括号</h3><h3 id="3-数字不能做字段名"><a href="#3-数字不能做字段名" class="headerlink" title="3.数字不能做字段名"></a>3.数字不能做字段名</h3>]]></content>
       <categories>
         <category>CTF</category>
+        <category>BUU</category>
       </categories>
       <tags>
         <tag>CTF</tag>
+        <tag>BUU</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CVE-2012-1823</title>
+    <url>/2020/09/13/CVE-2012-1823/</url>
+    <content><![CDATA[<h1 id="lt-转载-gt-PHP-CGI远程代码执行漏洞"><a href="#lt-转载-gt-PHP-CGI远程代码执行漏洞" class="headerlink" title="&lt;转载&gt;PHP-CGI远程代码执行漏洞"></a>&lt;转载&gt;PHP-CGI远程代码执行漏洞</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>影响的:php &lt; 5.3.12 or php &lt; 5.4.2</p>
+<p>转载链接：</p>
+<ul>
+<li><a href="https://baijiahao.baidu.com/s?id=1637483210158521104&amp;wfr=spider&amp;for=pc1">https://baijiahao.baidu.com/s?id=1637483210158521104&amp;wfr=spider&amp;for=pc1</a></li>
+<li><a href="https://www.leavesongs.com/PENETRATION/fastcgi-and-php-fpm.html">Fastcgi协议分析 &amp;&amp; PHP-FPM未授权访问漏洞 &amp;&amp; Exp编写</a></li>
+</ul>
+<h2 id="漏洞解读"><a href="#漏洞解读" class="headerlink" title="漏洞解读"></a>漏洞解读</h2><h3 id="CGi-协议"><a href="#CGi-协议" class="headerlink" title="CGi 协议"></a>CGi 协议</h3><p>CGI是一种网页表单和程序之间通信的一种协议，和HTTP协议一样，用于进行数据交换。可以用任何语言来写一个CGI脚本，这些语言只要能接受输入输出信息，读取环境变量。</p>
+<p>php-cgi也是一个sapi。在远古的时候，web应用的运行方式很简单，web容器接收到http数据包后，拿到用户请求的文件（cgi脚本），并fork出一个子进程（解释器）去执行这个文件，然后拿到执行结果，直接返回给用户，同时这个解释器子进程也就结束了。基于bash、perl等语言的web应用多半都是以这种方式来执行，这种执行方式一般就被称为cgi</p>
+ <a id="more"></a>
+
+<p>CGI把用户传递过来的数据穿过来的数据转变成key-value的字典。这个字典中不光有用户的数据，还有HTTP协议的参数，方便任何符合CGI协议的程序调用！但是本身不负责通信，通信的话是通过socket，也就是server。<strong>cgi协议用来确定webserver（例如nginx），也就是内容分发服务器传递过来什么数据，什么样格式的数据</strong></p>
+<p><img src="https://i.loli.net/2020/09/13/ifkl61EM342rQ8t.jpg" alt="2fdda3cc7cd98d1021b8843eb2ceb20b7aec9043.jpeg"></p>
+<p>每次启动时，需要经历加载php.ini文件-&gt;初始化执行环境-&gt;处理请求-&gt;返回内容给webserver-&gt;php-cgi进程退出的流程。</p>
+<p><img src="https://i.loli.net/2020/09/13/6H5KUrPxEvW2aAd.jpg" alt="f636afc379310a55337a36e524b449ac832610bf.jpeg"></p>
+<p>这是PHP-fastcgi的原理图，本身上是对cgi的一次升级。fastcgi协议是对cgi协议效率提升的补充，主要是针对每次请求过来时都需要启动一个cgi解释器进程的优化，不再需要cgi解释器进程每次收到webserver请求后都需要重新加载php.ini文件和初始化执行环境。</p>
+<p>HTTP头不同，record的头固定8个字节，body是由头中的contentLength指定，其结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">  &#x2F;* Header *&#x2F;</span><br><span class="line">  unsigned char version; &#x2F;&#x2F; 版本</span><br><span class="line">  unsigned char type; &#x2F;&#x2F; 本次record的类型</span><br><span class="line">  unsigned char requestIdB1; &#x2F;&#x2F; 本次record对应的请求id</span><br><span class="line">  unsigned char requestIdB0;</span><br><span class="line">  unsigned char contentLengthB1; &#x2F;&#x2F; body体的大小</span><br><span class="line">  unsigned char contentLengthB0;</span><br><span class="line">  unsigned char paddingLength; &#x2F;&#x2F; 额外块大小</span><br><span class="line">  unsigned char reserved; </span><br><span class="line"></span><br><span class="line">  &#x2F;* Body *&#x2F;</span><br><span class="line">  unsigned char contentData[contentLength];</span><br><span class="line">  unsigned char paddingData[paddingLength];</span><br><span class="line">&#125; FCGI_Record;</span><br></pre></td></tr></table></figure>
+
+<p>头由8个uchar类型的变量组成，每个变量1字节。其中，<code>requestId</code>占两个字节，一个唯一的标志id，以避免多个请求之间的影响；<code>contentLength</code>占两个字节，表示body的大小。</p>
+<p>语言端解析了fastcgi头以后，拿到<code>contentLength</code>，然后再在TCP流里读取大小等于<code>contentLength</code>的数据，这就是body体。</p>
+<p>Body后面还有一段额外的数据（Padding），其长度由头中的paddingLength指定，起保留作用。不需要该Padding的时候，将其长度设置为0即可。</p>
+<p>可见，一个fastcgi record结构最大支持的body大小是<code>2^16</code>，也就是65536字节。</p>
+<p>下面用一张图来解析一下type这个属性</p>
+<p><img src="https://i.loli.net/2020/09/13/CyqHuxPzhwRSQKT.jpg"></p>
+<p>服务器中间件和后端语言通信，第一个数据包就是<code>type</code>为1的record，后续互相交流，发送<code>type</code>为4、5、6、7的record，结束时发送<code>type</code>为2、3的record。</p>
+<p>当后端语言接收到一个<code>type</code>为4的record后，就会把这个record的body按照对应的结构解析成key-value对，这就是环境变量。环境变量的结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">  unsigned char nameLengthB0;  &#x2F;* nameLengthB0  &gt;&gt; 7 &#x3D;&#x3D; 0 *&#x2F;</span><br><span class="line">  unsigned char valueLengthB0; &#x2F;* valueLengthB0 &gt;&gt; 7 &#x3D;&#x3D; 0 *&#x2F;</span><br><span class="line">  unsigned char nameData[nameLength];</span><br><span class="line">  unsigned char valueData[valueLength];</span><br><span class="line">&#125; FCGI_NameValuePair11;</span><br><span class="line"></span><br><span class="line">typedef struct &#123;</span><br><span class="line">  unsigned char nameLengthB0;  &#x2F;* nameLengthB0  &gt;&gt; 7 &#x3D;&#x3D; 0 *&#x2F;</span><br><span class="line">  unsigned char valueLengthB3; &#x2F;* valueLengthB3 &gt;&gt; 7 &#x3D;&#x3D; 1 *&#x2F;</span><br><span class="line">  unsigned char valueLengthB2;</span><br><span class="line">  unsigned char valueLengthB1;</span><br><span class="line">  unsigned char valueLengthB0;</span><br><span class="line">  unsigned char nameData[nameLength];</span><br><span class="line">  unsigned char valueData[valueLength</span><br><span class="line">          ((B3 &amp; 0x7f) &lt;&lt; 24) + (B2 &lt;&lt; 16) + (B1 &lt;&lt; 8) + B0];</span><br><span class="line">&#125; FCGI_NameValuePair14;</span><br><span class="line"></span><br><span class="line">typedef struct &#123;</span><br><span class="line">  unsigned char nameLengthB3;  &#x2F;* nameLengthB3  &gt;&gt; 7 &#x3D;&#x3D; 1 *&#x2F;</span><br><span class="line">  unsigned char nameLengthB2;</span><br><span class="line">  unsigned char nameLengthB1;</span><br><span class="line">  unsigned char nameLengthB0;</span><br><span class="line">  unsigned char valueLengthB0; &#x2F;* valueLengthB0 &gt;&gt; 7 &#x3D;&#x3D; 0 *&#x2F;</span><br><span class="line">  unsigned char nameData[nameLength</span><br><span class="line">          ((B3 &amp; 0x7f) &lt;&lt; 24) + (B2 &lt;&lt; 16) + (B1 &lt;&lt; 8) + B0];</span><br><span class="line">  unsigned char valueData[valueLength];</span><br><span class="line">&#125; FCGI_NameValuePair41;</span><br><span class="line"></span><br><span class="line">typedef struct &#123;</span><br><span class="line">  unsigned char nameLengthB3;  &#x2F;* nameLengthB3  &gt;&gt; 7 &#x3D;&#x3D; 1 *&#x2F;</span><br><span class="line">  unsigned char nameLengthB2;</span><br><span class="line">  unsigned char nameLengthB1;</span><br><span class="line">  unsigned char nameLengthB0;</span><br><span class="line">  unsigned char valueLengthB3; &#x2F;* valueLengthB3 &gt;&gt; 7 &#x3D;&#x3D; 1 *&#x2F;</span><br><span class="line">  unsigned char valueLengthB2;</span><br><span class="line">  unsigned char valueLengthB1;</span><br><span class="line">  unsigned char valueLengthB0;</span><br><span class="line">  unsigned char nameData[nameLength</span><br><span class="line">          ((B3 &amp; 0x7f) &lt;&lt; 24) + (B2 &lt;&lt; 16) + (B1 &lt;&lt; 8) + B0];</span><br><span class="line">  unsigned char valueData[valueLength</span><br><span class="line">          ((B3 &amp; 0x7f) &lt;&lt; 24) + (B2 &lt;&lt; 16) + (B1 &lt;&lt; 8) + B0];</span><br><span class="line">&#125; FCGI_NameValuePair44;</span><br></pre></td></tr></table></figure>
+
+<p>这其实是4个结构，至于用哪个结构，有如下规则：</p>
+<ol>
+<li>key、value均小于128字节，用<code>FCGI_NameValuePair11</code></li>
+<li>key大于128字节，value小于128字节，用<code>FCGI_NameValuePair41</code></li>
+<li>key小于128字节，value大于128字节，用<code>FCGI_NameValuePair14</code></li>
+<li>key、value均大于128字节，用<code>FCGI_NameValuePair44</code></li>
+</ol>
+<p>为什么我只介绍<code>type</code>为4的record？因为环境变量在后面PHP-FPM里有重要作用，之后写代码也会写到这个结构。<code>type</code>的其他情况，请自行百度。</p>
+<h2 id="PHP-FPM"><a href="#PHP-FPM" class="headerlink" title="PHP-FPM"></a>PHP-FPM</h2><p>上面说到这个协议会将用户上传到数据解析成key-value的键值对的情况，但是打包好后传给谁呢？那个人就是PHP-FPM。</p>
+<p>举个例子，用户访问<code>http://192.168.0.0.1/index.php?ace=1&amp;cve=2</code>，如果web目录是<code>/var/www/html</code>，那么Nginx会将这个请求变成如下key-value对：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &#39;GATEWAY_INTERFACE&#39;: &#39;FastCGI&#x2F;1.0&#39;,</span><br><span class="line">    &#39;REQUEST_METHOD&#39;: &#39;GET&#39;,</span><br><span class="line">    &#39;SCRIPT_FILENAME&#39;: &#39;&#x2F;var&#x2F;www&#x2F;html&#x2F;index.php&#39;,</span><br><span class="line">    &#39;SCRIPT_NAME&#39;: &#39;&#x2F;index.php&#39;,</span><br><span class="line">    &#39;QUERY_STRING&#39;: &#39;?a&#x3D;1&amp;b&#x3D;2&#39;,</span><br><span class="line">    &#39;REQUEST_URI&#39;: &#39;&#x2F;index.php?ace&#x3D;1&amp;cve&#x3D;2&#39;,</span><br><span class="line">    &#39;DOCUMENT_ROOT&#39;: &#39;&#x2F;var&#x2F;www&#x2F;html&#39;,</span><br><span class="line">    &#39;SERVER_SOFTWARE&#39;: &#39;php&#x2F;fcgiclient&#39;,</span><br><span class="line">    &#39;REMOTE_ADDR&#39;: &#39;127.0.0.1&#39;,</span><br><span class="line">    &#39;REMOTE_PORT&#39;: &#39;12345&#39;,</span><br><span class="line">    &#39;SERVER_ADDR&#39;: &#39;127.0.0.1&#39;,</span><br><span class="line">    &#39;SERVER_PORT&#39;: &#39;80&#39;,</span><br><span class="line">    &#39;SERVER_NAME&#39;: &quot;localhost&quot;,</span><br><span class="line">    &#39;SERVER_PROTOCOL&#39;: &#39;HTTP&#x2F;1.1&#39;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个数组其实就是PHP中<code>$_SERVER</code>数组的一部分，也就是PHP里的环境变量。但环境变量的作用不仅是填充<code>$_SERVER</code>数组，也是告诉fpm：“我要执行哪个PHP文件”。然后FPM拿到这些环境变量之后就是进行执行，去找那个PHP文件。</p>
+<h2 id="漏洞解析"><a href="#漏洞解析" class="headerlink" title="漏洞解析"></a>漏洞解析</h2><p>这个漏洞简单的来说就是用户提供的**未加=**的数据被当作PHP-CGI的参数，最后导致了一系列的结果。这个是RFC3875中规定的，Apache服务器按要求实现了这个功能，但PHP并没有注意到RFC的这一个规则，也许是曾经注意并处理了，处理方法就是web上下文中不允许传入参数。</p>
+<p>但是开发者是为了方便使用类似<code>#!/usr/local/bin/php-cgi -d include_path=/path</code>的写法来进行测试，认为不应该限制php-cgi接受命令行参数，而且这个功能不和其他代码有任何冲突。于是就把限制给删掉了，但是很显然，根据RFC中对于命令行的说明，参数不光能够通过上诉方法传入，还可以通过请求参数。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><ul>
+<li><code>-c</code> 指定php.ini文件的位置</li>
+<li><code>-n</code> 不要加载php.ini文件</li>
+<li><code>-d</code> 指定配置项</li>
+<li><code>-b</code> 启动fastcgi进程</li>
+<li><code>-s</code> 显示文件源码</li>
+<li><code>-T</code> 执行指定次该文件</li>
+<li><code>-h</code>和<code>-?</code> 显示帮助</li>
+</ul>
+<p>这次放在源代码之后就可以进行利用，简单方便。当然继续看下去， 看见**-d**这个牛鼻的参数这个漏洞又怎么会这么简单呢？？</p>
+<p>我们继续解析:</p>
+<h2 id="任意代码执行"><a href="#任意代码执行" class="headerlink" title="任意代码执行"></a>任意代码执行</h2><p>这里怎么去任意代码执行，首先有以下几个问题:</p>
+<ul>
+<li><p>即使我们能控制<code>SCRIPT_FILENAME</code>，让fpm执行任意文件，也只是执行目标服务器上的文件，并不能执行我们需要其执行的文件。</p>
+</li>
+<li><p>我们怎么把代码上传上去</p>
+<p>PHP语言的特性就是有很多很强大的配置项<code>auto_prepend_file</code>和<code>auto_append_file</code>。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.auto_prepend_file是告诉PHP，在执行目标文件之前，先包含auto_prepend_file中指定的文件；</span><br><span class="line">2.auto_append_file是告诉PHP，在执行完成目标文件后，包含auto_append_file指向的文件。</span><br></pre></td></tr></table></figure>
+
+<p>如果我们把auto_prepend__file设置成<code>php://input</code>然后我们再执行任何的php文件前都会包含一些post的内容了，所以我们只要post一下，这些代码就都能够被执行了，（当然，还需要开启远程文件包含选项<code>allow_url_include</code>）</p>
+</li>
+</ul>
+<p>这个时候就有下一个问题了，就是我们怎么设置这个环境变量的值呢？</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PHP_VALUE&#96;和&#96;PHP_ADMIN_VALUE</span><br><span class="line">这两个环境变量就是用来设置PHP配置项的，PHP_VALUE可以设置模式为PHP_INI_USER和PHP_INI_ALL的选项，PHP_ADMIN_VALUE可以设置所有选项。（disable_functions除外，这个选项是PHP加载的时候就确定了，在范围内的函数直接不会被加载到PHP上下文中</span><br></pre></td></tr></table></figure>
+
+<p>这就是他们两个的特长了。</p>
+<p>所以，我们最后传入如下环境变量：（直接和FPM进行通信）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &#39;GATEWAY_INTERFACE&#39;: &#39;FastCGI&#x2F;1.0&#39;,</span><br><span class="line">    &#39;REQUEST_METHOD&#39;: &#39;GET&#39;,</span><br><span class="line">    &#39;SCRIPT_FILENAME&#39;: &#39;&#x2F;var&#x2F;www&#x2F;html&#x2F;index.php&#39;,</span><br><span class="line">    &#39;SCRIPT_NAME&#39;: &#39;&#x2F;index.php&#39;,</span><br><span class="line">    &#39;QUERY_STRING&#39;: &#39;?a&#x3D;1&amp;b&#x3D;2&#39;,</span><br><span class="line">    &#39;REQUEST_URI&#39;: &#39;&#x2F;index.php?a&#x3D;1&amp;b&#x3D;2&#39;,</span><br><span class="line">    &#39;DOCUMENT_ROOT&#39;: &#39;&#x2F;var&#x2F;www&#x2F;html&#39;,</span><br><span class="line">    &#39;SERVER_SOFTWARE&#39;: &#39;php&#x2F;fcgiclient&#39;,</span><br><span class="line">    &#39;REMOTE_ADDR&#39;: &#39;127.0.0.1&#39;,</span><br><span class="line">    &#39;REMOTE_PORT&#39;: &#39;12345&#39;,</span><br><span class="line">    &#39;SERVER_ADDR&#39;: &#39;127.0.0.1&#39;,</span><br><span class="line">    &#39;SERVER_PORT&#39;: &#39;80&#39;,</span><br><span class="line">    &#39;SERVER_NAME&#39;: &quot;localhost&quot;,</span><br><span class="line">    &#39;SERVER_PROTOCOL&#39;: &#39;HTTP&#x2F;1.1&#39;</span><br><span class="line">    &#39;PHP_VALUE&#39;: &#39;auto_prepend_file &#x3D; php:&#x2F;&#x2F;input&#39;,</span><br><span class="line">    &#39;PHP_ADMIN_VALUE&#39;: &#39;allow_url_include &#x3D; On&#39;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nginx（IIS7）解析漏洞（文件上传"><a href="#Nginx（IIS7）解析漏洞（文件上传" class="headerlink" title="Nginx（IIS7）解析漏洞（文件上传)"></a>Nginx（IIS7）解析漏洞（文件上传)</h2><p>Nginx和IIS7曾经出现过一个PHP相关的解析漏洞（测试环境<code>https://github.com/phith0n/vulhub/tree/master/nginx_parsing_vulnerability</code>），该漏洞现象是，在用户访问<code>http://127.0.0.1/favicon.ico/.php</code>时，访问到的文件是favicon.ico，但却按照.php后缀解析了。</p>
+<p>用户请求<code>http://127.0.0.1/favicon.ico/.php</code>，nginx将会发送如下环境变量到fpm里：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    &#39;SCRIPT_FILENAME&#39;: &#39;&#x2F;var&#x2F;www&#x2F;html&#x2F;favicon.ico&#x2F;.php&#39;,</span><br><span class="line">    &#39;SCRIPT_NAME&#39;: &#39;&#x2F;favicon.ico&#x2F;.php&#39;,</span><br><span class="line">    &#39;REQUEST_URI&#39;: &#39;&#x2F;favicon.ico&#x2F;.php&#39;,</span><br><span class="line">    &#39;DOCUMENT_ROOT&#39;: &#39;&#x2F;var&#x2F;www&#x2F;html&#39;,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正常来说，<code>SCRIPT_FILENAME</code>的值是一个不存在的文件<code>/var/www/html/favicon.ico/.php</code>，是PHP设置中的一个选项<code>fix_pathinfo</code>导致了这个漏洞。PHP为了支持Path Info模式而创造了<code>fix_pathinfo</code>，在这个选项被打开的情况下，fpm会判断<code>SCRIPT_FILENAME</code>是否存在，如果不存在则去掉最后一个<code>/</code>及以后的所有内容，再次判断文件是否存在，往次循环，直到文件存在。</p>
+<p>所以，第一次fpm发现<code>/var/www/html/favicon.ico/.php</code>不存在，则去掉<code>/.php</code>，再判断<code>/var/www/html/favicon.ico</code>是否存在。显然这个文件是存在的，于是被作为PHP文件执行，导致解析漏洞。</p>
+<p>正确的解决方法有两种，一是在Nginx端使用<code>fastcgi_split_path_info</code>将path info信息去除后，用tryfiles判断文件是否存在；二是借助PHP-FPM的<code>security.limit_extensions</code>配置项，避免其他后缀文件被解析</p>
+<h2 id="security-limit-extensions配置"><a href="#security-limit-extensions配置" class="headerlink" title="security.limit_extensions配置"></a><code>security.limit_extensions</code>配置</h2><p>写到这里，PHP-FPM未授权访问漏洞也就呼之欲出了。PHP-FPM默认监听9000端口，如果这个端口暴露在公网，则我们可以自己构造fastcgi协议，和fpm进行通信。</p>
+<p>此时，<code>SCRIPT_FILENAME</code>的值就格外重要了。因为fpm是根据这个值来执行php文件的，如果这个文件不存在，fpm会直接返回404：</p>
+<p><a href="https://www.leavesongs.com/media/attachment/2017/04/25/703367c4-af98-4702-85f0-794b30776a4f.jpg"><img src="https://www.leavesongs.com/media/attachment/2017/04/25/703367c4-af98-4702-85f0-794b30776a4f.073e567856db.jpg" alt="14931285844835.jpg"></a></p>
+<p>在fpm某个版本之前，我们可以将<code>SCRIPT_FILENAME</code>的值指定为任意后缀文件，比如<code>/etc/passwd</code>；但后来，fpm的默认配置中增加了一个选项<code>security.limit_extensions</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; Limits the extensions of the main script FPM will allow to parse. This can</span><br><span class="line">; prevent configuration mistakes on the web server side. You should only limit</span><br><span class="line">; FPM to .php extensions to prevent malicious users to use other extensions to</span><br><span class="line">; exectute php code.</span><br><span class="line">; Note: set an empty value to allow all extensions.</span><br><span class="line">; Default Value: .php</span><br><span class="line">;security.limit_extensions &#x3D; .php .php3 .php4 .php5 .php7</span><br></pre></td></tr></table></figure>
+
+<p>其限定了只有某些后缀的文件允许被fpm执行，默认是<code>.php</code>。所以，当我们再传入<code>/etc/passwd</code>的时候，将会返回<code>Access denied.</code>：</p>
+<p><a href="https://www.leavesongs.com/media/attachment/2017/04/25/99d10f40-7dc3-46f3-a0bb-dae71e9d550b.jpg"><img src="https://www.leavesongs.com/media/attachment/2017/04/25/99d10f40-7dc3-46f3-a0bb-dae71e9d550b.30fa707133a3.jpg" alt="14931290357686.jpg"></a></p>
+<blockquote>
+<p>ps. 这个配置也会影响Nginx解析漏洞，我觉得应该是因为Nginx当时那个解析漏洞，促成PHP-FPM增加了这个安全选项。另外，也有少部分发行版安装中<code>security.limit_extensions</code>默认为空，此时就没有任何限制了。</p>
+</blockquote>
+<p>由于这个配置项的限制，如果想利用PHP-FPM的未授权访问漏洞，首先就得找到一个已存在的PHP文件。</p>
+<p>万幸的是，通常使用源安装php的时候，服务器上都会附带一些php后缀的文件，我们使用<code>find / -name &quot;*.php&quot;</code>来全局搜索一下默认环境：</p>
+<p><a href="https://www.leavesongs.com/media/attachment/2017/04/25/15695b8e-79ae-4f32-b061-cc5f52236e18.jpg"><img src="https://www.leavesongs.com/media/attachment/2017/04/25/15695b8e-79ae-4f32-b061-cc5f52236e18.a5365d20818a.jpg" alt="14931297810961.jpg"></a></p>
+<p>找到了不少。这就给我们提供了一条思路，假设我们爆破不出来目标环境的web目录，我们可以找找默认源安装后可能存在的php文件，比如<code>/usr/local/lib/php/PEAR.php</code>。</p>
+<p>exp:：<a href="https://gist.github.com/phith0n/9615e2420f31048f7e30f3937356cf75">https://gist.github.com/phith0n/9615e2420f31048f7e30f3937356cf75</a> </p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>CVE</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>CVE</tag>
       </tags>
   </entry>
 </search>
