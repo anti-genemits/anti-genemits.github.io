@@ -36,9 +36,9 @@
     <category term="编程" scheme="http://example.com/categories/%E7%BC%96%E7%A8%8B/"/>
     
     
-    <category term="ThinkPHP" scheme="http://example.com/tags/ThinkPHP/"/>
-    
     <category term="编程" scheme="http://example.com/tags/%E7%BC%96%E7%A8%8B/"/>
+    
+    <category term="ThinkPHP" scheme="http://example.com/tags/ThinkPHP/"/>
     
   </entry>
   
