@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    ThinkPHP-2 |  
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Anti-Genemits" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      <canvas class="fireworks"></canvas>
+      <style>
+        .fireworks {
+          position: fixed;
+          left: 0;
+          top: 0;
+          z-index: 99999;
+          pointer-events: none;
+        }
+      </style>
+      
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-ThinkPHP-2"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  ThinkPHP-2
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/18/ThinkPHP-2/" class="article-date">
+  <time datetime="2020-09-18T00:07:33.000Z" itemprop="datePublished">2020-09-18</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">15 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="ThinkPhP学习第二天"><a href="#ThinkPhP学习第二天" class="headerlink" title="ThinkPhP学习第二天"></a>ThinkPhP学习第二天</h1><h2 id="聚合、原生、子查询"><a href="#聚合、原生、子查询" class="headerlink" title="聚合、原生、子查询"></a>聚合、原生、子查询</h2><h3 id="一、聚合查询"><a href="#一、聚合查询" class="headerlink" title="一、聚合查询"></a>一、聚合查询</h3><p>查询数量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;count(&#39;uid&#39;);</span><br><span class="line">uid如果不加，就是全查询</span><br></pre></td></tr></table></figure>
+
+<p>最大/小值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;max&#x2F;min(&#39;price&#39;，可选参数);</span><br><span class="line">取值为bool，可以判断整型还是浮点型</span><br></pre></td></tr></table></figure>
+
+<p>平均值和总和同SQL</p>
+<a id="more"></a>
+
+<h3 id="二、子查询"><a href="#二、子查询" class="headerlink" title="二、子查询"></a>二、子查询</h3><p>1.fetchSql（）可以不执行sql，而返回sql</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subQuery &#x3D; Db::name(&#39;user&#39;)-&gt;fetchSql(true)-&gt;select()</span><br></pre></td></tr></table></figure>
+
+<p>2.bulidsql</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$subQuery &#x3D; Db::name(&#39;user&#39;)-&gt;buildSql(true);</span><br><span class="line">自动加括号</span><br></pre></td></tr></table></figure>
+
+<p>3.拼装子查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$subQuery &#x3D; Db::name(&#39;two&#39;)-&gt;field(&#39;uid&#39;)-&gt;where(&#39;gender&#39;,&#39;男&#39;)-&gt;buildSql(true);</span><br><span class="line">$result &#x3D; Db::name(&#39;one&#39;)-&gt;where(&#39;id&#39;,&#39;exp&#39;,&#39;in&#39;.$subQuery)-&gt;select();</span><br><span class="line">return json($result);</span><br></pre></td></tr></table></figure>
+
+<p>in 查询需要使用exp拼接</p>
+<p>4.闭包查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;one&#39;)-&gt;where(&#39;id&#39;, &#39;in&#39;, function ($query) &#123; $query-&gt;name(&#39;two&#39;)-&gt;where(&#39;gender&#39;, &#39;男&#39;)-&gt;field(&#39;uid&#39;); &#125;)-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、原生查询"><a href="#三、原生查询" class="headerlink" title="三、原生查询"></a>三、原生查询</h3><ol>
+<li>使用 query()方法，进行原生 SQL 查询，适用于读取操作，SQL 错误返回 false； Db::query(‘select * from tp_user’);</li>
+<li>使用 execute 方法，进行原生 SQL 更新写入等，SQL 错误返回 false； Db::execute(‘update tp_user set username=”孙悟空” where id=29’);</li>
+</ol>
+<h2 id="链式查询方法"><a href="#链式查询方法" class="headerlink" title="链式查询方法"></a>链式查询方法</h2><h3 id="一、where"><a href="#一、where" class="headerlink" title="一、where"></a>一、where</h3><p>1.基础的where查询</p>
+<p>2.索引数组查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;$result &#x3D; Db::name(&#39;user&#39;)-&gt;where([</span><br><span class="line">&#x2F;&#x2F;            &#39;price&#39; &#x3D;&gt; 100,</span><br><span class="line">&#x2F;&#x2F;            &#39;gender&#39;&#x3D;&gt; &#39;男&#39;</span><br><span class="line">&#x2F;&#x2F;        ])-&gt;select();</span><br><span class="line">&#x2F;&#x2F;        $result &#x3D; Db::name(&#39;user&#39;)-&gt;where([</span><br><span class="line">&#x2F;&#x2F;            &#39;price&#39; &#x3D;&gt; [60,70,80],</span><br><span class="line">&#x2F;&#x2F;            &#39;gender&#39;&#x3D;&gt; &#39;男&#39;</span><br><span class="line">&#x2F;&#x2F;        ])-&gt;select();</span><br><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;where([</span><br><span class="line">[&#39;price&#39;,&#39;&#x3D;&#39;,100],</span><br><span class="line">[&#39;gender&#39;,&#39;&#x3D;&#39;,&#39;男&#39;]</span><br><span class="line">])-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<p>3.复杂数组拆分</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$map[] &#x3D; [&#39;gender&#39;, &#39;&#x3D;&#39;, &#39;男&#39;]; </span><br><span class="line">$map[] &#x3D; [&#39;price&#39;, &#39;in&#39;, [60, 70, 80]];</span><br><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;where($map)-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<p>4.字符串形式传递</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;where(&#39;gender&#x3D;&quot;男&quot; AND price IN (60, 70, 80)&#39;)-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、field"><a href="#二、field" class="headerlink" title="二、field"></a>二、field</h3><p>1.指定字段名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;field(&#39;id, username, email&#39;)-&gt;select(); </span><br><span class="line">Db::name(&#39;user&#39;)-&gt;field([&#39;id&#39;, &#39;username&#39;, &#39;email&#39;])-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<p>2.设置别名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;field(&#39;id,username as name,email&#39;)-&gt;select()</span><br></pre></td></tr></table></figure>
+
+<p>3.可以直接在里面调用函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;field(&#39;id,username as name,email,sum(price)&#39;)-&gt;select()</span><br></pre></td></tr></table></figure>
+
+<p>4.true参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;field(true)-&gt;select();</span><br><span class="line">显式查询所有字段名</span><br><span class="line"> $result &#x3D; Db::name(&#39;user&#39;)-&gt;field(&#39;username&#39;,true)-&gt;select();</span><br><span class="line"> 不显示username字段</span><br></pre></td></tr></table></figure>
+
+<p>5.insert</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;field(&#39;username, email, details&#39;)-&gt;insert($data);</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、alias"><a href="#三、alias" class="headerlink" title="三、alias"></a>三、alias</h3><ol>
+<li>使用 alias()方法，给数据库起一个别名； <code>Db::name(&#39;user&#39;)-&gt;alias(&#39;a&#39;)-&gt;select();</code></li>
+</ol>
+<h3 id="四、limit方法"><a href="#四、limit方法" class="headerlink" title="四、limit方法"></a>四、limit方法</h3><p>1.实现输出限制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;limit(5)-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<p>2.实现分页</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;limit(5,5)-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<p>第一个参数是起始的位置，第二个参数是长度</p>
+<h3 id="五、page方法实现自动分页"><a href="#五、page方法实现自动分页" class="headerlink" title="五、page方法实现自动分页"></a>五、page方法实现自动分页</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;page(1, 5)-&gt;select(); </span><br><span class="line">&#x2F;&#x2F;第二页 Db::name(&#39;user&#39;)-&gt;page(2, 5)-&gt;select();</span><br></pre></td></tr></table></figure>
+
+<p>###　六、order排序方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 使用 order()方法，可以指定排序方式，没有指定第二参数，默认 asc； Db::name(&#39;user&#39;)-&gt;order(&#39;id&#39;, &#39;desc&#39;)-&gt;select();</span><br><span class="line">2. 支持数组的方式，对多个字段进行排序； Db::name(&#39;user&#39;)-&gt;order([&#39;create_time&#39;&#x3D;&gt;&#39;desc&#39;, &#39;price&#39;&#x3D;&gt;&#39;asc&#39;])-&gt;select();</span><br><span class="line">在同一创建的时间，再按照价格来排序</span><br></pre></td></tr></table></figure>
+
+<h3 id="七、group方法"><a href="#七、group方法" class="headerlink" title="七、group方法"></a>七、group方法</h3><ol>
+<li>使用 group()方法，给性别不同的人进行 price 字段的总和统计； Db::name(‘user’)-&gt;field(‘gender, sum(price)’)-&gt;group(‘gender’)-&gt;select();</li>
+<li>也可以进行多字段分组统计； Db::name(‘user’)-&gt;field(‘gender, sum(price)’) -&gt;group(‘gender,password’)-&gt;select();</li>
+</ol>
+<h3 id="八、having方法"><a href="#八、having方法" class="headerlink" title="八、having方法"></a>八、having方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;) -&gt;field(&#39;gender, sum(price)&#39;) -&gt;group(&#39;gender&#39;) -&gt;having(&#39;sum(price)&gt;600&#39;) -&gt;select();</span><br></pre></td></tr></table></figure>
+
+<h2 id="模型的定义"><a href="#模型的定义" class="headerlink" title="模型的定义"></a>模型的定义</h2><p>模型的类名和控制器相同的名字相同时，可以直接采取别名<code>as</code></p>
+<p>如果类名和关键字的相同时，就可以开启<code>class_suffix</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class User extends Model&#x2F;&#x2F;只要定义了就和数据库自动链接了</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F;设置主键</span><br><span class="line">    protected $pk &#x3D; &#39;uid&#39;;</span><br><span class="line">    &#x2F;&#x2F;设置其他表</span><br><span class="line">    protected $table &#x3D; &#39;tp_one&#39;;</span><br><span class="line">    &#x2F;&#x2F;初始化</span><br><span class="line">    protected static function init()</span><br><span class="line">    &#123;</span><br><span class="line">        &#x2F;&#x2F;parent::init(); &#x2F;&#x2F; TODO: Change the autogenerated stub</span><br><span class="line">        echo &quot;初始化&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">namespace app\controller;</span><br><span class="line">use \app\model\User as UserModel;&#x2F;&#x2F;模型操作不需要指定表</span><br><span class="line"></span><br><span class="line">class User</span><br><span class="line">&#123;</span><br><span class="line">    public function index()</span><br><span class="line">    &#123;</span><br><span class="line">        &#x2F;&#x2F; UserModel.class.php</span><br><span class="line">        &#x2F;&#x2F; UserController.class.php</span><br><span class="line">        $result &#x3D; UserModel::select();</span><br><span class="line">        &#x2F;&#x2F;return json($result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>数据库操作返回的列表时一个二维数组，模型返回的是一个结果集</p>
+<h2 id="模型添加与删除"><a href="#模型添加与删除" class="headerlink" title="模型添加与删除"></a>模型添加与删除</h2><h3 id="一、增加"><a href="#一、增加" class="headerlink" title="一、增加"></a>一、增加</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">insert</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">//$user = new \app\model\User();</span></span><br><span class="line">        $user = <span class="keyword">new</span> UserModel();</span><br><span class="line">        <span class="comment">//return $user;</span></span><br><span class="line"><span class="comment">//        $user-&gt;username = &#x27;李白&#x27;;</span></span><br><span class="line"><span class="comment">//        $user-&gt;password = &#x27;123&#x27;;</span></span><br><span class="line"><span class="comment">//        $user-&gt;gender = &#x27;男&#x27;;</span></span><br><span class="line"><span class="comment">//        $user-&gt;email = &#x27;libai@163.com&#x27;;</span></span><br><span class="line"><span class="comment">//        $user-&gt;price = 100;</span></span><br><span class="line"><span class="comment">//        $user-&gt;details = &#x27;123&#x27;;</span></span><br><span class="line"><span class="comment">//        $user-&gt;uid = 1011;</span></span><br><span class="line"><span class="comment">//        $user-&gt;create_time = date(&#x27;Y-m-d H:i:s&#x27;);</span></span><br><span class="line"><span class="comment">//        $insert = $user-&gt;save([ &#x27;username&#x27; =&gt; &#x27;李白&#x27;, &#x27;password&#x27; =&gt; &#x27;123&#x27;, &#x27;gender&#x27; =&gt; &#x27;男&#x27;, &#x27;email&#x27; =&gt; &#x27;libai@163.com&#x27;, &#x27;price&#x27; =&gt; 100, &#x27;details&#x27; =&gt; &#x27;123&#x27;, &#x27;uid&#x27; =&gt; 1011, &#x27;create_time&#x27; =&gt; date(&#x27;Y-m-d H:i:s&#x27;) ]);</span></span><br><span class="line"><span class="comment">//        return Db::getLastSql()</span></span><br><span class="line"><span class="comment">//        echo $insert;//bool值</span></span><br><span class="line"><span class="comment">//        $user-&gt;replace()-&gt;save();</span></span><br><span class="line"><span class="comment">//        $user-&gt;replace()-&gt;save();replace插入</span></span><br><span class="line">        <span class="comment">//批量新增</span></span><br><span class="line"><span class="comment">//        $dataAll = [ [ &#x27;username&#x27; =&gt; &#x27;李白 1&#x27;, &#x27;password&#x27; =&gt; &#x27;123&#x27;, &#x27;gender&#x27; =&gt; &#x27;男&#x27;, &#x27;email&#x27; =&gt; &#x27;libai@163.com&#x27;, &#x27;price&#x27; =&gt; 100, &#x27;details&#x27; =&gt; &#x27;123&#x27;, &#x27;uid&#x27; =&gt; 1011, &#x27;create_time&#x27; =&gt; date(&#x27;Y-m-d H:i:s&#x27;) ], [ &#x27;username&#x27; =&gt; &#x27;李白 2&#x27;, &#x27;password&#x27; =&gt; &#x27;123&#x27;, &#x27;gender&#x27; =&gt; &#x27;男&#x27;, &#x27;email&#x27; =&gt; &#x27;libai@163.com&#x27;, &#x27;price&#x27; =&gt; 100, &#x27;details&#x27; =&gt; &#x27;123&#x27;, &#x27;uid&#x27; =&gt; 1011, &#x27;create_time&#x27; =&gt; date(&#x27;Y-m-d H:i:s&#x27;) ] ];</span></span><br><span class="line"><span class="comment">//        $user = new UserModel();</span></span><br><span class="line"><span class="comment">//        print_r($user-&gt;saveAll($dataAll));</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、删除"><a href="#二、删除" class="headerlink" title="二、删除"></a>二、删除</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> $user &#x3D; UserModel::get(245);</span><br><span class="line">&#x2F;&#x2F;        print_r($user-&gt;delete());</span><br><span class="line">        &#x2F;&#x2F;UserModel::destroy(244);</span><br><span class="line">        &#x2F;&#x2F;批量删除</span><br><span class="line">        &#x2F;&#x2F;UserModel::destroy([243,242]);</span><br><span class="line">        &#x2F;&#x2F;条件删除</span><br><span class="line">        UserModel::where(&#39;id&#39;,&#39;&gt;&#39;,122)-&gt;delete();</span><br><span class="line">        &#x2F;&#x2F;闭包删除</span><br><span class="line">        UserModel::destroy(function ($query)&#123;</span><br><span class="line">            $query-&gt;where(&#39;id&#39;,&#39;&gt;&#39;,118);</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="模型的修改和查询"><a href="#模型的修改和查询" class="headerlink" title="模型的修改和查询"></a>模型的修改和查询</h2><p>###　模型修改和查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"> public function delete()</span><br><span class="line">    &#123;</span><br><span class="line">&#x2F;&#x2F;        $user &#x3D; UserModel::get(245);</span><br><span class="line">&#x2F;&#x2F;        print_r($user-&gt;delete());</span><br><span class="line">        &#x2F;&#x2F;UserModel::destroy(244);</span><br><span class="line">        &#x2F;&#x2F;批量删除</span><br><span class="line">        &#x2F;&#x2F;UserModel::destroy([243,242]);</span><br><span class="line">        &#x2F;&#x2F;条件删除</span><br><span class="line">        UserModel::where(&#39;id&#39;,&#39;&gt;&#39;,122)-&gt;delete();</span><br><span class="line">        &#x2F;&#x2F;闭包删除</span><br><span class="line">        UserModel::destroy(function ($query)&#123;</span><br><span class="line">            $query-&gt;where(&#39;id&#39;,&#39;&gt;&#39;,118);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    public function update()</span><br><span class="line">    &#123;</span><br><span class="line">&#x2F;&#x2F;        $user &#x3D; UserModel::get(24);</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;username &#x3D; &#39;小刚&#39;;</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;save();</span><br><span class="line">        &#x2F;&#x2F;寻找的时候更加精确的进行</span><br><span class="line">        &#x2F;&#x2F;$user &#x3D; UserModel::where(&#39;username&#39;,&#39;小刚&#39;)-&gt;find();</span><br><span class="line">        &#x2F;&#x2F;save 只能更新变化的数据</span><br><span class="line">        &#x2F;&#x2F;$user-&gt;force()-&gt;save();强制更新</span><br><span class="line">&#x2F;&#x2F;        $user &#x3D; UserModel::get(24);</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;username &#x3D; &#39;小刚&#39;;</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;price &#x3D; Db::raw(&#39;price+1&#39;);</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;price &#x3D; [&#39;inc&#39;,1];</span><br><span class="line">        &#x2F;&#x2F;直接通过 save([],[])两个数组参数的方式更新数据； 第一个是数据，第二个是where</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;save();</span><br><span class="line">&#x2F;&#x2F;        $user &#x3D; new UserModel();</span><br><span class="line">&#x2F;&#x2F;        $user-&gt;saveAll([</span><br><span class="line">&#x2F;&#x2F;            [&#39;id&#39;&#x3D;&gt;118, &#39;username&#39;&#x3D;&gt;&#39;李白&#39;, &#39;email&#39;&#x3D;&gt;&#39;libai@163.com&#39;], [&#39;id&#39;&#x3D;&gt;128, &#39;username&#39;&#x3D;&gt;&#39;李白&#39;, &#39;email&#39;&#x3D;&gt;&#39;libai@163.com&#39;], [&#39;id&#39;&#x3D;&gt;129, &#39;username&#39;&#x3D;&gt;&#39;李白&#39;, &#39;email&#39;&#x3D;&gt;&#39;libai@163.com&#39;]</span><br><span class="line">&#x2F;&#x2F;        ]);第一条必须是主键，必须是ID</span><br><span class="line">&#x2F;&#x2F;        UserModel::where(&#39;id&#39;, 118)-&gt;update([ &#39;username&#39; &#x3D;&gt; &#39;李黑&#39;, &#39;email&#39; &#x3D;&gt; &#39;lihei@163.com&#39; ]);</span><br><span class="line">&#x2F;&#x2F;        UserModel::update([ &#39;id&#39; &#x3D;&gt; 118, &#39;username&#39; &#x3D;&gt; &#39;李黑&#39;, &#39;email&#39; &#x3D;&gt; &#39;lihei@163.com&#39; ]);</span><br><span class="line">        &#x2F;&#x2F;不用where的时候，第一条数据必须是主键</span><br><span class="line">        &#x2F;&#x2F;显示更新 $user-&gt;isUpdate(true)-&gt;save();</span><br><span class="line">        &#x2F;&#x2F;显示新增 $user-&gt;isUpdate(false)-&gt;save();</span><br><span class="line">        &#x2F;&#x2F;模型-&gt;符号，可以得到单独的字段数据</span><br><span class="line">        &#x2F;&#x2F;模型端 采用 return self::where(&#39;username&#39;, &#39;辉夜&#39;)-&gt;find()-&gt;getAttr(&#39;username&#39;);</span><br><span class="line">&#x2F;&#x2F;        通过 all()方法，实现 IN 模式的多数据获取；</span><br><span class="line">&#x2F;&#x2F;        $user &#x3D; UserModel::all(&#39;79, 118, 128&#39;);</span><br><span class="line">&#x2F;&#x2F;        $user &#x3D; UserModel::all([79, 118, 128]);</span><br><span class="line">&#x2F;&#x2F;        模型支持动态查询：getBy*，*表示字段名；</span><br><span class="line">        UserModel::getByUsername(&#39;辉夜&#39;);</span><br><span class="line">        UserModel::getByEmail(&#39;huiye@163.com&#39;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="模型获取器和修改器"><a href="#模型获取器和修改器" class="headerlink" title="模型获取器和修改器"></a>模型获取器和修改器</h2><p>获取器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;创建一个获取器</span><br><span class="line">    public function getStatusAttr($value,$data)</span><br><span class="line">    &#123;</span><br><span class="line">        $myGet &#x3D; [-1&#x3D;&gt;&#39;删除&#39;,0&#x3D;&gt;&#39;禁用&#39;,1&#x3D;&gt;&#39;正常&#39;,2&#x3D;&gt;&#39;待审核&#39;];</span><br><span class="line">        return $myGet[$data[&#39;status&#39;]];</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F;创建一个虚拟字段的获取器，可以对多个字段进行过滤</span><br><span class="line">    public function getNothingAttr($value,$data)&#123;</span><br><span class="line">        return $data;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>动态获取器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; UserModel::WithAttr(&#39;status&#39;, function ($value) &#123; $status &#x3D; [-1&#x3D;&gt;&#39;删除&#39;, 0&#x3D;&gt;&#39;禁用&#39;, 1&#x3D;&gt;&#39;正常&#39;, 2&#x3D;&gt;&#39;待审核&#39;]; return $status[$value]; &#125;)-&gt;select();</span><br><span class="line">        return json($result);</span><br></pre></td></tr></table></figure>
+
+<p>修改器（插入，修改，更新，的格式化）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;创建一个修改器</span><br><span class="line">    public function setEmailAttr($value)</span><br><span class="line">    &#123;</span><br><span class="line">        return strtoupper($value);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;修改器的优先级高于获取器</span><br></pre></td></tr></table></figure>
+
+<h2 id="模型搜索器和数据集"><a href="#模型搜索器和数据集" class="headerlink" title="模型搜索器和数据集"></a>模型搜索器和数据集</h2><h3 id="一、模型搜索器"><a href="#一、模型搜索器" class="headerlink" title="一、模型搜索器"></a>一、模型搜索器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;创建一个搜索器，邮箱模糊查询</span><br><span class="line">    public function searchEmailAttr($query, $value,$data)</span><br><span class="line">    &#123;</span><br><span class="line">        $query-&gt;where(&#39;email&#39;, &#39;like&#39;, $value . &#39;%&#39;);</span><br><span class="line">        if(isset($data))&#123;</span><br><span class="line">            $query-&gt;order($data[&#39;sort&#39;]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;创建一个搜索器，限定时间</span><br><span class="line">    public function searchCreateTimeAttr($query, $value)</span><br><span class="line">    &#123;</span><br><span class="line">        $query-&gt;whereBetweenTime(&#39;create_time&#39;, $value[0], $value[1]);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$result  &#x3D; UserModel::withSearch([&#39;email&#39;,&#39;create_time&#39;&#x3D;&gt;&#39;ctime&#39;],[</span><br><span class="line">            &#39;email&#39; &#x3D;&gt; &#39;xiao&#39;,</span><br><span class="line">            &#39;ctime&#39; &#x3D;&gt; [&#39;2014-1-1&#39;, &#39;2019-1-1&#39;],</span><br><span class="line">            &#39;sort&#39; &#x3D;&gt; [&#39;price&#39;&#x3D;&gt;&#39;desc&#39;]</span><br><span class="line">        ])-&gt;select();&#x2F;&#x2F;第一个参数限定搜索器</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、数据集"><a href="#二、数据集" class="headerlink" title="二、数据集"></a>二、数据集</h3><p><strong>在select前面操作叫链式查询，在后面叫数据集操作</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; UserModel::select()-&gt;where(&#39;price&#39;,&#39;&lt;&#39;,80)-&gt;order(&#39;id&#39;,&#39;asc&#39;);</span><br><span class="line">        $result-&gt;hidden([&#39;password&#39;]);隐藏</span><br><span class="line">        $result-&gt;visible([&#39;password&#39;]);</span><br><span class="line">        $result-&gt;append([&#39;nothing&#39;])-&gt;withAttr(&#39;email&#39;,function ($value)&#123;</span><br><span class="line">            return strtoupper($value);</span><br><span class="line">            &#125;);不需要返回数据</span><br><span class="line">      $result &#x3D; $result-&gt;filter(function ($data)&#123;</span><br><span class="line">           return $data[&#39;price&#39;] &lt; 80;</span><br><span class="line">        &#125;);</span><br><span class="line">        $result1 &#x3D; UserModel::where(&#39;price&#39;,&#39;&gt;&#39;,80)-&gt;select();</span><br><span class="line">        $result2 &#x3D; UserModel::where(&#39;price&#39;,&#39;&lt;&#39;,80)-&gt;select();</span><br><span class="line">        return json($result1-&gt;diff($result2));&#x2F;&#x2F;需要返回数据&#x2F;&#x2F;并</span><br><span class="line">        return json($result1-&gt;intersect($result2));&#x2F;&#x2F;差集</span><br></pre></td></tr></table></figure>
+
+<p><strong>filter()需要返回数据，但是withattr()是直接在内存中进行处理的</strong></p>
+<h2 id="模型自动时间戳和只读字段"><a href="#模型自动时间戳和只读字段" class="headerlink" title="模型自动时间戳和只读字段"></a>模型自动时间戳和只读字段</h2><p>全局开启</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 自动写入时间戳字段</span><br><span class="line">    &#39;auto_timestamp&#39;  &#x3D;&gt; false,</span><br></pre></td></tr></table></figure>
+
+<p>部分开启</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  &#x2F;&#x2F;时间戳自定义</span><br><span class="line">    &#x2F;&#x2F;protected $createTime &#x3D; &#39;create_at&#39;;</span><br><span class="line">     protected $updateTime &#x3D; false;&#x2F;&#x2F;关闭更改时间</span><br><span class="line">&#x2F;&#x2F;也可以动态实现不修改 update_time，具体如下： $user-&gt;isAutoWriteTimestamp(false)-&gt;save();</span><br></pre></td></tr></table></figure>
+
+<p>只读字段</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;设置只读字段</span><br><span class="line">    protected $readonly &#x3D; [&#39;username&#39;, &#39;email&#39;];</span><br><span class="line">动态设置</span><br><span class="line">	$user-&gt;readonly([&#39;username&#39;, &#39;email&#39;])-&gt;save();</span><br><span class="line">	只读字段只支持模型方式不支持数据库方式；</span><br></pre></td></tr></table></figure>
+
+<h2 id="模型类型转换和数据完成"><a href="#模型类型转换和数据完成" class="headerlink" title="模型类型转换和数据完成"></a>模型类型转换和数据完成</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">在模型端设置你想要类型转换的字段属性，属性值为数组；</span><br><span class="line">protected $type &#x3D; [ </span><br><span class="line">&#39;price&#39; &#x3D;&gt; &#39;integer&#39;,</span><br><span class="line">&#39;status&#39; &#x3D;&gt; &#39;boolean&#39;, </span><br><span class="line">&#39;create_time&#39; &#x3D;&gt; &#39;datetime:Y-m-d&#39; ];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>类型转换还是会调用属性里的获取器等操作，编码时要注意这方面的问题</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">protected $auto &#x3D; [&#39;email&#39;];</span><br><span class="line">protected $insert &#x3D; [&#39;uid&#39;&#x3D;&gt;1];</span><br><span class="line">protected $update &#x3D; [];</span><br><span class="line">auto 表示新增和修改操作，insert 只表示新增，update 只表示修改</span><br><span class="line"> auto 表示新增和修改均要自动完成，而不给默认值的字段需要修改器提供； </span><br></pre></td></tr></table></figure>
+
+<p>修改时，如果你不去修改邮箱，在数据自动完成强制完成，会自动完成大写； 8. 也就是说，邮箱的大写，设置 update 更加合适，因为新增必填必然触发修改器； 9. 对于 update 自动完成，和 auto、insert 雷同，自行演示；</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/18/ThinkPHP-2/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThinkPHP/" rel="tag">ThinkPHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag">编程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/09/17/URL%E8%A7%A3%E6%9E%90%E6%A8%A1%E5%BC%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">ThinkPhP学习第一天</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "",
+    app_key: "",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2020
+        <i class="ri-heart-fill heart_icon"></i> 码农
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by Hexo
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/anti-genemits" target="_blank">Anti-Genemits</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Anti-Genemits"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/CTF/">CTF</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script>
+
+<script src="/js/clickBoom1.js"></script>
+
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+  </div>
+</body>
+
+</html>
