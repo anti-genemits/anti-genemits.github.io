@@ -142,88 +142,11 @@
   <h1 id="ThinkPhp-第4天"><a href="#ThinkPhp-第4天" class="headerlink" title="ThinkPhp - 第4天"></a>ThinkPhp - 第4天</h1><h2 id="模版引擎和视图渲染-V"><a href="#模版引擎和视图渲染-V" class="headerlink" title="模版引擎和视图渲染(V)"></a>模版引擎和视图渲染(V)</h2><p>模版定位</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;指定模版</span><br><span class="line">      return $this-&gt;fetch(&#39;edit&#39;);#当前模块&#x2F;view&#x2F;当前控制器名(小写)&#x2F;当前操作(小写).html</span><br><span class="line">      &#x2F;&#x2F;指定目录下的模版</span><br><span class="line">      return $this-&gt;fetch(&#39;public&#x2F;edit&#39;);</span><br><span class="line">      &#x2F;&#x2F;指定模块下的模版</span><br><span class="line">      return $this-&gt;fetch(&#39;admin@public&#x2F;edit&#39;);</span><br><span class="line">      &#x2F;&#x2F;view_path 下的模版</span><br><span class="line">      return $this-&gt;fetch(&#39;&#x2F;edit&#39;);</span><br><span class="line">      &#x2F;&#x2F;助手函数view()</span><br><span class="line">      return view(&#39;&#39;)</span><br></pre></td></tr></table></figure>
 
-<h2 id="视图赋值和过滤"><a href="#视图赋值和过滤" class="headerlink" title="视图赋值和过滤"></a>视图赋值和过滤</h2><h3 id="一、视图赋值"><a href="#一、视图赋值" class="headerlink" title="一、视图赋值"></a>一、视图赋值</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;助手函数view()</span><br><span class="line">&#x2F;&#x2F;        return view(&#39;&#39;);</span><br><span class="line">&#x2F;&#x2F;        $this-&gt;assign(&#39;name&#39;,&#39;ThinkPHP&#39;);</span><br><span class="line">        $this-&gt;assign([</span><br><span class="line">            &quot;name&quot; &#x3D;&gt; &quot;Think&quot;,</span><br><span class="line">            &quot;word&quot; &#x3D;&gt; &quot;PHP&quot;,</span><br><span class="line">        ]);</span><br><span class="line">        return $this-&gt;fetch();</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;        $content &#x3D; &#39;&#123;$name&#125;.&#123;$word&#125;&#39;;</span><br><span class="line">&#x2F;&#x2F;        return $this-&gt;display($content,[</span><br><span class="line">&#x2F;&#x2F;            &quot;name&quot; &#x3D;&gt; &quot;Think&quot;,</span><br><span class="line">&#x2F;&#x2F;            &quot;word&quot; &#x3D;&gt; &quot;PHP&quot;,</span><br><span class="line">&#x2F;&#x2F;        ]);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;        return view(&#39;index&#39;,[</span><br><span class="line">&#x2F;&#x2F;            &quot;name&quot; &#x3D;&gt; &quot;Think&quot;,</span><br><span class="line">&#x2F;&#x2F;            &quot;word&quot; &#x3D;&gt; &quot;PHP&quot;,</span><br><span class="line">&#x2F;&#x2F;        ]);</span><br><span class="line">        &#x2F;&#x2F;全局变量的赋值</span><br><span class="line">        \think\facade\View::share(&#39;name&#39;,&#39;value&#39;);</span><br><span class="line">        return $this-&gt;fetch(&#39;index&#39;);</span><br></pre></td></tr></table></figure>
-
-<h3 id="二、视图过滤"><a href="#二、视图过滤" class="headerlink" title="二、视图过滤"></a>二、视图过滤</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$this-&gt;assign([</span><br><span class="line">            &quot;name&quot; &#x3D;&gt; &quot;Think1&quot;,</span><br><span class="line">            &quot;word&quot; &#x3D;&gt; &quot;PHP&quot;,</span><br><span class="line">        ]);</span><br><span class="line">        return $this-&gt;filter(function ($value)&#123;</span><br><span class="line">            return str_replace(&quot;1&quot;,&#39;&lt;br&#x2F;&gt;&#39;,$value);</span><br><span class="line">        &#125;)-&gt;fetch();</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;全局过滤</span><br><span class="line">      return $this-&gt;filter(function($content)&#123; return str_replace(&quot;1&quot;,&#39;&lt;br&#x2F;&gt;&#39;,$content); &#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="模版变量输出"><a href="#模版变量输出" class="headerlink" title="模版变量输出"></a>模版变量输出</h2><h3 id="变量输出"><a href="#变量输出" class="headerlink" title="变量输出"></a>变量输出</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">数组输出</span><br><span class="line">$data[&#39;username&#39;] &#x3D; &#39;辉夜&#39;;</span><br><span class="line">        $data[&#39;email&#39;] &#x3D; &#39;huiye@163.com&#39;;</span><br><span class="line">        $this-&gt;assign(&#39;user&#39;, $data);</span><br><span class="line">        return $this-&gt;fetch();</span><br><span class="line">        模版调用</span><br><span class="line">        &#123;$user.username&#125;.&#123;$user.email&#125;</span><br><span class="line">对象输出</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">对象输出</span><br><span class="line">$obj &#x3D; new \stdClass(); </span><br><span class="line">$obj-&gt;username &#x3D; &#39;辉夜&#39;; </span><br><span class="line">$obj-&gt;email &#x3D; &#39;huiye@163.com&#39;;</span><br><span class="line">$this-&gt;assign(&#39;obj&#39;, $obj);</span><br><span class="line">模版调用：&#123;$obj-&gt;username&#125;.&#123;$obj-&gt;email&#125; </span><br></pre></td></tr></table></figure>
-
-<h3 id="其他输出"><a href="#其他输出" class="headerlink" title="其他输出"></a>其他输出</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">默认值</span><br><span class="line">&#123;$user.username|default&#x3D;&#39;没有用户名&#39;&#125;</span><br><span class="line">系统变量</span><br><span class="line">使用$Think.xxx.yyy 方式，可以输出系统的变量</span><br><span class="line">常量输出</span><br><span class="line">&#123;$Think.const.PHP_VERSION&#125; &#123;$Think.PHP_VERSION&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>系统配置</strong> <code>&#123;$Think.config.default_return_type&#125;</code></p>
-<h2 id="模版中的函数与运算符"><a href="#模版中的函数与运算符" class="headerlink" title="模版中的函数与运算符"></a>模版中的函数与运算符</h2><h3 id="使用函数"><a href="#使用函数" class="headerlink" title="使用函数"></a>使用函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;$name|md5&#125; #管道符</span><br><span class="line">#系统默认在编译的会采用 htmlentities 过滤函数防止 XSS 跨站脚本攻击； </span><br><span class="line">可以更改默认函数：：&#39;default_filter&#39; &#x3D;&gt; &#39;htmlspecialchars&#39;</span><br><span class="line">&#123;$user[&#39;email&#39;]|raw&#125; 不进行实体转换</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th align="center">函数</th>
-<th align="center">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">date</td>
-<td align="center">格式化时间{$time|date=’Y-m-d’}</td>
-</tr>
-<tr>
-<td align="center">format</td>
-<td align="center">格式化字符串{$number</td>
-</tr>
-<tr>
-<td align="center">upper</td>
-<td align="center">转换为大写</td>
-</tr>
-<tr>
-<td align="center">lower</td>
-<td align="center">转换为小写</td>
-</tr>
-<tr>
-<td align="center">first</td>
-<td align="center">输出数组的第一个元素</td>
-</tr>
-<tr>
-<td align="center">last</td>
-<td align="center">输出数组的最后一个元素</td>
-</tr>
-<tr>
-<td align="center">default</td>
-<td align="center">默认值</td>
-</tr>
-<tr>
-<td align="center">raw</td>
-<td align="center">不使用转义</td>
-</tr>
-</tbody></table>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$this-&gt;assign(&#39;time&#39;, time()); </span><br><span class="line">&#123;$time|date&#x3D;&#39;Y-m-d&#39;&#125;</span><br><span class="line"></span><br><span class="line">#如果函数有多个参数，可以用逗号隔开</span><br><span class="line">&#123;$name|substr&#x3D;0,3&#125;</span><br><span class="line">#多个函数同时执行</span><br><span class="line">使用|隔开，并且左到右执行</span><br><span class="line">#PHP语法模式</span><br><span class="line">&#123;:substr(strtoupper(md5($password)), 0, 3)&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1.四则运算</span><br><span class="line">&#123;$number + $number&#125;</span><br><span class="line">2.有运算时，函数不能使用</span><br><span class="line">3.三元运算</span><br><span class="line">	&#123;$name ? &#39;正确&#39; : &#39;错误&#39;&#125; &#x2F;&#x2F;$name 为 true 返回正确，否则返回错误</span><br><span class="line">    &#123;$name ?&#x3D; &#39;真&#39;&#125; &#x2F;&#x2F;$name 为 true 返回真 </span><br><span class="line">    &#123;$Think.get.name ?? &#39;不存在&#39;&#125; &#x2F;&#x2F;??用于系统变量，没有值时输出 </span><br><span class="line">    &#123;$name ?: &#39;不存在&#39;&#125; &#x2F;&#x2F;?:用于普通变量，没有值时输出</span><br><span class="line">4. 三元运算符也支持运算后返回布尔值判断； &#123;$a &#x3D;&#x3D; $b ? &#39;真&#39; : &#39;假&#39;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>注意 <strong>??</strong> 时系统变量</p>
-<h2 id="循环标签"><a href="#循环标签" class="headerlink" title="循环标签"></a>循环标签</h2><p>foreach循环</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$list &#x3D; UserModel::all();</span><br><span class="line">$this-&gt;assign(&#39;list&#39;, $list);</span><br><span class="line">return $this-&gt;fetch(&#39;user&#39;);</span><br><span class="line"></span><br><span class="line">#下面是模版调用</span><br><span class="line">&#123;foreach $list as $key&#x3D;&gt;$obj&#125; </span><br><span class="line">	&#123;$key&#125;.&#123;$obj.id&#125;.&#123;$obj.username&#125;(&#123;$obj.gender&#125;) .&#123;$obj.email&#125;&lt;br&gt; </span><br><span class="line">&#123;&#x2F;foreach&#125;</span><br><span class="line">其中$list （ :model(&#39;user&#39;)-&gt;all() ）是控制前端传递的数据集，$key 是 index 索引，$obj 是数据对象； </span><br></pre></td></tr></table></figure>
-
-<p>volist 循环</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;volist name&#x3D;&#39;list&#39; id&#x3D;&#39;obj&#39;&#125;</span><br><span class="line">	&#123;$key&#125;.&#123;$obj.id&#125;.&#123;$obj.username&#125;(&#123;$obj.gender&#125;) .&#123;$obj.email&#125;&lt;br&gt;</span><br><span class="line">&#123;&#x2F;volist&#125;</span><br><span class="line"> volist 中的 name 属性表示数据总集，id 属性表示当前循环的数据单条集</span><br><span class="line"> 使用 offset 属性和 length 属性从第 4 条开始显示 5 条，这里下标从 0 开始； （&#123;volist name&#x3D;&#39;list&#39; id&#x3D;&#39;obj&#39; offset&#x3D;&#39;3&#39; length&#x3D;&#39;5&#39;&#125; ）</span><br><span class="line"> 通过编译文件可以理解，mod&#x3D;2 表示索引除以 2 得到的余数是否等于 0 或 1； </span><br><span class="line"> 使用 empty 属性，可以当没有任何数据的时候，实现输出指定的提示； </span><br></pre></td></tr></table></figure>
-
-<p>for 循环</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;for start&#x3D;&#39;1&#39; end&#x3D;&#39;100&#39; comparison&#x3D;&#39;&lt;&#39; step&#x3D;&#39;2&#39; name&#x3D;&#39;i&#39;&#125;</span><br><span class="line">	&#123;$i&#125; </span><br><span class="line">&#123;&#x2F;for&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="模版的比较和定义标签"><a href="#模版的比较和定义标签" class="headerlink" title="模版的比较和定义标签"></a>模版的比较和定义标签</h2><h3 id="比较标签"><a href="#比较标签" class="headerlink" title="比较标签"></a>比较标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;eq name&#x3D;&#39;username&#39; value&#x3D;&#39;Mr.Lee&#39;&#125;</span><br><span class="line">李先生</span><br><span class="line">&#123;else&#x2F;&#125; </span><br><span class="line">王先生</span><br><span class="line">&#123;&#x2F;eq&#125;</span><br><span class="line">   相当于$username&#x3D;&#x3D;&#39;Mr.Lee&#39; 然后就数出李先生，不相等就是王先生。</span><br><span class="line">   属性 name 里是一个变量，$符号可加可不加；而 value 里是一个字符串,如果value中是一个变量值的话，就必须加$符号</span><br><span class="line">   &#123;equal&#125;效果相同</span><br></pre></td></tr></table></figure>
-
-<p>不同标签表示不同的比较方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;gt&#125;(&gt;)、&#123;egt&#125;(&gt;&#x3D;)、&#123;lt&#125;(&lt;)、&#123;elt&#125;(&lt;&#x3D;)、&#123;heq&#125;(&#x3D;&#x3D;&#x3D;)和&#123;nheq&#125;(!&#x3D;&#x3D;)； </span><br></pre></td></tr></table></figure>
-
-<p>统一使用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;compare name&#x3D;&#39;username&#39; value&#x3D;&#39;Mr.Lee&#39; type&#x3D;&#39;eq&#39;&#125;</span><br><span class="line">	两个值相等 </span><br><span class="line">&#123;&#x2F;compare&#125;</span><br><span class="line">输入到type就可以了</span><br></pre></td></tr></table></figure>
-
-<h3 id="定义标签"><a href="#定义标签" class="headerlink" title="定义标签"></a>定义标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1.定义变量</span><br><span class="line">&#123;assign name&#x3D;&#39;var&#39; value&#x3D;&#39;123&#39;&#125; &#x2F;&#x2F;也支持变量 value&#x3D;&#39;$name&#39; </span><br><span class="line">&#123;$var&#125;</span><br><span class="line">2.原生编码</span><br><span class="line">&#123;php&#125;</span><br><span class="line"> echo &quot;Hello&quot;;</span><br><span class="line">&#123;&#x2F;php&#125;</span><br><span class="line">中间不能使用模版函数，包括标签·语法</span><br><span class="line">3.支持嵌套功能标签</span><br><span class="line">&#123;foreach $list as $key&#x3D;&gt;$obj&#125; </span><br><span class="line">	&#123;eq name&#x3D;&#39;obj.username&#39; value&#x3D;&#39;樱桃小丸子&#39;&#125; </span><br><span class="line">		&#123;$key&#125;.&#123;$obj.id&#125;.&#123;$obj.username&#125;(&#123;$obj.gender&#125;) .&#123;$obj.email&#125;&lt;br&gt; </span><br><span class="line">		&#123;&#x2F;eq&#125; </span><br><span class="line">&#123;&#x2F;foreach&#125;</span><br></pre></td></tr></table></figure>
-
- 
+<h2 id="视图赋值和过滤"><a href="#视图赋值和过滤" class="headerlink" title="视图赋值和过滤"></a>视图赋值和过滤</h2> 
+      <a class="article-more-link" href="/2020/09/21/ThinkPhp-4/"
+        >阅读更多...</a
+      >
+       
       <!-- reward -->
       
     </div>
@@ -286,48 +209,11 @@
 <p>开关</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UserModel::useGlobalScope(false)</span><br></pre></td></tr></table></figure>
 
-<h3 id="二、模型输出"><a href="#二、模型输出" class="headerlink" title="二、模型输出"></a>二、模型输出</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function view() &#123; </span><br><span class="line">$user &#x3D; UserModel::get(21); </span><br><span class="line">$this-&gt;assign(&#39;user&#39;, $user); </span><br><span class="line">return $this-&gt;fetch(); &#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">3. 使用 toArray()方法，将对象按照数组的方式输出； </span><br><span class="line">$user &#x3D; UserModel::get(21); print_r($user-&gt;toArray());</span><br><span class="line">4. 和之前的数据集一样，它也支持 hidden、append、visible 等方法； </span><br><span class="line">print_r($user-&gt;hidden([&#39;password,update_time&#39;])-&gt;toArray());</span><br><span class="line">5. toArray()方法也支持 all()和 select()等列表数据； </span><br><span class="line">print_r(UserModel::select()-&gt;toArray());</span><br><span class="line">6. 使用 toJson()方法将数据对象进行序列化操作，也支持 hidden 等方法； </span><br><span class="line">print_r($user-&gt;toJson());</span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><h3 id="写入"><a href="#写入" class="headerlink" title="写入"></a>写入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$data &#x3D; [ &#39;username&#39; &#x3D;&gt; &#39;辉夜&#39;, &#39;password&#39; &#x3D;&gt; &#39;123&#39;, &#39;gender&#39; &#x3D;&gt; &#39;女&#39;, &#39;email&#39; &#x3D;&gt; &#39;huiye@163.com&#39;, &#39;price&#39; &#x3D;&gt; 90, &#39;details&#39; &#x3D;&gt; &#39;123&#39;, &#39;uid&#39; &#x3D;&gt; 1011, &#39;status&#39; &#x3D;&gt; 1, &#39;list&#39; &#x3D;&gt; [&#39;username&#39;&#x3D;&gt;&#39;辉夜&#39;, &#39;gender&#39;&#x3D;&gt;&#39;女&#39;, &#39;email&#39;&#x3D;&gt;&#39;huiye@163.com&#39;], ];</span><br><span class="line">Db::name(&#39;user&#39;)-&gt;insert($data);</span><br></pre></td></tr></table></figure>
-
-<p>将json数据写入文本类型，可以转换</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$user &#x3D; Db::name(&#39;user&#39;)-&gt;json([&#39;list&#39;,&#39;details&#39;]) -&gt;where(&#39;id&#39;, 173)-&gt;find()</span><br></pre></td></tr></table></figure>
-
-<p>照样可以输出json数据格式</p>
-<h3 id="按照json数据段中的数据进行查找"><a href="#按照json数据段中的数据进行查找" class="headerlink" title="按照json数据段中的数据进行查找"></a>按照json数据段中的数据进行查找</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$user &#x3D; Db::name(&#39;user&#39;)-&gt;json([&#39;list&#39;,&#39;details&#39;])-&gt; </span><br><span class="line">where(&#39;list-&gt;username&#39;, &#39;辉夜&#39;)-&gt;find();</span><br></pre></td></tr></table></figure>
-
-<p>完全修改</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果想完全修改 json 数据，可以使用如下的方式实现： </span><br><span class="line">$data[&#39;list&#39;] &#x3D; [&#39;username&#39;&#x3D;&gt;&#39;李白&#39;, &#39;gender&#39;&#x3D;&gt;&#39;男&#39;]; Db::name(&#39;user&#39;)-&gt;json([&#39;list&#39;]) -&gt;where(&#39;id&#39;, 174)-&gt;update($data);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>部分修改</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$data[&#39;list-&gt;username&#39;] &#x3D; &#39;李黑&#39;;</span><br><span class="line">Db::name(&#39;user&#39;)-&gt;json([&#39;list&#39;]) -&gt;where(&#39;id&#39;, 174)-&gt;update($data);</span><br></pre></td></tr></table></figure>
-
-<h3 id="模型json"><a href="#模型json" class="headerlink" title="模型json"></a>模型json</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protected $json &#x3D; [&#39;details&#39;, &#39;list&#39;];</span><br></pre></td></tr></table></figure>
-
-<p>对象</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$list &#x3D; new \StdClass();</span><br><span class="line">$list-&gt;username &#x3D; &#39;辉夜&#39;;</span><br><span class="line">$list-&gt;gender &#x3D; &#39;女&#39;; </span><br><span class="line">$list-&gt;email &#x3D; &#39;huiye@163.com&#39;;</span><br><span class="line">$list-&gt;uid &#x3D; 1011; </span><br><span class="line">$user-&gt;list &#x3D; $list;</span><br></pre></td></tr></table></figure>
-
-<p>通过 json 的数据查询，获取一条数据；</p>
-<p> <code>$user = UserModel::where(&#39;list-&gt;username&#39;, &#39;辉夜&#39;)-&gt;find(); return $user-&gt;list-&gt;email;</code></p>
-<p> 更新修改 json 数据，直接通过对象方式即可； </p>
-<p><code>$user = UserModel::get(179); $user-&gt;list-&gt;username = &#39;李白&#39;; $user-&gt;save()</code></p>
-<h2 id="软删除"><a href="#软删除" class="headerlink" title="软删除"></a>软删除</h2><p>软删除：并不是真的将数据库中的数据进行删除，而是打上标签</p>
-<h3 id="数据库软删除"><a href="#数据库软删除" class="headerlink" title="数据库软删除"></a>数据库软删除</h3><p>我们需要在数据表创建一个 delete_time，默认为 NULL</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Db::name(&#39;user&#39;)-&gt;where(&#39;id&#39;, 192) -&gt;</span><br><span class="line">useSoftDelete(&#39;delete_time&#39;, date(&#39;Y-m-d H:i:s&#39;))# 一个参数是时间，一个是当前时间</span><br><span class="line">-&gt;delete(); </span><br><span class="line">return Db::getLastSql(); 执行的真实语句是update</span><br></pre></td></tr></table></figure>
-
-<h3 id="模型段数据删除"><a href="#模型段数据删除" class="headerlink" title="模型段数据删除"></a>模型段数据删除</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">模型端</span><br><span class="line">use SoftDelete;</span><br><span class="line">protected $deleteTime &#x3D; &#39;delete_time&#39;;</span><br><span class="line">自动在所有的数据查询中加选择语句</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$user &#x3D; UserModel::withTrashed()-&gt;select();  取消屏蔽</span><br><span class="line">$user &#x3D; UserModel::onlyTrashed()-&gt;select(); 只查看屏蔽</span><br></pre></td></tr></table></figure>
-
-<p>恢复</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$user &#x3D; UserModel::onlyTrashed()-&gt;find();</span><br><span class="line">$user-&gt;restore()</span><br></pre></td></tr></table></figure>
-
-<p>真正的删除（要先找到，再删除）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$user &#x3D; UserModel::onlyTrashed()-&gt;get(193); $user-&gt;restore(); $user-&gt;delete(true);</span><br></pre></td></tr></table></figure>
-
- 
+<h3 id="二、模型输出"><a href="#二、模型输出" class="headerlink" title="二、模型输出"></a>二、模型输出</h3> 
+      <a class="article-more-link" href="/2020/09/20/ThinkPhP-3/"
+        >阅读更多...</a
+      >
+       
       <!-- reward -->
       
     </div>
