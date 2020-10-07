@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2020-10-07T14:45:07.693Z</updated>
+  <updated>2020-10-07T14:46:48.499Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -21,12 +21,15 @@
     <link href="http://example.com/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/"/>
     <id>http://example.com/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/</id>
     <published>2020-10-06T01:16:23.000Z</published>
-    <updated>2020-10-07T14:45:07.693Z</updated>
+    <updated>2020-10-07T14:46:48.499Z</updated>
     
-    <content type="html"><![CDATA[<p>[TOC]</p><a id="more"></a><h1 id="Android之旅2"><a href="#Android之旅2" class="headerlink" title="Android之旅2"></a>Android之旅2</h1><h2 id="一、动静态调试四大组件"><a href="#一、动静态调试四大组件" class="headerlink" title="一、动静态调试四大组件"></a>一、动静态调试四大组件</h2><p>(一)、activity </p><p>一个又一个的界面，需要在<code>manifest</code>里面注册</p><p>(二)、</p><p>(三)、service</p><p>(四)、broadcast receiver</p><h2 id="二、开始分析"><a href="#二、开始分析" class="headerlink" title="二、开始分析"></a>二、开始分析</h2><p>1.先看<code>mainactivity</code></p><p>2.receiver 注册广播，自动启动</p><p>3.二进制数据解析软件editor</p><h2 id="三、objection-初步体验"><a href="#三、objection-初步体验" class="headerlink" title="三、objection 初步体验"></a>三、objection 初步体验</h2><p><code>https://github.com/hluwa/Wallbreaker</code></p><p>葫芦娃大佬的objection的插件</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">objection -g + 包名 + explore</span><br><span class="line">android hooking watch class_method android.widget.Textview.setText --dump-args --dump-backtrace  --dump-return  hook 类的方法</span><br><span class="line">android hooking list activity  查看活动</span><br><span class="line">android hooking list class_methods + class name 查看类的方法</span><br><span class="line">android hooking list classes hook 类名 然后 cat .&#x2F;objection&#x2F;objection.log |grep -i 筛选该包的方法即可</span><br></pre></td></tr></table></figure><p>jadx 的体验，我就不说了，要学点开发，才能做逆向</p>]]></content>
+    <content type="html"><![CDATA[<h1 id="Android之旅2"><a href="#Android之旅2" class="headerlink" title="Android之旅2"></a>Android之旅2</h1><h2 id="一、动静态调试四大组件"><a href="#一、动静态调试四大组件" class="headerlink" title="一、动静态调试四大组件"></a>一、动静态调试四大组件</h2><p>(一)、activity </p><p>一个又一个的界面，需要在<code>manifest</code>里面注册</p><p>(二)、</p><p>(三)、service</p><p>(四)、broadcast receiver</p><h2 id="二、开始分析"><a href="#二、开始分析" class="headerlink" title="二、开始分析"></a>二、开始分析</h2><p>1.先看<code>mainactivity</code></p><p>2.receiver 注册广播，自动启动</p><p>3.二进制数据解析软件editor</p><h2 id="三、objection-初步体验"><a href="#三、objection-初步体验" class="headerlink" title="三、objection 初步体验"></a>三、objection 初步体验</h2><p><code>https://github.com/hluwa/Wallbreaker</code></p><p>葫芦娃大佬的objection的插件</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">objection -g + 包名 + explore</span><br><span class="line">android hooking watch class_method android.widget.Textview.setText --dump-args --dump-backtrace  --dump-return  hook 类的方法</span><br><span class="line">android hooking list activity  查看活动</span><br><span class="line">android hooking list class_methods + class name 查看类的方法</span><br><span class="line">android hooking list classes hook 类名 然后 cat .&#x2F;objection&#x2F;objection.log |grep -i 筛选该包的方法即可</span><br></pre></td></tr></table></figure><p>jadx 的体验，我就不说了，要学点开发，才能做逆向</p>]]></content>
     
     
-    <summary type="html">&lt;p&gt;[TOC]&lt;/p&gt;</summary>
+      
+      
+    <summary type="html">&lt;h1 id=&quot;Android之旅2&quot;&gt;&lt;a href=&quot;#Android之旅2&quot; class=&quot;headerlink&quot; title=&quot;Android之旅2&quot;&gt;&lt;/a&gt;Android之旅2&lt;/h1&gt;&lt;h2 id=&quot;一、动静态调试四大组件&quot;&gt;&lt;a href=&quot;#一、动静态调试四大组</summary>
+      
     
     
     

