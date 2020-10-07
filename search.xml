@@ -1187,7 +1187,7 @@
 <p>广播接收者的注册有两种方法，分别是程序动态注册和AndroidManifest文件中进行静态注册。</p>
 <p>动态注册广播接收器特点是当用来注册的Activity关掉后，广播也就失效了。静态注册无需担忧广播接收器是否被关闭，只要设备是开启状态，广播接收器也是打开着的。也就是说哪怕app本身未启动，该app订阅的广播在触发时也会对它起作用。</p>
 <h3 id="（二）Android系统架构"><a href="#（二）Android系统架构" class="headerlink" title="（二）Android系统架构"></a>（二）Android系统架构</h3><p><code>Android</code>采用分层的架构，分为四层，从高层到底层分为<code>应用程序层</code>（app+System apps），<code>应用程序框架层</code>（Java API Framework），<code>系统运行库和运行环境层</code>(Libraries + android Runtime)和<code>Linux核心层</code>(HAL+ Linux Kernel)</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_jpg/qq5rfBadR3ib7IG2SLFIxp1gSuTBlnlR5pWGicpjpHSrNeals6aTv0P8WlrkdabYfpnyJEMmdGb6IRich5PxqKGNg/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1"></p>
+<p><img src="https://images0.cnblogs.com/blog/473657/201301/18203746-970e2cbe223e4c1c9ca129e7a2feb6c6.jpg"></p>
 <h3 id="三-Android常用开发与逆向命令总结"><a href="#三-Android常用开发与逆向命令总结" class="headerlink" title="(三) Android常用开发与逆向命令总结"></a>(三) Android常用开发与逆向命令总结</h3><p>1、<code>file</code>查看文件属性</p>
 <p>2、使用<code>echo</code>命令写内容到文件中，然后利用<code>cat</code>读取文件内容。</p>
 <p>3、使用<code>dumpsys</code>命令获取当前顶层<code>activity</code>的信息，grep进行过滤，-i参数忽略大小写。</p>
