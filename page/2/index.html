@@ -109,6 +109,128 @@
     
     
     <article
+  id="post-SSTI理解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/14/SSTI%E7%90%86%E8%A7%A3/"
+    >SSTI理解</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/14/SSTI%E7%90%86%E8%A7%A3/" class="article-date">
+  <time datetime="2020-09-14T07:20:20.000Z" itemprop="datePublished">2020-09-14</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="一-、什么是SSTI"><a href="#一-、什么是SSTI" class="headerlink" title="一 、什么是SSTI"></a>一 、什么是SSTI</h1><h2 id="0x00-模板注入"><a href="#0x00-模板注入" class="headerlink" title="0x00 模板注入"></a>0x00 模板注入</h2><p>这是基于现在的MVC成熟的开发模式所导致的，开发者将输入通过V接收，交给C，然后由 C 调用 M 或者其他的 C 进行处理，最后再返回给 V ，这样就最终显示在我们的面前了，那么这里的 V 中就大量的用到了一种叫做<strong>模板</strong>的技术。<strong>这种模板的技术不是仅存在于Python</strong>，只要能使用模版进行开发的地方都会有这个问题，SSTI不属于任何一种的问题，沙盒绕过也不是。</p>
+<h2 id="0x01常见的模板"><a href="#0x01常见的模板" class="headerlink" title="0x01常见的模板"></a>0x01常见的模板</h2><p>PHP：Smarty，Twig（经常出题），Blade</p>
+<p>判断</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Twig </span><br><span class="line">&#123;&#123;7*&#39;7&#39;&#125;&#125;  #输出49</span><br><span class="line">Jinja</span><br><span class="line">&#123;&#123;7*&#39;7&#39;&#125;&#125;  #输出7777777</span><br></pre></td></tr></table></figure>
+
+<p>Java：JSP，FreeMarker，Velocity</p>
+<p>Python： Jinja2（常用），django，tornado</p>
+<p>tornado render() 中支持传入自定义函数，以及函数的参数，然后在两个大括号中执行</p> 
+      <a class="article-more-link" href="/2020/09/14/SSTI%E7%90%86%E8%A7%A3/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-CVE-2012-1823"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/13/CVE-2012-1823/"
+    >CVE-2012-1823</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/13/CVE-2012-1823/" class="article-date">
+  <time datetime="2020-09-13T03:15:07.000Z" itemprop="datePublished">2020-09-13</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/CTF/">CTF</a> / <a class="article-category-link" href="/categories/CTF/CVE/">CVE</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="lt-转载-gt-PHP-CGI远程代码执行漏洞"><a href="#lt-转载-gt-PHP-CGI远程代码执行漏洞" class="headerlink" title="&lt;转载&gt;PHP-CGI远程代码执行漏洞"></a>&lt;转载&gt;PHP-CGI远程代码执行漏洞</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>影响的:php &lt; 5.3.12 or php &lt; 5.4.2</p>
+<p>转载链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1637483210158521104&amp;wfr=spider&amp;for=pc1">https://baijiahao.baidu.com/s?id=1637483210158521104&amp;wfr=spider&amp;for=pc1</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/fastcgi-and-php-fpm.html">Fastcgi协议分析 &amp;&amp; PHP-FPM未授权访问漏洞 &amp;&amp; Exp编写</a></li>
+</ul>
+<h2 id="漏洞解读"><a href="#漏洞解读" class="headerlink" title="漏洞解读"></a>漏洞解读</h2><h3 id="CGi-协议"><a href="#CGi-协议" class="headerlink" title="CGi 协议"></a>CGi 协议</h3><p>CGI是一种网页表单和程序之间通信的一种协议，和HTTP协议一样，用于进行数据交换。可以用任何语言来写一个CGI脚本，这些语言只要能接受输入输出信息，读取环境变量。</p>
+<p>php-cgi也是一个sapi。在远古的时候，web应用的运行方式很简单，web容器接收到http数据包后，拿到用户请求的文件（cgi脚本），并fork出一个子进程（解释器）去执行这个文件，然后拿到执行结果，直接返回给用户，同时这个解释器子进程也就结束了。基于bash、perl等语言的web应用多半都是以这种方式来执行，这种执行方式一般就被称为cgi</p> 
+      <a class="article-more-link" href="/2020/09/13/CVE-2012-1823/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CVE/" rel="tag">CVE</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-SWPU2019-Web1"
   class="article article-type-post"
   itemscope
