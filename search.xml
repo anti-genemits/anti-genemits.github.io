@@ -1395,7 +1395,7 @@ php_value include_path &quot;+ADw?php eval($_GET[1])+ADs +AF8AXw-halt+AF8-compil
 <p><img src="https://i.loli.net/2020/10/13/HwRuAVvUSagdM3N.png"></p>
 <p>现在点击链接就可以连接成功。</p>
 <p>再添加这样一条数据</p>
-<p><img src="C:/Users/Crawler/AppData/Roaming/Typora/typora-user-images/image-20201013195737288.png"></p>
+<p><img src="https://i.loli.net/2020/10/13/m4NncZpMir3YJOF.png"></p>
 <p>注意后面的php文件名，然后我们用刚才第一条数据进行绕过disfunc。（这里省略了一步查找sock，就是做题常识了）。这里我就直接给出来了<code>/tmp/php-cgi-74.sock</code></p>
 <p>如下图配置</p>
 <p><img src="https://i.loli.net/2020/10/13/L6iN3cxazEBWXKQ.png"></p>
