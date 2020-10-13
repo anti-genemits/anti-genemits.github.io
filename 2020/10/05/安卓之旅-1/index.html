@@ -82,7 +82,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.2k</span>
+            <span class="post-count">1.3k</span>
         </span>
     </span>
 
@@ -140,7 +140,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb -s 192.168.3.18:5555 shell</span><br></pre></td></tr></table></figure>
 
 <p>11、查看某端口对应的进程名</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netstat -tunlp |grep 7001  # 端口</span><br><span class="line">netstat -tunlp |grep &quot;com.termux&quot; # 进程名</span><br><span class="line">netstat -aple |grep -i https #正在通信的端口，查看使用https的通信</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">netstat -tunlp |grep 7001  # 端口</span><br><span class="line">netstat -tunlp |grep &quot;com.termux&quot; # 进程名</span><br><span class="line">netstat -aple |grep -i https #正在通信的端口，查看使用https的通信</span><br><span class="line">netstat -tuulp|grep  查看监听端口</span><br><span class="line">lsof -p + 进程ip|grep + TCP 查看监听端口</span><br></pre></td></tr></table></figure>
 
 <p>12、<code>htop</code>实时查看手机进程</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg install htop</span><br></pre></td></tr></table></figure>
