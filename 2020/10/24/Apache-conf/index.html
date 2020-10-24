@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    安卓之旅-3 |  
+    Apache_conf |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -56,7 +56,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-安卓之旅-3"
+  id="post-Apache-conf"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -67,22 +67,22 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  安卓之旅-3
+  Apache_conf
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/10/09/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-3/" class="article-date">
-  <time datetime="2020-10-09T02:34:19.000Z" itemprop="datePublished">2020-10-09</time>
+      <a href="/2020/10/24/Apache-conf/" class="article-date">
+  <time datetime="2020-10-24T12:26:30.000Z" itemprop="datePublished">2020-10-24</time>
 </a>   
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.4k</span>
+            <span class="post-count">1.6k</span>
         </span>
     </span>
 
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">5 min</span>
+            <span class="post-count">6 min</span>
         </span>
     </span>
 </div>
@@ -106,96 +106,89 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h2 id="安卓之旅-3"><a href="#安卓之旅-3" class="headerlink" title="安卓之旅-3"></a>安卓之旅-3</h2><h3 id="一、解决软件会自动断掉USB链接的设置"><a href="#一、解决软件会自动断掉USB链接的设置" class="headerlink" title="一、解决软件会自动断掉USB链接的设置"></a>一、解决软件会自动断掉USB链接的设置</h3><p>在手机上使用termux,开启frida，监听0.0.0.0:8888端口</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;frida-** -l 0.0.0.0:8888</span><br></pre></td></tr></table></figure>
-
-<p>就会在0.0.0.0的端口上进行监听，这里的0.0.0.0是通过该设备的所有流量都会被劫持，而127.0.0.1只有本地机器发出的流量才会被劫持。然后，在电脑上开启objection</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objection -N -h ip -p 端口 -g 包名 explore</span><br></pre></td></tr></table></figure>
-
-<p>使用下面的命令进行查看报名</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida -ps -H ip:端口 | grep shimeng</span><br></pre></td></tr></table></figure>
-
-<p>-h是适应网络链接，-u是使用usb链接</p>
-<p>查看监听端口</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netstat -tuulp | grep frida</span><br><span class="line">lsof -p 2349 |grep TCP</span><br><span class="line">netstat -aple | grep frida</span><br></pre></td></tr></table></figure>
-
-<h2 id="二、破解第一步"><a href="#二、破解第一步" class="headerlink" title="二、破解第一步"></a>二、破解第一步</h2><p>1.我要确定点击解锁的第一步在哪里，就是要把类hook上，要<code>trace</code></p>
-<p>然后我们发现这个类有点问题，为什么一直在那里自己启动，然后一直跑，我们要看看他的方法了。</p>
-<p>然后知道了他的源码是音量的增加。</p>
-<p>2.然后输入密码试一下，来trace一下，然后再静态分析一波，继续深入，突突他</p>
-<h2 id="三、自动化动态分析和快速定位"><a href="#三、自动化动态分析和快速定位" class="headerlink" title="三、自动化动态分析和快速定位"></a>三、自动化动态分析和快速定位</h2><p>先来准备一波工具，首先是工具解包</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ln -s &#x2F;root&#x2F;Desktop&#x2F;android-studio&#x2F;jre&#x2F;bin&#x2F;jarsigner &#x2F;usr&#x2F;bin</span><br><span class="line">ln -s &#x2F;root&#x2F;Android&#x2F;Sdk&#x2F;build-tools&#x2F;30.0.1&#x2F;aapt &#x2F;usr&#x2F;bin</span><br><span class="line">ln -s &#x2F;root&#x2F;Android&#x2F;Sdk&#x2F;build-tools&#x2F;30.0.1&#x2F;aapt2 &#x2F;usr&#x2F;bin</span><br><span class="line">ln -s &#x2F;root&#x2F;Android&#x2F;Sdk&#x2F;platform-tools&#x2F;adb &#x2F;usr&#x2F;bin</span><br></pre></td></tr></table></figure>
-
-<p>创建一下细节</p>
-<p>安装apktools</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.Download Linux wrapper script (Right click, Save Link As apktool)</span><br><span class="line">2.Download apktool-2 (find newest here)</span><br><span class="line">3.Rename downloaded jar to apktool.jar</span><br><span class="line">4.Move both files (apktool.jar &amp; apktool) to &#x2F;usr&#x2F;local&#x2F;bin (root needed)</span><br><span class="line">5.Make sure both files are executable (chmod +x)</span><br><span class="line">6.Try running apktool via cli</span><br></pre></td></tr></table></figure>
-
-<p>objection  patchapk的参数设置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">objection patchapk -s fulao2.apk -a x86</span><br><span class="line">来对x86架构的来干他</span><br><span class="line">help命令使用方法照旧</span><br><span class="line">memory list exports lib.so 列举该so文件的所有导出函数</span><br><span class="line">android heap search instances 搜索tostring 在安卓的堆上进行搜索</span><br><span class="line">android heap execute  + hashid + 函数 --return-string 执行这个handler的函数，获得返回值 最直接的主动调用</span><br><span class="line">android heap evaluate + hashid  然后输出 console.log(clazz.getPixel(传入参数)) 就可以了</span><br><span class="line"></span><br><span class="line">控制四大组件</span><br><span class="line">android hooking +方法+四大组件</span><br><span class="line">android intent launch_activity + activity 进入四大组件</span><br><span class="line">android hooking list services 列举广播</span><br><span class="line">android hooking watch </span><br><span class="line">jobs list 查看当前被hook的函数</span><br><span class="line">jobs kill 杀掉任务</span><br><span class="line"></span><br><span class="line">objection 继承了flask 可以从电脑向手机中传入脚本进行跑（详情看肉丝姐姐的知识星球)</span><br><span class="line">objection -g EXPLORE --enable-api 打开flask 然后使用他提供的api接口进行继续的操作就可以实现想要的功能了。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="四、真实app实操（去强制升级）"><a href="#四、真实app实操（去强制升级）" class="headerlink" title="四、真实app实操（去强制升级）"></a>四、真实app实操（去强制升级）</h2><p>Dalvik虚拟机就是一个java代码的虚拟机，在本地的as路径下都有d8和dx，以及各种文件都会在本地进行生成</p>
-<p>参考链接:<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/6bdbbab73705">https://www.jianshu.com/p/6bdbbab73705</a></p>
-<p>首先来一个app实操(去升级)</p>
-<p>1.<code>我们想一想弹出这个升级窗口是如何开发的</code></p>
-<p>参考链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/18e1f518c625">https://www.jianshu.com/p/18e1f518c625</a></p>
-<p>2.现在要寻找他有三个办法</p>
-<p>(1).字符串搜索大法</p>
-<p>(2),顺着上面的思路进行hook</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android heap search isntance + 类名</span><br></pre></td></tr></table></figure>
-
-<p>使用插件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plugin wallbreaker objectsearch android.app.AlertDialogxxxxxxxxxx plugin plugin wallbreaker objectsearch android.app.AlertDialog</span><br></pre></td></tr></table></figure>
-
-<p>就可以查看成功了，然后进行dexdump即可。</p>
-<p>(3)和程序启动进行抢时间hook</p>
-<p>(4)frida的两个模式：1.attach2.spawn两个模式</p>
-<p><code>--startup-command + 命令，这样可以开软件自启动命令</code></p>
-<p>最后记录两个生成签名和给包签名的命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -genkey -alias abc.keystore -keyalg RSA -validity 20000 -keystore abc.keystore</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jarsigner  -verbose -keystore abc.keystore -signedjar testx.apk zhibo.apk abc.keystore</span><br></pre></td></tr></table></figure>
-
-<h2 id="五、重打包去强升级"><a href="#五、重打包去强升级" class="headerlink" title="五、重打包去强升级"></a>五、重打包去强升级</h2><ul>
-<li><p>DEXDump三种使用模式脱壳</p>
-<p>1.py脚本使用</p>
-<p>2.</p>
+  <h1 id="Apache的主要目录和配置文件理解"><a href="#Apache的主要目录和配置文件理解" class="headerlink" title="Apache的主要目录和配置文件理解"></a>Apache的主要目录和配置文件理解</h1><p>参考链接:<a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/misc/security_tips.html">http://httpd.apache.org/docs/2.4/misc/security_tips.html</a></p>
+<h2 id="一、Apache主要配置文件注释（演示）"><a href="#一、Apache主要配置文件注释（演示）" class="headerlink" title="一、Apache主要配置文件注释（演示）"></a>一、Apache主要配置文件注释（演示）</h2><p>Apache的主配置文件位置:<code>/etc/httpd/conf/httpd.conf</code>，默认站点的主目录:<code>/var/www/html/</code></p>
+<p>官方文档的第一句便告诉我们:<code>The location of this file is set at compile-time, but may be overridden with the -f command line flag</code>。And配置文件的修改只有在重启服务器之后才会重新生效，当然<code>htaccess</code>可以在临时目录下更改一些配置，<code>这些是文件上传常常有的漏洞位置</code></p>
+<hr>
+<h3 id="基础配置区"><a href="#基础配置区" class="headerlink" title="基础配置区"></a>基础配置区</h3><ul>
+<li><p><code>ServerRoot &quot;/www/server/apache&quot;</code> 指定用于指定Apache的运行目录，后面的所有相当路径都是以此</p>
 </li>
-<li><p>Objection快速自动化定位</p>
+<li><p><code>mutex</code>互斥锁，进程调试的一个概念，不会直接跳过</p>
 </li>
-<li><p>Wallbreaker内存可视漫游</p>
-<p>内存中存在的实例，new String(“nihao”),GC kicak in</p>
-</li>
-<li><p><strong>所见即所得的代码定位思路</strong>（其实也是从开发的方向来看的）</p>
-</li>
-<li><p>修改源码重打包强制升级</p>
+<li><p><code>Listen 0.0.0.0:80</code> appache的监听的ip和端口，可以防止阿帕奇监听太多</p>
+<hr>
 </li>
 </ul>
-<p>内存会有回收机制，但是肉眼可见的类是可以直接看到的，</p>
-<p>hook：就是在api上挂一个钩子</p>
-<p><strong>下面来进行实操</strong></p>
-<p><code>青青草视频</code></p>
-<h3 id="1-使用objection来进行链接并操作脱壳"><a href="#1-使用objection来进行链接并操作脱壳" class="headerlink" title="1.使用objection来进行链接并操作脱壳"></a>1.使用objection来进行链接并操作脱壳</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">objection -g com.hello.qqc explore</span><br><span class="line">plugin load &#x2F;root&#x2F;.objection&#x2F;plugins&#x2F;dexdump&#x2F;frida_dexdump</span><br><span class="line">plugin dexdump dump</span><br></pre></td></tr></table></figure>
+<h3 id="模块区"><a href="#模块区" class="headerlink" title="模块区"></a>模块区</h3><ul>
+<li><IfModule>
 
-<p>下载的文件自动保存到桌面下的目录<code>cd Desktop/com.hello.qqc</code></p>
-<p>寻找主进入口：<code>grep -ril &quot;MainActivity&quot; *</code></p>
-<h3 id="2-直接使用dexdump中的main-py来进行脱壳"><a href="#2-直接使用dexdump中的main-py来进行脱壳" class="headerlink" title="2.直接使用dexdump中的main.py来进行脱壳"></a>2.直接使用dexdump中的main.py来进行脱壳</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">先把objection 跑起来，再进行运行，与壳做一手对抗</span><br><span class="line">python3 main.py </span><br><span class="line">注意这里可以指定frida的指定模式,attach 或者swap</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;IfModule http2_module&gt;</span><br><span class="line">ProtocolsHonorOrder On</span><br><span class="line">Protocols h2 http&#x2F;1.1</span><br><span class="line">&lt;&#x2F;IfModule&gt;</span><br></pre></td></tr></table></figure>
 
-<h3 id="3-使用pip-install"><a href="#3-使用pip-install" class="headerlink" title="3.使用pip install"></a>3.使用pip install</h3><p>直接获得命令 frida-dexdump 直接进行脱壳</p>
-<p>然后使用下面的命令进行重打包</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">apktool -s d + *.apk 保留dex文件</span><br><span class="line">然后删除那个class.dex文件</span><br><span class="line">然后把脱壳之后的文件中那个dex文件进行重命名classes,classes2,classes3</span><br><span class="line">然后再更改那个入口进入的配置文件</span><br></pre></td></tr></table></figure>
+<p>作用：检测模块是否能够使用，如果不能使用则会直接恢复期间的所有数据</p>
+<p>使用地点：当且仅当你的模块必须要配置文件才能启动时，才使用section。module可以是文件名</p>
+<p>可以在htaccess中使用</p>
+</IfModule></li>
+<li><p>LoadModule </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LoadModule authn_file_module modules&#x2F;mod_authn_file.so</span><br><span class="line">将这个动态加载库加载进来并取名为module</span><br></pre></td></tr></table></figure>
 
-<h3 id="真实APP实操"><a href="#真实APP实操" class="headerlink" title="真实APP实操"></a>真实APP实操</h3><ul>
-<li><p>所谓原生就是离CPU越近，安卓就是libart.so来解释，linux原生就是原生直接解释</p>
-</li>
-<li><p>想要分析/破解加固，就必须从开发和加固的角度来实现</p>
-</li>
-<li><p>要看是不是我们要的类，就看他的结构对不对</p>
-</li>
-<li><p>直接乱码的数据根本没法复制的，就去进行编码，然后hook的时候再反编码回去</p>
-<p>案例:混淆后的Okhtpp3的混淆</p>
+<p>不可在htaccess中使用</p>
+<p>loads the named module from the modules subdirectory of the ServerRoot.</p>
+<p><strong>漏洞</strong>：题目中可能在此处加载一些其他的解释器进行绕过对PHP的限制（详情：西湖挑战杯）</p>
+<p>几个重要模块:</p>
+<p><code>rewrite_module modules/mod_rewrite.so</code> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">伪静态模块，重写模块，其中的原来我不是很明白，但是有两点作用</span><br><span class="line">1.开启URL匹配的规则，进行重定向，在URL无法解析的，执行其他的规则</span><br><span class="line">2.AllowOverride配合，实现重载部分配置的作用，使htacess生效</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原理解析:AllowOverride参数就是指明Apache服务器是否去找.htacess文件作为配置文件，如果设置为none,那么服务器将忽略.htacess文件，如果设置为All,那么所有在.htaccess文件里有的指令都将被重写。对于AllowOverride，还可以对它指定如下一些能被重写的指令类型. </span><br><span class="line">通常利用Apache的rewrite模块对 URL 进行重写的时候， rewrite规则会写在 .htaccess 文件里。但要使 apache 能够正常的读取.htaccess 文件的内容，就必须对.htaccess 所在目录进行配置。从安全性考虑，根目录的AllowOverride属性一般都配置成不允许任何Override</span><br></pre></td></tr></table></figure>
+
+<hr>
 </li>
 </ul>
- 
+<h3 id="Scope-of-Directives"><a href="#Scope-of-Directives" class="headerlink" title="Scope of Directives"></a>Scope of Directives</h3><p>  放在主配置文件（行为对根目录的限制），放在这个类型中的（对指定目录下权限限制）</p>
+<ul>
+<li><p><code>&lt;Directory&gt;</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;Directory &#x2F;&gt;     #行为对根目录的限制</span><br><span class="line">    Options FollowSymLinks   # followsymlinks表示允许使用符号链接，默认为禁用</span><br><span class="line">    AllowOverride None     # 表示禁止用户对目录配置文件(.htaccess进行修改)重载，普通站点不建议开启</span><br><span class="line">&lt;&#x2F;Directory&gt;</span><br><span class="line"></span><br><span class="line">&lt;Directory &quot;&#x2F;var&#x2F;www&#x2F;html&quot;&gt;#行为仅对&#x2F;var&#x2F;www&#x2F;html目录生效</span><br><span class="line">    Options Indexes FollowSymLinks</span><br><span class="line">    AllowOverride None</span><br><span class="line">    Order allow,deny</span><br><span class="line">    Allow from all</span><br><span class="line">&lt;&#x2F;Directory&gt;</span><br></pre></td></tr></table></figure>
+
+<p>options中Indexes表示当网页不存在的时候允许索引显示目录中的文件，FollowSymLinks是否允许访问符号链接文件。有的选项有ExecCGI表是否使用CGI，如Options Includes ExecCGI FollowSymLinks表示允许服务器执行CGI及SSI，禁止列出目录。SymLinksOwnerMatch表示当符号链接的文件和目标文件为同一用户拥有时才允许访问。</p>
+<p>AllowOverrideNone表示不允许这个目录下的访问控制文件来改变这里的配置，这也意味着不用查看这个目录下的访问控制文件，修改为：AllowOverride All 表示允许.htaccess。Order对页面的访问控制顺序后面的一项是默认选项，如allow，deny则默认是deny，Allowfromall表示允许所有的用户，通过和上一项结合可以控制对网站的访问控制。具体参数参考如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Apply directive AllowOverride None (disabling .htaccess files).</span><br><span class="line">Apply directive AllowOverride FileInfo (for directory &#x2F;home).</span><br><span class="line">Apply any FileInfo directives in &#x2F;home&#x2F;.htaccess, &#x2F;home&#x2F;web&#x2F;.htaccess and &#x2F;home&#x2F;web&#x2F;dir&#x2F;.htaccess in that order.</span><br></pre></td></tr></table></figure>
+</li>
+<li><DirectoryMatch>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;DirectoryMatch &quot;^&#x2F;var&#x2F;www&#x2F;combined&#x2F;(?&lt;sitename&gt;[^&#x2F;]+)&quot;&gt;</span><br><span class="line">    Require ldap-group cn&#x3D;%&#123;env:MATCH_SITENAME&#125;,ou&#x3D;combined,o&#x3D;Example</span><br><span class="line">&lt;&#x2F;DirectoryMatch&gt;</span><br></pre></td></tr></table></figure>
+
+<p>In order to prevent confusion, numbered (unnamed) backreferences are ignored. Use named groups instead.</p>
+<p><strong>和上面的标签一样,都不能在htaccess中使用</strong></p>
+</DirectoryMatch></li>
+<li><FILE>
+
+<p>对文件的单独操作，可以在htaccess中使用，并且在htaccess加载完后才会加载，加个match也是一样的效果。</p>
+</FILE></li>
+<li><p><Location> 匹配URL，加个match也是一样的,在file加载完后才会加载</Location></p>
+</li>
+<li><VirtualHost>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可以使用虚拟主机上下文中允许的任何指令。当服务器接收到对特定虚拟主机上的文档的请求时，它使用包含在&lt;VirtualHost&gt;部分中的配置指令。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;VirtualHost 10.1.2.3:80&gt;</span><br><span class="line">  ServerAdmin webmaster@host.example.com</span><br><span class="line">  DocumentRoot &quot;&#x2F;www&#x2F;docs&#x2F;host.example.com&quot;</span><br><span class="line">  ServerName host.example.com</span><br><span class="line">  ErrorLog &quot;logs&#x2F;host.example.com-error_log&quot;</span><br><span class="line">  TransferLog &quot;logs&#x2F;host.example.com-access_log&quot;#这个日志文件如果是别人可以写入的，那就需要重新衡量一下这个安全等级了。</span><br><span class="line">&lt;&#x2F;VirtualHost&gt;</span><br></pre></td></tr></table></figure>
+
+<p>一些都是正常的配置命名，不用细说的命令。</p>
+<hr>
+</VirtualHost></li>
+</ul>
+<h2 id="htaccess文件"><a href="#htaccess文件" class="headerlink" title=".htaccess文件"></a>.htaccess文件</h2><ul>
+<li><p>AccessFileName</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AccessFileName .acl</span><br></pre></td></tr></table></figure>
+
+<p>Before returning the document <code>/usr/local/web/index.html</code>, the server will read <code>/.acl</code>, <code>/usr/.acl</code>, <code>/usr/local/.acl</code> and <code>/usr/local/web/.acl</code> for directives unless they have been disabled with</p>
+</li>
+<li><p>AllowOverride 不多说了</p>
+</li>
+</ul>
+<p>基本的配置项就是这些大的，其中具体的设置还没有进行细细地查看，先放几个链接在这里，后面找时间再仔细地去研究吧。（当然不可能再去细细地研读每一条了，到时碰到再翻了）。其实这里运用到的指令集基本上都来自与其中加载的so文件，所以直接看每个mod的配置是可以看到每个指令的含义的。</p>
+<p>参考链接:</p>
+<p>1.核心功能：<a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/mod/core.html">http://httpd.apache.org/docs/2.4/mod/core.html</a></p>
+<p>2.mod中的mod_mime：<a target="_blank" rel="noopener" href="https://www.jb51.net/tools/onlinetools/apache-chs/mod/mod_mime.html">https://www.jb51.net/tools/onlinetools/apache-chs/mod/mod_mime.html</a></p>
+<h2 id="二、Apache的语法规则"><a href="#二、Apache的语法规则" class="headerlink" title="二、Apache的语法规则"></a>二、Apache的语法规则</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SetEnv SPECIAL_PATH &#x2F;foo&#x2F;bin</span><br><span class="line">这是设置环境变量</span><br></pre></td></tr></table></figure> 
       <!-- reward -->
       
     </div>
@@ -257,12 +250,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/09/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-3/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/24/Apache-conf/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag">编程</a></li></ul>
 
     </footer>
   </div>
@@ -270,19 +263,10 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/10/09/GetShell/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            GetShell
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/10/06/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-2/" class="article-nav-link">
+      <a href="/2020/10/24/%E5%AE%89%E5%8D%93%E4%B9%8B%E6%97%85-4/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">安卓之旅-2</div>
+        <div class="article-nav-title">安卓之旅-4</div>
       </a>
     
   </nav>

