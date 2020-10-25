@@ -82,7 +82,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.6k</span>
+            <span class="post-count">3.6k</span>
         </span>
     </span>
 
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">6 min</span>
+            <span class="post-count">15 min</span>
         </span>
     </span>
 </div>
@@ -151,7 +151,44 @@
 <p>options中Indexes表示当网页不存在的时候允许索引显示目录中的文件，FollowSymLinks是否允许访问符号链接文件。有的选项有ExecCGI表是否使用CGI，如Options Includes ExecCGI FollowSymLinks表示允许服务器执行CGI及SSI，禁止列出目录。SymLinksOwnerMatch表示当符号链接的文件和目标文件为同一用户拥有时才允许访问。</p>
 <p>AllowOverrideNone表示不允许这个目录下的访问控制文件来改变这里的配置，这也意味着不用查看这个目录下的访问控制文件，修改为：AllowOverride All 表示允许.htaccess。Order对页面的访问控制顺序后面的一项是默认选项，如allow，deny则默认是deny，Allowfromall表示允许所有的用户，通过和上一项结合可以控制对网站的访问控制。具体参数参考如下:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Apply directive AllowOverride None (disabling .htaccess files).</span><br><span class="line">Apply directive AllowOverride FileInfo (for directory &#x2F;home).</span><br><span class="line">Apply any FileInfo directives in &#x2F;home&#x2F;.htaccess, &#x2F;home&#x2F;web&#x2F;.htaccess and &#x2F;home&#x2F;web&#x2F;dir&#x2F;.htaccess in that order.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>AllowOverride 不多说了（使htaccess（注意不只是这个文件）中的哪些配置生效）对于不同的配置设置，在<code>htaccess</code>文件中生效的配置，Only available in <Directory> sections</Directory></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">针对于他的三种配置结果有很多的配置生效问题是需要考虑</span><br><span class="line">1.ALL 不用多说</span><br><span class="line">2.None 直接就没有读取htaccess</span><br><span class="line">3.directive-type</span><br><span class="line"> 3.1 AuthConfig</span><br><span class="line"> 3.2 FileInfo</span><br><span class="line"> 3.3 Indexes</span><br><span class="line"> 3.4 Limit</span><br><span class="line"> 3.5 Nonfatal&#x3D;[Override|Unknown|All]</span><br><span class="line"> 3.6 Options</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  下面是无脑配置:</span><br><span class="line">  1.只要支持这个配置项就能生效的配置（截取）</span><br><span class="line">  &lt;Files&gt;，&lt;FilesMatch&gt; 匹配文件</span><br><span class="line">  LimitRequestBody 限制请求的大小 LimitXMLRequestBody</span><br><span class="line">  LuaHookLog 看到这个就要想到该死LUA绕过disfunc</span><br><span class="line">2.AuthConfig（提供一些用户名，密码的检测机制）</span><br><span class="line">  Anonymous_* 检测后面的*类型是不是*类型 检测关键字</span><br></pre></td></tr></table></figure>
+
+<p>有用的配置内容（懂的都懂）</p>
+<h3 id="FileInfo（对服务器提供的响应和元数据进行广泛的控制）"><a href="#FileInfo（对服务器提供的响应和元数据进行广泛的控制）" class="headerlink" title="FileInfo（对服务器提供的响应和元数据进行广泛的控制）"></a>FileInfo（对服务器提供的响应和元数据进行广泛的控制）</h3><p><strong>Action(为特定处理程序或内容类型激活CGI脚本)</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">eg:Action image&#x2F;gif &#x2F;cgi-bin&#x2F;images.cgi</span><br><span class="line">用iamges.cgi来处理image&#x2F;GIF文件</span><br><span class="line">AddHandler my-file-type .xyz（用my来处理.xyz文件）</span><br><span class="line">Action my-file-type &quot;&#x2F;cgi-bin&#x2F;program.cgi&quot;（用program.cgi来付给my）</span><br><span class="line">SetHandler news-handler</span><br><span class="line">Action news-handler &quot;&#x2F;cgi-bin&#x2F;news.cgi&quot; virtual</span><br></pre></td></tr></table></figure>
+
+<p><strong>AddCharset</strong>（为特定文件设置编码方式）</p>
+<p>默认的编码方式：<a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/mod/core.html#adddefaultcharset">AddDefaultCharset</a></p>
+<p>这个可以用UTF-7等特殊的编码方式来绕过对于PHP文件的内容进行查杀的SHELL进行绕过 <strong>AddEncoding</strong>(为文件增加encode方式)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AddEncoding x-gzip .gz</span><br><span class="line">AddEncoding x-compress .Z</span><br><span class="line">这里的x-很快就被取消掉了，直接使用GZIP和compress的压缩方式就可以了。</span><br></pre></td></tr></table></figure>
+
+<p>**AddHandler和SetHandler **（ <a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/handler.html">handler</a>）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">这个会和PHP的运行不同可能不能采取，看是否是handler模式运行</span><br><span class="line">Set:强制所有匹配的文件由处理程序处理</span><br><span class="line">&lt;Location &quot;&#x2F;status&quot;&gt;</span><br><span class="line">  SetHandler server-status</span><br><span class="line">&lt;&#x2F;Location&gt; http:&#x2F;&#x2F;servername&#x2F;status was called. 必须放在主配置中</span><br><span class="line">其他的参数就不再多说了，注意查看上面的handler中的内容</span><br><span class="line">Add:将文件扩展名映射到指定的处理程序</span><br><span class="line">AddHandler cgi-script .cgi 这里的cgi-script可以通过上面的action</span><br></pre></td></tr></table></figure>
+
+<p>**AddType和ForceType **(将给定的文件名扩展名映射到指定的内容类型)</p>
+<p>注意和上面的区别</p>
+<p><a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/mod/core.html#cgimapextension">CGIMapExtension</a>（设置CGI脚本的解释器）</p>
+<p><strong>PassEnv和SetEnv和SetEnvIfExpr</strong>（环境变量的问题）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PASS 是指从shell传递环境变量</span><br><span class="line">Set 是指设置一个环境变量(设置一个内部环境变量，该变量随后可用于Apache HTTP Server模块，并传递给CGI脚本和SSI页面)这个设置的时间是比较晚的，如果要早设置，用SetEnvIf.</span><br><span class="line">SetEnv SPECIAL_PATH &#x2F;foo&#x2F;bin</span><br><span class="line">Unset 可以删除</span><br><span class="line">SetEnvIfExpr 通过一个表达式设置环境变量，字符串</span><br><span class="line">ENV就是环境变量的意识，其他的就是增加了一些条件判断</span><br></pre></td></tr></table></figure>
+
+<p><strong>Rewrite</strong></p>
+<h3 id="Indexes-控制服务器提供的目录索引页面包括自动索引生成"><a href="#Indexes-控制服务器提供的目录索引页面包括自动索引生成" class="headerlink" title="Indexes(控制服务器提供的目录索引页面包括自动索引生成)"></a>Indexes(控制服务器提供的目录索引页面包括自动索引生成)</h3><h3 id="Limit-授权命令，限制访问"><a href="#Limit-授权命令，限制访问" class="headerlink" title="Limit(授权命令，限制访问)"></a>Limit(授权命令，限制访问)</h3><h3 id="Options-访问Option和类似的指令以及控制过滤器"><a href="#Options-访问Option和类似的指令以及控制过滤器" class="headerlink" title="Options(访问Option和类似的指令以及控制过滤器)"></a>Options(访问Option和类似的指令以及控制过滤器)</h3><p><strong>FilterChain</strong>（设置过滤器链）</p>
+<p><strong>SSLOptions</strong>（SSL链接控制器）</p>
+<p><strong>Options</strong>(配置特定目录中可用的特性)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">1.All</span><br><span class="line">2.ExecCGI(使用cgi脚本)</span><br><span class="line">3.FollowSymLinks</span><br><span class="line">就是允许你的网页文件夹下的链接文件链接到首页目录以外的文件。举例来说，如果你把首页目录设置为&#x2F;var&#x2F;www&#x2F;html，那么你的网页程序最多只能访问到&#x2F;var&#x2F;www&#x2F;html目录，上层目录是不可见的。但是你可以通过链接把文件链接到&#x2F;var&#x2F;www&#x2F;html目录以外的文件以访问该文件，如果FollowSymLinks被设置的话</span><br><span class="line">Even though the server follows the symlink it does not change the pathname used to match against &lt;Directory&gt; sections.</span><br><span class="line">The FollowSymLinks and SymLinksIfOwnerMatch Options work only in &lt;Directory&gt; sections or .htaccess files</span><br><span class="line">4.Includes</span><br><span class="line">Server-side includes provided by mod_include are permitted.</span><br><span class="line">开启服务器端的包含</span><br><span class="line">eg：</span><br><span class="line">AddType text&#x2F;html .shtml</span><br><span class="line">AddOutputFilter INCLUDES .shtml</span><br><span class="line">Options +Includes</span><br><span class="line">5.IncludesNOEXEC</span><br><span class="line">Server-side includes are permitted, but the #exec cmd and #exec cgi are disabled. It is still possible to #include virtual CGI scripts from ScriptAliased directories.</span><br><span class="line">服务器端包括是允许的，但#exec cmd和#exec cgi是禁用的。禁用系统命令</span><br><span class="line">6.Indexes（在目录下没有index.html时是否显示目录结构）</span><br><span class="line">7.MultiViews</span><br><span class="line">Content negotiated &quot;MultiViews&quot; are allowed using mod_negotiation.</span><br><span class="line">Note</span><br><span class="line">This option gets ignored if set anywhere other than &lt;Directory&gt;, as mod_negotiation needs real resources to compare against and evaluate from.</span><br><span class="line"></span><br><span class="line">8.SymLinksIfOwnerMatch</span><br><span class="line">The server will only follow symbolic links for which the target file or directory is owned by the same user id as the link.</span><br><span class="line">Note</span><br><span class="line">The FollowSymLinks and SymLinksIfOwnerMatch Options work only in &lt;Directory&gt; sections or .htaccess files.</span><br><span class="line"></span><br><span class="line">This option should not be considered a security restriction, since symlink testing is subject to race conditions that make it circumventable.</span><br><span class="line"></span><br><span class="line">Normally, if multiple Options could apply to a directory, then the most specific one is used and others are ignored; the options are not merged. (See how sections are merged.) However if all the options on the Options directive are preceded by a + or - symbol, the options are merged. Any options preceded by a + are added to the options currently in force, and any options preceded by a - are removed from the options currently in force.</span><br><span class="line"></span><br><span class="line">Note</span><br><span class="line">Mixing Options with a + or - with those without is not valid syntax and will be rejected during server startup by the syntax check with an abort.</span><br><span class="line"></span><br><span class="line">For example, without any + and - symbols:</span><br><span class="line"></span><br><span class="line">&lt;Directory &quot;&#x2F;web&#x2F;docs&quot;&gt;</span><br><span class="line">  Options Indexes FollowSymLinks</span><br><span class="line">&lt;&#x2F;Directory&gt;</span><br><span class="line"></span><br><span class="line">&lt;Directory &quot;&#x2F;web&#x2F;docs&#x2F;spec&quot;&gt;</span><br><span class="line">  Options Includes</span><br><span class="line">&lt;&#x2F;Directory&gt;</span><br><span class="line">then only Includes will be set for the &#x2F;web&#x2F;docs&#x2F;spec directory. However if the second Options directive uses the + and - symbols:</span><br><span class="line"></span><br><span class="line">&lt;Directory &quot;&#x2F;web&#x2F;docs&quot;&gt;</span><br><span class="line">  Options Indexes FollowSymLinks</span><br><span class="line">&lt;&#x2F;Directory&gt;</span><br><span class="line"></span><br><span class="line">&lt;Directory &quot;&#x2F;web&#x2F;docs&#x2F;spec&quot;&gt;</span><br><span class="line">  Options +Includes -Indexes</span><br><span class="line">&lt;&#x2F;Directory&gt;</span><br><span class="line">then the options FollowSymLinks and Includes are set for the &#x2F;web&#x2F;docs&#x2F;spec directory.</span><br><span class="line"></span><br><span class="line">Note</span><br><span class="line">Using -IncludesNOEXEC or -Includes disables server-side includes completely regardless of the previous setting.</span><br><span class="line"></span><br><span class="line">The default in the absence of any other settings is FollowSymlinks.</span><br></pre></td></tr></table></figure>
+
+
+
 </li>
+</ul>
+</li>
+</ul>
+<ul>
 <li><DirectoryMatch>
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;DirectoryMatch &quot;^&#x2F;var&#x2F;www&#x2F;combined&#x2F;(?&lt;sitename&gt;[^&#x2F;]+)&quot;&gt;</span><br><span class="line">    Require ldap-group cn&#x3D;%&#123;env:MATCH_SITENAME&#125;,ou&#x3D;combined,o&#x3D;Example</span><br><span class="line">&lt;&#x2F;DirectoryMatch&gt;</span><br></pre></td></tr></table></figure>
@@ -175,20 +212,53 @@
 <hr>
 </VirtualHost></li>
 </ul>
-<h2 id="htaccess文件"><a href="#htaccess文件" class="headerlink" title=".htaccess文件"></a>.htaccess文件</h2><ul>
+<h2 id="htaccess文件"><a href="#htaccess文件" class="headerlink" title=".htaccess文件"></a>.htaccess文件</h2><p>参考链接：1.<a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/howto/htaccess.html">http://httpd.apache.org/docs/2.4/howto/htaccess.html</a></p>
+<p>2.<a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/mod/overrides.html">http://httpd.apache.org/docs/2.4/mod/overrides.html</a></p>
+<ul>
 <li><p>AccessFileName</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AccessFileName .acl</span><br></pre></td></tr></table></figure>
 
 <p>Before returning the document <code>/usr/local/web/index.html</code>, the server will read <code>/.acl</code>, <code>/usr/.acl</code>, <code>/usr/local/.acl</code> and <code>/usr/local/web/.acl</code> for directives unless they have been disabled with</p>
-</li>
-<li><p>AllowOverride 不多说了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Name of the distributed configuration file（分布式的脚本配置文件）可以在htaccess中使用</span><br></pre></td></tr></table></figure>
+
+<p><strong>可以绕过对于htaccess文件的限制</strong></p>
 </li>
 </ul>
-<p>基本的配置项就是这些大的，其中具体的设置还没有进行细细地查看，先放几个链接在这里，后面找时间再仔细地去研究吧。（当然不可能再去细细地研读每一条了，到时碰到再翻了）。其实这里运用到的指令集基本上都来自与其中加载的so文件，所以直接看每个mod的配置是可以看到每个指令的含义的。</p>
 <p>参考链接:</p>
 <p>1.核心功能：<a target="_blank" rel="noopener" href="http://httpd.apache.org/docs/2.4/mod/core.html">http://httpd.apache.org/docs/2.4/mod/core.html</a></p>
 <p>2.mod中的mod_mime：<a target="_blank" rel="noopener" href="https://www.jb51.net/tools/onlinetools/apache-chs/mod/mod_mime.html">https://www.jb51.net/tools/onlinetools/apache-chs/mod/mod_mime.html</a></p>
-<h2 id="二、Apache的语法规则"><a href="#二、Apache的语法规则" class="headerlink" title="二、Apache的语法规则"></a>二、Apache的语法规则</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SetEnv SPECIAL_PATH &#x2F;foo&#x2F;bin</span><br><span class="line">这是设置环境变量</span><br></pre></td></tr></table></figure> 
+<h2 id="二、Apache的语法规则"><a href="#二、Apache的语法规则" class="headerlink" title="二、Apache的语法规则"></a>二、Apache的语法规则</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SetEnv SPECIAL_PATH &#x2F;foo&#x2F;bin</span><br><span class="line">这是设置环境变量</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>AcceptPathInfo</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Off(当且仅当URL指向真实存在的地址时返回正确内容，如果有PATHINFO就返回404)</span><br><span class="line">A request will only be accepted if it maps to a literal path that exists. Therefore a request with trailing pathname information after the true filename such as &#x2F;test&#x2F;here.html&#x2F;more in the above example will return a 404 NOT FOUND error.</span><br><span class="line">On（类比与THinkPHP来考虑）</span><br><span class="line">A request will be accepted if a leading path component maps to a file that exists. The above example &#x2F;test&#x2F;here.html&#x2F;more will be accepted if &#x2F;test&#x2F;here.html maps to a valid file.</span><br><span class="line">Default</span><br><span class="line">The treatment of requests with trailing pathname information is determined by the handler responsible for the request. The core handler for normal files defaults to rejecting PATH_INFO requests. Handlers that serve scripts, such as cgi-script and isapi-handler, generally accept PATH_INFO by default.</span><br><span class="line"></span><br><span class="line">PathInfo模式:PATH_INFO的方式的URL也是从协议开始,然后后面跟上域名,域名后面是入口文件,入口文件后依次为模块,控制器,方法;然后是依次传入的参数</span><br></pre></td></tr></table></figure>
+
+<p>AllowEncodedSlashes（作用：是否允许<code>%2F</code>for <code>/</code> and additionally <code>%5C</code> for \ ）经常和他同时使用</p>
+</li>
+<li><p>AddDefaultCharset </p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">设置页面的默认编码</span><br><span class="line">可以在htaccess中使用</span><br></pre></td></tr></table></figure>
+
+<p> <strong>漏洞</strong>：配合上面这点，配合我们的输入内容，可以构建一个XSS攻击。</p>
+<p> 同类型的有:<code>AddCharset</code>可以对不同后缀名的文件实现编码</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AddCharset EUC-JP .euc</span><br><span class="line">AddCharset ISO-2022-JP .jis</span><br><span class="line">AddCharset SHIFT_JIS .sjis</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="三、Module-mod-mime"><a href="#三、Module-mod-mime" class="headerlink" title="三、Module mod_mime"></a>三、Module mod_mime</h2><p>这是一个关于对于<code>content-type</code>和<code>language</code>解析的模块，这个模块在老版本的apache中经常出现解析问题，但是经过这么多年了，很多的漏洞都被修复了，但是其自带的一些天然的解析特点依然可以被我们用在绕过<code>WAF</code>的过程中，这样或许可以达到事半功倍的效果，这是我把这一部分单独拿出来的原因，废话不多说，我们进入正题。</p>
+<h3 id="Files-with-Multiple-Extensions"><a href="#Files-with-Multiple-Extensions" class="headerlink" title="Files with Multiple Extensions"></a>Files with Multiple Extensions</h3><p>当一个文件具有多个后缀名的时候，如果两个后缀名的含义是不一样的，指向的是不同类型的处理器，这样不会留下什么隐患，比如<code>word.html.en</code>和<code>word.en.html</code>这两者都将被解析成为media-type <code>text/html</code>和 <code>Content-Language: en</code>。</p>
+<p>但是当这样的文件名出现的时候就会出现问题<code>world.php.jpg</code>。这个文件最后会被解析成为一个php文件，原因是，apache的模块在解析的时候，是从右向左的，后面的结果会覆盖后面的结果。所以当我们在对于不同的后缀名指定解释器的时候，就应该使用<code>sethandler</code>，而不是<code>AddHandler</code></p>
+<h3 id="Content-encoding"><a href="#Content-encoding" class="headerlink" title="Content encoding"></a>Content encoding</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-encoding: pkzip</span><br></pre></td></tr></table></figure>
+
+<p>解码格式</p>
+<h3 id="AddType"><a href="#AddType" class="headerlink" title="AddType"></a>AddType</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AddType image&#x2F;gif .gif</span><br><span class="line">AddType image&#x2F;jpeg jpeg jpg jpe</span><br></pre></td></tr></table></figure>
+
+<h3 id="MultiviewsMatch"><a href="#MultiviewsMatch" class="headerlink" title="MultiviewsMatch"></a>MultiviewsMatch</h3><p>这个配置的两个选项，一个允许多重后缀名，一个不允许多重后缀名。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MultiviewsMatch Any|NegotiatedOnly|Filters|Handlers [Handlers|Filters]</span><br></pre></td></tr></table></figure>
+
+<p>当其设置为<code>handlers</code>和<code>filters</code>这样就可以匹配解释器来运行了。</p>
+ 
       <!-- reward -->
       
     </div>
